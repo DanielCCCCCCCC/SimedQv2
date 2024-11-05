@@ -234,10 +234,8 @@ import {
   DxButton,
 } from "devextreme-vue/data-grid";
 import { useFichaIdentificacionStore } from "../stores/fichaIdentificacionStores";
-import { ref, onMounted, onBeforeUnmount, getCurrentInstance } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router";
-
 import PacientePanel from "./PacientePanel.vue";
 
 export default {
@@ -267,18 +265,14 @@ export default {
   setup(props, { emit }) {
     const fichaIdentificacionStore = useFichaIdentificacionStore();
     const { formIdentificacion } = storeToRefs(fichaIdentificacionStore);
-    const router = useRouter();
-    // Ancho responsivo
     const responsiveWidth = ref(window.innerWidth < 600 ? "100%" : "auto");
 
     const updateWidth = () => {
       responsiveWidth.value = window.innerWidth < 600 ? "100%" : "auto";
     };
 
-    const activeTab = ref("pacientes");
-
-    const onEditButtonClick = () => {
-      emit("cambiar-tab", "FichaIdentificacion");
+    const onEditButtonClick = (e) => {
+      emit("cambiar-tab", { tab: "FichaIdentificacion", paciente: e.row.data });
     };
 
     onMounted(() => {

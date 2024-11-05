@@ -3,11 +3,6 @@
     <PacienteActivoGraph />
     <PacientesAggMensualmente />
   </div>
-  <!-- /////////////////// -->
-  <!-- /////////////////// -->
-  <!-- /////////////////// -->
-
-  <!-- /////////////////// -->
   <q-page class="q-pa-md">
     <!-- Barra de pestañas principales -->
     <q-tabs
@@ -20,18 +15,15 @@
         label="Ficha de Identificación"
         icon="assignment_ind"
       />
-      <!-- <q-tab name="MasDatos" label="Más Datos" icon="info" /> -->
       <q-tab name="Antecedentes" label="Antecedentes" icon="history" />
     </q-tabs>
 
     <!-- Contenido de pestañas principales -->
     <q-tab-panels v-model="tab" animated swipeable>
-      <!-- Pestaña: Ficha de pacientes -->
       <q-tab-panel name="Pacientes">
-        <ListadoPacientes :activeTab="tab" @cambiar-tab="tab = $event" />
+        <ListadoPacientes :activeTab="tab" @cambiar-tab="cambiarTab" />
       </q-tab-panel>
 
-      <!-- Pestaña: Ficha de Identificación -->
       <q-tab-panel name="FichaIdentificacion">
         <div class="row">
           <!-- Lista de subpestañas vertical -->
@@ -75,7 +67,7 @@
                 @click="subTabFichaIdentificacion = 'masDatos'"
                 :active="subTabFichaIdentificacion === 'masDatos'"
               >
-                <q-item-section>Mas Datos</q-item-section>
+                <q-item-section>Más Datos</q-item-section>
               </q-item>
             </q-list>
           </div>
@@ -83,7 +75,6 @@
           <!-- Contenido de subpestañas -->
           <div class="col-9">
             <q-tab-panels v-model="subTabFichaIdentificacion" animated>
-              <!-- Subpestaña: Información Técnica -->
               <q-tab-panel name="infoTecnica">
                 <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
                   <q-card-section class="text-h6 text-primary">
@@ -91,48 +82,40 @@
                   </q-card-section>
                   <q-form class="q-gutter-md">
                     <q-input
-                      v-model="form.fechaRegistro"
-                      label="Fecha de Registro"
-                      outlined
-                      dense
-                      type="date"
-                    />
-                    <q-input
-                      v-model="form.codigo"
+                      v-model="pacienteSeleccionado.codigo"
                       label="Codigo"
                       outlined
                       dense
                     />
-
                     <q-checkbox
-                      v-model="form.activo"
+                      v-model="pacienteSeleccionado.activo"
                       label="Activo"
                       dense
                       color="primary"
                     />
                     <q-select
-                      v-model="form.tipo"
+                      v-model="pacienteSeleccionado.tipo"
                       label="Tipo"
                       :options="tipoOptions"
                       outlined
                       dense
                     />
                     <q-input
-                      v-model="form.medico"
+                      v-model="pacienteSeleccionado.medico"
                       label="Medico"
                       :options="medicoNOptions"
                       outlined
                       dense
                     />
                     <q-select
-                      v-model="form.medicoCabecera"
+                      v-model="pacienteSeleccionado.medicoCabecera"
                       label="Medico Cabecera"
                       :options="medicoCabeceraOptions"
                       outlined
                       dense
                     />
                     <q-select
-                      v-model="form.referidoPor"
+                      v-model="pacienteSeleccionado.referidoPor"
                       label="Referido por"
                       :options="referidoPorOptions"
                       outlined
@@ -142,51 +125,53 @@
                 </q-card>
               </q-tab-panel>
 
-              <!-- Subpestaña: Información Personal -->
               <q-tab-panel name="infoPersonal">
                 <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
                   <q-card-section class="text-h6 text-primary">
                     Información Personal
                   </q-card-section>
-
                   <q-form class="q-gutter-md">
-                    <q-input v-model="form.dni" label="DNI" outlined dense />
                     <q-input
-                      v-model="form.nombres"
+                      v-model="pacienteSeleccionado.dni"
+                      label="DNI"
+                      outlined
+                      dense
+                    />
+                    <q-input
+                      v-model="pacienteSeleccionado.nombres"
                       label="Nombres"
                       outlined
                       dense
                     />
                     <q-input
-                      v-model="form.apellidos"
+                      v-model="pacienteSeleccionado.apellidos"
                       label="Apellidos"
                       outlined
                       dense
                     />
-                    <!-- Campo de Fecha de Nacimiento tipo fecha -->
                     <q-input
-                      v-model="form.fechaNacimiento"
+                      v-model="pacienteSeleccionado.fechaNacimiento"
                       label="Fecha de Nacimiento"
                       outlined
                       dense
                       type="date"
                     />
                     <q-select
-                      v-model="form.sexo"
+                      v-model="pacienteSeleccionado.sexo"
                       label="Sexo"
                       :options="sexoOptions"
                       outlined
                       dense
                     />
                     <q-select
-                      v-model="form.estadoCivil"
+                      v-model="pacienteSeleccionado.estadoCivil"
                       label="Estado Civil"
                       :options="estadoCivilOptions"
                       outlined
                       dense
                     />
                     <q-input
-                      v-model="form.observaciones"
+                      v-model="pacienteSeleccionado.observaciones"
                       label="Observaciones"
                       type="textarea"
                       outlined
@@ -204,47 +189,45 @@
                   </q-card-section>
                   <q-form class="q-gutter-md">
                     <q-input
-                      v-model="form.direccion"
+                      v-model="pacienteSeleccionado.direccion"
                       label="Dirección"
                       outlined
                       dense
                     />
-
                     <q-input
-                      v-model="form.telCasa"
+                      v-model="pacienteSeleccionado.telCasa"
                       label="Telefono Casa"
                       outlined
                       dense
                     />
                     <q-input
-                      v-model="form.telPersonal"
+                      v-model="pacienteSeleccionado.telPersonal"
                       label="Telefono Personal"
                       outlined
                       dense
                     />
                     <q-input
-                      v-model="form.email"
+                      v-model="pacienteSeleccionado.email"
                       label="E-mail"
                       outlined
                       dense
                     />
                     <q-select
-                      v-model="form.departamento"
+                      v-model="pacienteSeleccionado.departamento"
                       label="Departamento"
                       :options="departamentoOptions"
                       outlined
                       dense
                     />
                     <q-select
-                      v-model="form.municipio"
+                      v-model="pacienteSeleccionado.municipio"
                       label="Municipio"
                       :options="municipioOptions"
                       outlined
                       dense
                     />
-
                     <q-input
-                      v-model="form.organizacion"
+                      v-model="pacienteSeleccionado.organizacion"
                       label="Organización"
                       outlined
                       dense
@@ -261,19 +244,19 @@
                   </q-card-section>
                   <q-form class="q-gutter-md">
                     <q-input
-                      v-model="form.conyugue"
+                      v-model="pacienteSeleccionado.conyugue"
                       label="Cónyugue"
                       outlined
                       dense
                     />
                     <q-input
-                      v-model="form.madre"
+                      v-model="pacienteSeleccionado.madre"
                       label="Madre"
                       outlined
                       dense
                     />
                     <q-input
-                      v-model="form.padre"
+                      v-model="pacienteSeleccionado.padre"
                       label="Padre"
                       outlined
                       dense
@@ -285,31 +268,30 @@
               <q-tab-panel name="masDatos">
                 <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
                   <q-card-section class="text-h6 text-primary">
-                    Mas Datos
+                    Más Datos
                   </q-card-section>
                   <q-form class="q-gutter-md">
                     <q-input
-                      v-model="form.escolaridad"
+                      v-model="pacienteSeleccionado.escolaridad"
                       label="Escolaridad"
                       outlined
                       dense
                     />
                     <q-input
-                      v-model="form.ocupacion"
+                      v-model="pacienteSeleccionado.ocupacion"
                       label="Ocupación"
                       outlined
                       dense
                     />
                     <q-select
-                      v-model="form.grupoSanguineo"
+                      v-model="pacienteSeleccionado.grupoSanguineo"
                       label="Grupo Sanguineo"
                       :options="grupoSanguineoOptions"
                       outlined
                       dense
                     />
-
                     <q-input
-                      v-model="form.alergias"
+                      v-model="pacienteSeleccionado.alergias"
                       label="Alergias"
                       type="textarea"
                       outlined
@@ -343,16 +325,14 @@ import { ref } from "vue";
 import { useFichaIdentificacionStore } from "../stores/fichaIdentificacionStores";
 import { storeToRefs } from "pinia";
 import ListadoPacientes from "./ListadoPacientes.vue";
-import {
-  useDepartamentoStore,
-  useMunicipioStore,
-} from "../stores/DatosGeneralesStores";
+import PacienteActivoGraph from "src/components/PacienteActivoGraph.vue";
+import PacientesAggMensualmente from "src/components/PacientesAggMensualmente.vue";
+
+const pacienteSeleccionado = ref({});
 
 const tab = ref("Pacientes");
 const subTabFichaIdentificacion = ref("infoTecnica");
-// const tab = ref("Pacientes");
 
-// inicializo la tienda
 const fichaIdentificacionStore = useFichaIdentificacionStore();
 const {
   grupoSanguineoOptions,
@@ -370,55 +350,11 @@ const {
   totalInactivos,
 } = storeToRefs(fichaIdentificacionStore);
 
-import DxPieChart, {
-  DxSmallValuesGrouping,
-  DxLegend,
-  DxSeries,
-  DxLabel,
-  DxConnector,
-  DxExport,
-} from "devextreme-vue/pie-chart";
-import PacienteActivoGraph from "src/components/PacienteActivoGraph.vue";
-import PacientesAggMensualmente from "src/components/PacientesAggMensualmente.vue";
+// Función para iniciar un nuevo paciente en blanco
+const iniciarNuevoPaciente = () => {
+  pacienteSeleccionado.value = {
+    id: null,
 
-const customizeLabel = ({ argumentText, valueText }) =>
-  `${argumentText}: ${valueText}%`;
-
-// Definir el formulario inicial
-const form = ref({
-  fechaRegistro: "",
-  codigo: "",
-  activo: true,
-  tipo: "",
-  dni: "",
-  medico: "",
-  medicoCabecera: "",
-  referidoPor: "",
-  nombres: "",
-  apellidos: "",
-  direccion: "",
-
-  municipio: "",
-  sexo: "",
-  fechaNacimiento: "",
-  estadoCivil: "",
-  conyugue: "",
-  madre: "",
-  padre: "",
-  organizacion: "",
-  observaciones: "",
-  escolaridad: "",
-  ocupacion: "",
-  grupoSanguineo: "",
-  VIH: "",
-  telCasa: "",
-  telPersonal: "",
-  email: "",
-  alergias: "",
-});
-
-const resetFormData = () => {
-  form.value = {
     fechaRegistro: "",
     codigo: "",
     activo: true,
@@ -430,7 +366,6 @@ const resetFormData = () => {
     nombres: "",
     apellidos: "",
     direccion: "",
-
     municipio: "",
     sexo: "",
     fechaNacimiento: "",
@@ -449,13 +384,34 @@ const resetFormData = () => {
     email: "",
     alergias: "",
   };
+  tab.value = "FichaIdentificacion"; // Cambia a la pestaña de creación
 };
 
-// Función para guardar y limpiar los datos del formulario
+const cambiarTab = ({ tab: nuevaTab, paciente }) => {
+  tab.value = nuevaTab;
+  pacienteSeleccionado.value = paciente ? { ...paciente } : {}; // Si no hay paciente, inicializa un objeto vacío
+};
+
 const guardarDatosFormulario = () => {
-  fichaIdentificacionStore.guardarDatos(form.value);
-  alert("PACIENTE GUARDADO CON EXITO");
-  resetFormData(); // Limpiar después de guardar
+  if (pacienteSeleccionado.value.id) {
+    // Modo edición
+    const pacienteIndex = formIdentificacion.value.findIndex(
+      (p) => p.id === pacienteSeleccionado.value.id
+    );
+    if (pacienteIndex !== -1) {
+      formIdentificacion.value[pacienteIndex] = {
+        ...pacienteSeleccionado.value,
+      };
+    }
+  } else {
+    // Modo creación: asignar un id único al nuevo paciente
+    pacienteSeleccionado.value.id = Date.now();
+    formIdentificacion.value.push({ ...pacienteSeleccionado.value });
+  }
+
+  alert("PACIENTE GUARDADO CON ÉXITO");
+  tab.value = "Pacientes"; // Vuelve a la pestaña de la lista de pacientes
+  iniciarNuevoPaciente(); // Reinicia el formulario para un nuevo paciente
 };
 </script>
 
