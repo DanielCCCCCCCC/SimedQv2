@@ -82,6 +82,13 @@
                   </q-card-section>
                   <q-form class="q-gutter-md">
                     <q-input
+                      v-model="pacienteSeleccionado.fechaRegistro"
+                      label="Fecha de Registro"
+                      outlined
+                      dense
+                      type="date"
+                    />
+                    <q-input
                       v-model="pacienteSeleccionado.codigo"
                       label="Codigo"
                       outlined

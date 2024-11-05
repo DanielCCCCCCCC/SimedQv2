@@ -31,6 +31,7 @@ export const useFichaIdentificacionStore = defineStore(
         JSON.stringify(formIdentificacion.value)
       );
     }
+    console.log(formIdentificacion.value);
 
     function actualizarPaciente(pacienteActualizado) {
       const index = formIdentificacion.value.findIndex(

@@ -85,7 +85,7 @@
         :width="200"
         :visible="true"
       />
-      <dx-column
+      <dx-checkbox
         data-field="activo"
         caption="Activo"
         :width="95"

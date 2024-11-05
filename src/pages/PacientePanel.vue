@@ -19,6 +19,7 @@
             <q-input v-model="form.apellidos" label="Apellido" outlined dense />
           </div>
         </div>
+        <!-- Checkbox para el estado Activo/Inactivo en modo edición -->
         <span
           class="status"
           :class="{
@@ -28,11 +29,17 @@
         >
           {{ form.activo ? "Activo" : "Inactivo" }}
         </span>
+        <q-checkbox
+          v-if="isEditable"
+          v-model="form.activo"
+          label="Estado Activo"
+          color="primary"
+          dense
+        />
       </div>
     </div>
     <div class="details">
       <!-- Información Personal -->
-
       <div class="detail-item">
         <h3 class="section-title">Información Personal</h3>
         <span class="label">Nombres</span>
