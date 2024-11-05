@@ -121,7 +121,23 @@
         </q-card>
         <ListadoHospitales />
       </q-tab-panel>
+      <!--  -->
+      <!--  -->
 
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
       <!-- Pestaña: Medicamentos y Otros -->
       <q-tab-panel name="Medicamentos">
         <div class="row">
@@ -145,6 +161,7 @@
               </q-item>
             </q-list>
           </div>
+
           <div class="col-9">
             <q-tab-panels v-model="subTabMedicamento" animated>
               <q-tab-panel name="Info">
@@ -161,6 +178,8 @@
                           label="Código"
                           outlined
                           dense
+                          :error="!!medicamentoErrors.codigo"
+                          :error-message="medicamentoErrors.codigo"
                         />
                         <q-input
                           class="q-mb-sm q-mr-sm"
@@ -168,6 +187,8 @@
                           label="Descripción"
                           outlined
                           dense
+                          :error="!!medicamentoErrors.descripcion"
+                          :error-message="medicamentoErrors.descripcion"
                         />
                       </div>
                       <div class="col">
@@ -177,6 +198,8 @@
                           label="Tipo"
                           outlined
                           dense
+                          :error="!!medicamentoErrors.tipo"
+                          :error-message="medicamentoErrors.tipo"
                         />
                         <q-input
                           class="q-mb-sm q-mr-sm"
@@ -185,6 +208,8 @@
                           type="textarea"
                           outlined
                           dense
+                          :error="!!medicamentoErrors.indicaciones"
+                          :error-message="medicamentoErrors.indicaciones"
                         />
                       </div>
                     </div>
@@ -206,6 +231,8 @@
                           label="Precio Costo"
                           outlined
                           dense
+                          :error="!!medicamentoErrors.precioCosto"
+                          :error-message="medicamentoErrors.precioCosto"
                         />
                         <q-input
                           class="q-mb-sm q-mr-sm"
@@ -213,6 +240,8 @@
                           label="Precio Venta"
                           outlined
                           dense
+                          :error="!!medicamentoErrors.precioCosto"
+                          :error-message="medicamentoErrors.precioVenta"
                         />
                       </div>
                       <div class="col">
@@ -220,6 +249,8 @@
                           class="q-mb-sm q-mr-sm"
                           v-model="medicamentoData.facturar"
                           label="Facturar"
+                          :error="!!medicamentoErrors.facturar"
+                          :error-message="medicamentoErrors.facturar"
                         />
                         <q-select
                           class="q-mb-sm q-mr-sm"
@@ -228,6 +259,8 @@
                           label="Status"
                           outlined
                           dense
+                          :error="!!medicamentoErrors.status"
+                          :error-message="medicamentoErrors.status"
                         />
                       </div>
                     </div>
@@ -248,6 +281,18 @@
         </div>
         <ListadoMedicamentos />
       </q-tab-panel>
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
 
       <!-- Pestaña: Exámenes y Estudios -->
       <q-tab-panel name="Estudios">
@@ -285,35 +330,43 @@
                     <div class="row">
                       <div class="col">
                         <q-input
-                          class="q-mb-sm q-mr-sm"
                           v-model="estudioData.codigo"
                           label="Código"
                           outlined
                           dense
+                          class="q-mb-sm q-mr-sm"
+                          :error="!!estudioErrors.codigo"
+                          :error-message="estudioErrors.codigo"
                         />
                         <q-input
-                          class="q-mb-sm q-mr-sm"
                           v-model="estudioData.descripcion"
                           label="Descripción"
                           outlined
                           dense
+                          class="q-mb-sm q-mr-sm"
+                          :error="!!estudioErrors.descripcion"
+                          :error-message="estudioErrors.descripcion"
                         />
                       </div>
                       <div class="col">
                         <q-input
-                          class="q-mb-sm q-mr-sm"
-                          v-model="estudioData.clase"
-                          label="Clase de Estudio"
+                          v-model="estudioData.tipo"
+                          label="Tipo"
                           outlined
                           dense
+                          class="q-mb-sm q-mr-sm"
+                          :error="!!estudioErrors.tipo"
+                          :error-message="estudioErrors.tipo"
                         />
                         <q-input
-                          class="q-mb-sm q-mr-sm"
                           v-model="estudioData.indicaciones"
                           label="Indicaciones"
                           type="textarea"
                           outlined
                           dense
+                          class="q-mb-sm q-mr-sm"
+                          :error="!!estudioErrors.indicaciones"
+                          :error-message="estudioErrors.indicaciones"
                         />
                       </div>
                     </div>
@@ -330,18 +383,22 @@
                     <div class="row">
                       <div class="col">
                         <q-input
-                          class="q-mb-sm q-mr-sm"
                           v-model="estudioData.precioCosto"
                           label="Precio Costo"
                           outlined
                           dense
+                          class="q-mb-sm q-mr-sm"
+                          :error="!!estudioErrors.precioCosto"
+                          :error-message="estudioErrors.precioCosto"
                         />
                         <q-input
-                          class="q-mb-sm q-mr-sm"
                           v-model="estudioData.precioVenta"
                           label="Precio Venta"
                           outlined
                           dense
+                          class="q-mb-sm q-mr-sm"
+                          :error="!!estudioErrors.precioVenta"
+                          :error-message="estudioErrors.precioVenta"
                         />
                       </div>
                       <div class="col">
@@ -349,14 +406,18 @@
                           class="q-mb-sm q-mr-sm"
                           v-model="estudioData.facturar"
                           label="Facturar"
+                          :error="!!estudioErrors.facturar"
+                          :error-message="estudioErrors.facturar"
                         />
                         <q-select
-                          class="q-mb-sm q-mr-sm"
                           v-model="estudioData.status"
                           :options="statusOptions"
                           label="Status"
                           outlined
                           dense
+                          class="q-mb-sm q-mr-sm"
+                          :error="!!estudioErrors.status"
+                          :error-message="estudioErrors.status"
                         />
                       </div>
                     </div>
@@ -412,6 +473,7 @@ const MunicipioStore = useMunicipioStore();
 //Accedermos a las propiedades reactivas
 const { departamentos } = storeToRefs(DepartamentoStore);
 const { municipios } = storeToRefs(MunicipioStore);
+const { medicamentos } = storeToRefs(medicamentoStore);
 
 const hospitalData = reactive({
   nombre: "",
@@ -421,6 +483,16 @@ const hospitalData = reactive({
   telefono: "",
   email: "",
   web: "",
+});
+
+const filteredMunicipios = computed(() => {
+  if (!hospitalData.departamentoSeleccionado) {
+    return [];
+  }
+  return municipios.value.filter(
+    (municipio) =>
+      municipio.departamentoId === hospitalData.departamentoSeleccionado.id
+  );
 });
 
 const hospitalErrors = reactive({
@@ -479,101 +551,6 @@ const validarFormularioHospital = () => {
   return isValid;
 };
 
-const filteredMunicipios = computed(() => {
-  if (!hospitalData.departamentoSeleccionado) {
-    return [];
-  }
-  return municipios.value.filter(
-    (municipio) =>
-      municipio.departamentoId === hospitalData.departamentoSeleccionado.id
-  );
-});
-
-const medicamentoData = reactive({
-  codigo: "",
-  descripcion: "",
-  tipo: "",
-  indicaciones: "",
-  precioCosto: "",
-  precioVenta: "",
-  facturar: false,
-  status: "",
-});
-
-const estudioData = reactive({
-  codigo: "",
-  descripcion: "",
-  clase: "",
-  indicaciones: "",
-  precioCosto: "",
-  precioVenta: "",
-  facturar: false,
-  status: "",
-});
-
-const statusOptions = ["Activo", "Inactivo"];
-
-// Apartado del agregar hospital
-
-const validarFormulario = () => {
-  // Limpiar errores anteriores
-  var isValid = true;
-  Object.keys(formErrors).forEach((key) => {
-    formErrors[key] = "";
-  });
-
-  // Validar nombre
-  if (!hospitalData.nombre || hospitalData.nombre.trim() === "") {
-    formErrors.nombre = "El nombre es requerido";
-    isValid = false;
-  }
-
-  // Validar dirección
-  if (!hospitalData.direccion || hospitalData.direccion.trim() === "") {
-    formErrors.direccion = "La dirección es requerida";
-    isValid = false;
-  }
-
-  // Validar departamento
-  if (!hospitalData.departamentoSeleccionado) {
-    formErrors.departamentoSeleccionado = "Debe seleccionar un departamento";
-    isValid = false;
-  }
-
-  // Validar municipio
-  if (!hospitalData.municipioSeleccionado) {
-    formErrors.municipioSeleccionado = "Debe seleccionar un municipio";
-    isValid = false;
-  }
-
-  // Validar teléfono
-  if (!hospitalData.telefono || !/^\d{4}-\d{4}$/.test(hospitalData.telefono)) {
-    formErrors.telefono =
-      "El teléfono es requerido y debe tener el formato ####-####";
-    isValid = false;
-  }
-
-  // Validar email
-  if (!hospitalData.email || hospitalData.email.trim() === "") {
-    formErrors.email = "El email es requerido";
-    isValid = false;
-  } else if (!/^\S+@\S+\.\S+$/.test(hospitalData.email)) {
-    formErrors.email = "El email no es válido";
-    isValid = false;
-  }
-
-  // Validar web (opcional, solo si se quiere validar)
-  if (
-    hospitalData.web &&
-    !/^(https?:\/\/)?([\w-]+\.)+[\w-]{2,4}(\/[\w-]*)?$/.test(hospitalData.web)
-  ) {
-    formErrors.web = "La URL no es válida";
-    isValid = false;
-  }
-
-  return isValid;
-};
-
 const guardarHospital = () => {
   if (!validarFormularioHospital()) {
     return;
@@ -589,44 +566,209 @@ const guardarHospital = () => {
 const eliminarHospital = (id) => {
   hospitalStore.eliminarHospital(id);
 };
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//APARTADO DE MEDICAMENTOS Y OTROS
+const medicamentoData = reactive({
+  codigo: "",
+  descripcion: "",
+  tipo: "",
+  indicaciones: "",
+  precioCosto: "",
+  precioVenta: "",
+  facturar: false,
+  status: "",
+});
 
-// Apartado de guardar Medicamentoo
+const medicamentoErrors = reactive({
+  codigo: "",
+  descripcion: "",
+  tipo: "",
+  indicaciones: "",
+  precioCosto: "",
+  precioVenta: "",
+  status: "",
+});
+
+const validarFormularioMedicamento = () => {
+  let isValid = true;
+
+  medicamentoErrors.codigo = medicamentoData.codigo
+    ? ""
+    : "El código es obligatorio.";
+  medicamentoErrors.descripcion = medicamentoData.descripcion
+    ? ""
+    : "La descripción es obligatoria.";
+  medicamentoErrors.tipo = medicamentoData.tipo
+    ? ""
+    : "Seleccione un tipo de medicamento.";
+  medicamentoErrors.indicaciones = medicamentoData.indicaciones
+    ? ""
+    : "Ingrese las indicaciones de uso.";
+
+  // Validación de precios: Verifica que sean números y positivos
+  medicamentoErrors.precioCosto =
+    medicamentoData.precioCosto &&
+    !isNaN(medicamentoData.precioCosto) &&
+    medicamentoData.precioCosto > 0
+      ? ""
+      : "Ingrese un precio de costo válido.";
+
+  medicamentoErrors.precioVenta =
+    medicamentoData.precioVenta &&
+    !isNaN(medicamentoData.precioVenta) &&
+    medicamentoData.precioVenta > 0
+      ? ""
+      : "Ingrese un precio de venta válido.";
+
+  // Validación de status
+  medicamentoErrors.status = medicamentoData.status ? "" : "Ingrese el estado";
+
+  // Verificar si no hay errores
+  isValid = Object.values(medicamentoErrors).every((error) => error === "");
+
+  if (!isValid) {
+    Notify.create({
+      message: "Por favor, corrija los errores en el formulario",
+      color: "red",
+      position: "top-right",
+    });
+  }
+
+  return isValid;
+};
 
 const guardarMedicamento = () => {
-  medicamentoStore.agregarMedicamento(medicamentoData.value);
-  medicamentoData.value = {
-    codigo: "",
-    descripcion: "",
-    tipo: "",
-    indicaciones: "",
-    precioCosto: "",
-    precioVenta: "",
-    facturar: false,
-    status: "",
-  };
+  if (!validarFormularioMedicamento()) {
+    return;
+  }
+
+  // Guardar en la store
+  medicamentoStore.agregarMedicamento({ ...medicamentoData });
+
+  // Limpiar cada propiedad sin perder la reactividad
+  Object.keys(medicamentoData).forEach((key) => {
+    medicamentoData[key] = key === "facturar" ? false : "";
+  });
 };
 
 const eliminarMedicamento = (id) => {
   medicamentoStore.eliminarMedicamento(id);
 };
 
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+// APARTADO DE ESTUDIOS
+const estudioData = reactive({
+  codigo: "",
+  descripcion: "",
+  clase: "",
+  indicaciones: "",
+  precioCosto: "",
+  precioVenta: "",
+  facturar: false,
+  status: "",
+});
+
+const estudioErrors = reactive({
+  codigo: "",
+  descripcion: "",
+  clase: "",
+  indicaciones: "",
+  precioCosto: "",
+  precioVenta: "",
+  status: "",
+  facturar: "",
+});
+
+const validarFormularioEstudio = () => {
+  let isValid = true;
+
+  // Validaciones para los campos básicos del estudio/examen
+  estudioErrors.codigo = estudioData.codigo ? "" : "El código es obligatorio.";
+  estudioErrors.descripcion = estudioData.descripcion
+    ? ""
+    : "La descripción es obligatoria.";
+  estudioErrors.indicaciones = estudioData.indicaciones
+    ? ""
+    : "La clase es obligatoria.";
+  estudioErrors.indicaciones = estudioData.indicaciones
+    ? ""
+    : "Las indicaciones son obligatorias.";
+
+  // Validación de precios: Asegúrate de que sean números y positivos
+  estudioErrors.precioCosto =
+    estudioData.precioCosto &&
+    !isNaN(estudioData.precioCosto) &&
+    estudioData.precioCosto > 0
+      ? ""
+      : "Ingrese un precio de costo válido.";
+
+  estudioErrors.precioVenta =
+    estudioData.precioVenta &&
+    !isNaN(estudioData.precioVenta) &&
+    estudioData.precioVenta > 0
+      ? ""
+      : "Ingrese un precio de venta válido.";
+
+  // Validación de status
+  estudioErrors.status = estudioData.status
+    ? ""
+    : "Seleccione un estado para el estudio.";
+
+  // Verificar si no hay errores
+  isValid = Object.values(estudioErrors).every((error) => error === "");
+
+  if (!isValid) {
+    Notify.create({
+      message: "Por favor, corrija los errores en el formulario",
+      color: "red",
+      position: "top-right",
+    });
+  }
+
+  return isValid;
+};
+
 const guardarEstudio = () => {
-  estudioStore.agregarEstudio(estudioData.value);
-  estudioData.value = {
-    codigo: "",
-    descripcion: "",
-    clase: "",
-    indicaciones: "",
-    precioCosto: "",
-    precioVenta: "",
-    facturar: false,
-    status: "",
-  };
+  if (!validarFormularioEstudio()) {
+    return;
+  }
+
+  // Guardar en la store
+  estudioStore.agregarEstudio({ ...estudioData });
+
+  // Limpiar cada propiedad sin perder la reactividad
+  Object.keys(estudioData).forEach((key) => {
+    estudioData[key] = key === "facturar" ? false : "";
+  });
 };
 
 const eliminarEstudio = (id) => {
   estudioStore.eliminarEstudio(id);
 };
+
+const statusOptions = ["Activo", "Inactivo"];
 </script>
 
 <style scoped>

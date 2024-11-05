@@ -45,8 +45,8 @@ export const useClasificacionDiagnosticosStore = defineStore(
 export const useDiagnosticosStore = defineStore("diagnosticos", () => {
   const diagnosticos = ref(loadFromLocalStorage("diagnosticos", []));
 
-  const agregarDiagnostico = (descripcion, clasificacion) => {
-    diagnosticos.value.push({ id: Date.now(), descripcion, clasificacion });
+  const agregarDiagnostico = (diagnostico) => {
+    diagnosticos.value.push({ id: Date.now(), ...diagnostico });
   };
 
   const eliminarDiagnostico = (id) => {
@@ -67,6 +67,14 @@ export const useDiagnosticosStore = defineStore("diagnosticos", () => {
   return { diagnosticos, agregarDiagnostico, eliminarDiagnostico };
 });
 
+//
+//
+//
+//
+//
+//
+//
+//
 // Tienda para Controles de Medición
 export const useControlesMedicionStore = defineStore(
   "controlesMedicion",

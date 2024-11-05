@@ -8,6 +8,7 @@
       :allow-column-reordering="true"
       :show-borders="true"
       :row-alternation-enabled="true"
+      :rowAlternationEnabled="true"
       key-expr="id"
       :column-auto-width="false"
       :column-min-width="50"

@@ -352,7 +352,7 @@ const tab = ref("Pacientes");
 const subTabFichaIdentificacion = ref("infoTecnica");
 // const tab = ref("Pacientes");
 
-// Instancia de la store
+// inicializo la tienda
 const fichaIdentificacionStore = useFichaIdentificacionStore();
 const {
   grupoSanguineoOptions,

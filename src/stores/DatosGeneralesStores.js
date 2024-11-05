@@ -45,21 +45,19 @@ export const useDepartamentoStore = defineStore("departamentos", () => {
 export const useMunicipioStore = defineStore("municipios", () => {
   const municipios = ref(loadFromLocalStorage("municipios", []));
 
-  const agregarMunicipio = (descripcion, departamentoId) => {
-    municipios.value.push({
-      id: Date.now(),
-      descripcion,
-      departamentoId: Number(departamentoId), // Incluye el departamentoId en el objeto del municipio
-    });
+  const agregarMunicipio = (municipio) => {
+    municipios.value.push(municipio);
   };
 
-  console.log(municipios.value);
+  const eliminarUltimoMunicipio = () => {
+    municipios.value.pop();
+  };
 
   watch(municipios, (newVal) => saveToLocalStorage("municipios", newVal), {
     deep: true,
   });
 
-  return { municipios, agregarMunicipio };
+  return { municipios, agregarMunicipio, eliminarUltimoMunicipio };
 });
 
 //

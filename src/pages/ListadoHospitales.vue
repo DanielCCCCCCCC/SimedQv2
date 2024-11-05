@@ -6,8 +6,9 @@
     <dx-data-grid
       :data-source="hospitales"
       :allow-column-reordering="true"
-      :show-borders="true"
       row-alternation-enabled="true"
+      :rowAlternationEnabled="true"
+      :show-borders="true"
       key-expr="nombre"
     >
       <!-- Columnas con ordenamiento habilitado -->

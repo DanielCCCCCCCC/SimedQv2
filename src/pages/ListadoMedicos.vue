@@ -6,6 +6,7 @@
     <dx-data-grid
       :data-source="medicosConEspecialidad"
       :allow-column-reordering="true"
+      :rowAlternationEnabled="true"
       :show-borders="true"
       :row-alternation-enabled="true"
       key-expr="id"

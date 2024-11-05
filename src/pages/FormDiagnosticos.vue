@@ -26,7 +26,14 @@
             >Clasificación de Diagnósticos</q-card-section
           >
           <q-form @submit.prevent="guardarClasificacion" class="q-gutter-md">
-            <q-input v-model="formData.nombre" label="Nombre" outlined dense />
+            <q-input
+              v-model="clasificacionData.nombre"
+              label="Nombre"
+              outlined
+              dense
+              :error="!!clasificacionErrors.nombre"
+              :error-message="clasificacionErrors.nombre"
+            />
             <div class="row justify-end q-mt-md">
               <q-btn
                 label="Crear"
@@ -38,7 +45,7 @@
                 label="Eliminar"
                 color="negative"
                 icon="delete"
-                @click="eliminarClasificacion"
+                @click="eliminarUltimaClasificacion"
                 class="q-ml-sm"
               />
             </div>
@@ -58,12 +65,17 @@
               label="Descripción"
               outlined
               dense
+              :error="!!diagnosticoErrors.descripcion"
+              :error-message="diagnosticoErrors.descripcion"
             />
-            <q-input
+            <q-select
               v-model="diagnosticoData.clasificacion"
+              :options="opcionesClasificaciones"
               label="Clasificación"
               outlined
               dense
+              :error="!!diagnosticoErrors.clasificacion"
+              :error-message="diagnosticoErrors.clasificacion"
             />
             <div class="row justify-end q-mt-md">
               <q-btn
@@ -76,7 +88,7 @@
                 label="Eliminar"
                 color="negative"
                 icon="delete"
-                @click="eliminarDiagnostico"
+                @click="eliminarUltimoDiagnostico"
                 class="q-ml-sm"
               />
             </div>
@@ -96,6 +108,8 @@
               label="Descripción"
               outlined
               dense
+              :error="!!controlErrors.descripcion"
+              :error-message="controlErrors.descripcion"
             />
             <div class="row justify-end q-mt-md">
               <q-btn
@@ -108,7 +122,7 @@
                 label="Eliminar"
                 color="negative"
                 icon="delete"
-                @click="eliminarControl"
+                @click="eliminarUltimoControl"
                 class="q-ml-sm"
               />
             </div>
@@ -120,66 +134,90 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, reactive, computed } from "vue";
+import { Notify } from "quasar";
 import {
   useClasificacionDiagnosticosStore,
   useDiagnosticosStore,
   useControlesMedicionStore,
 } from "../stores/DiagnosticosStores";
+import { storeToRefs } from "pinia";
 
 // Estado para las pestañas activas
 const tab = ref("ClasficicacionDiagnosticos");
 
-// Acceder a las tiendas
-const clasificacionStore = useClasificacionDiagnosticosStore();
+// Tiendas y datos reactivos
+const clasificacionDiagnosticosStore = useClasificacionDiagnosticosStore();
 const diagnosticosStore = useDiagnosticosStore();
 const controlesMedicionStore = useControlesMedicionStore();
 
-// Estado del formulario para Clasificación de Diagnósticos
-const formData = ref({ nombre: "" });
+// Accede a propiedades reactivas
+const { clasificaciones } = storeToRefs(clasificacionDiagnosticosStore);
 
-// Estado del formulario para Diagnósticos
-const diagnosticoData = ref({ descripcion: "", clasificacion: "" });
+// Computed para opciones de select
+const opcionesClasificaciones = computed(() =>
+  clasificaciones.value.map((clasificacion) => ({
+    label: clasificacion.nombre,
+    value: clasificacion.id,
+  }))
+);
 
-// Estado del formulario para Controles de Medición
-const controlData = ref({ descripcion: "" });
+// Datos y errores de cada sección
+const clasificacionData = reactive({ nombre: "" });
+const clasificacionErrors = reactive({ nombre: "" });
+const diagnosticoData = reactive({ descripcion: "", clasificacion: "" });
+const diagnosticoErrors = reactive({ descripcion: "", clasificacion: "" });
+const controlData = reactive({ descripcion: "" });
+const controlErrors = reactive({ descripcion: "" });
 
-// Función para agregar una nueva clasificación
+// Función de validación genérica
+const validarCampo = (data, errors, campo) => {
+  errors[campo] = data[campo].trim() ? "" : `El campo ${campo} es obligatorio.`;
+  return !errors[campo];
+};
+
+// Funciones de guardar
 const guardarClasificacion = () => {
-  if (formData.value.nombre.trim() !== "") {
-    clasificacionStore.agregarClasificacion(formData.value.nombre);
-    formData.value.nombre = ""; // Limpiar el campo después de agregar
+  if (validarCampo(clasificacionData, clasificacionErrors, "nombre")) {
+    clasificacionDiagnosticosStore.agregarClasificacion({
+      nombre: clasificacionData.nombre,
+    });
+    clasificacionData.nombre = ""; // Limpiar
+    Notify.create({ message: "Clasificación guardada", color: "positive" });
   }
 };
 
-// Función para eliminar la última clasificación
-const eliminarClasificacion = () => {
-  if (clasificacionStore.clasificaciones.length > 0) {
-    const lastItem =
-      clasificacionStore.clasificaciones[
-        clasificacionStore.clasificaciones.length - 1
-      ];
-    clasificacionStore.eliminarClasificacion(lastItem.id);
-  }
-};
-
-// Función para agregar un nuevo diagnóstico
 const guardarDiagnostico = () => {
   if (
-    diagnosticoData.value.descripcion.trim() !== "" &&
-    diagnosticoData.value.clasificacion.trim() !== ""
+    validarCampo(diagnosticoData, diagnosticoErrors, "descripcion") &&
+    validarCampo(diagnosticoData, diagnosticoErrors, "clasificacion")
   ) {
-    diagnosticosStore.agregarDiagnostico(
-      diagnosticoData.value.descripcion,
-      diagnosticoData.value.clasificacion
-    );
-    diagnosticoData.value.descripcion = ""; // Limpiar campos
-    diagnosticoData.value.clasificacion = "";
+    diagnosticosStore.agregarDiagnostico({ ...diagnosticoData });
+    diagnosticoData.descripcion = "";
+    diagnosticoData.clasificacion = "";
+    Notify.create({ message: "Diagnóstico guardado", color: "positive" });
   }
 };
 
-// Función para eliminar el último diagnóstico
-const eliminarDiagnostico = () => {
+const guardarControl = () => {
+  if (validarCampo(controlData, controlErrors, "descripcion")) {
+    controlesMedicionStore.agregarControl({
+      descripcion: controlData.descripcion,
+    });
+    controlData.descripcion = ""; // Limpiar
+    Notify.create({ message: "Control guardado", color: "positive" });
+  }
+};
+
+// Funciones para eliminar el último elemento
+const eliminarUltimaClasificacion = () => {
+  if (clasificaciones.value.length > 0) {
+    const lastItem = clasificaciones.value[clasificaciones.value.length - 1];
+    clasificacionDiagnosticosStore.eliminarClasificacion(lastItem.id);
+  }
+};
+
+const eliminarUltimoDiagnostico = () => {
   if (diagnosticosStore.diagnosticos.length > 0) {
     const lastItem =
       diagnosticosStore.diagnosticos[diagnosticosStore.diagnosticos.length - 1];
@@ -187,16 +225,7 @@ const eliminarDiagnostico = () => {
   }
 };
 
-// Función para agregar un nuevo control de medición
-const guardarControl = () => {
-  if (controlData.value.descripcion.trim() !== "") {
-    controlesMedicionStore.agregarControl(controlData.value.descripcion);
-    controlData.value.descripcion = ""; // Limpiar campo después de agregar
-  }
-};
-
-// Función para eliminar el último control de medición
-const eliminarControl = () => {
+const eliminarUltimoControl = () => {
   if (controlesMedicionStore.controles.length > 0) {
     const lastItem =
       controlesMedicionStore.controles[
@@ -212,7 +241,6 @@ const eliminarControl = () => {
   max-width: 700px;
   margin: 0 auto;
 }
-
 .text-primary {
   color: #1976d2;
 }

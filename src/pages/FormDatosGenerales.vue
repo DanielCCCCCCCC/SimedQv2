@@ -1,28 +1,16 @@
 <template>
   <q-page class="q-pa-md">
-    <!-- Barra de navegación de pestañas -->
     <q-tabs
       v-model="tab"
       class="bg-white text-black q-mb-sm shadow-2 rounded-borders small-tabs"
     >
+      <!-- Pestañas -->
       <q-tab
         name="Departamentos y Municipios"
         icon="location_city"
         label="Departamentos y Municipios"
       />
-      <q-tab
-        clickable
-        v-ripple
-        @click="
-          $router.push({
-            name: 'Departamentos y Municipios',
-            query: { subTab: 'Grupo Sanguíneo' },
-          })
-        "
-        name="Grupo Sanguíneo"
-        icon="bloodtype"
-        label="Grupo Sanguíneo"
-      />
+      <q-tab name="Grupo Sanguíneo" icon="bloodtype" label="Grupo Sanguíneo" />
       <q-tab name="Escolaridad" icon="school" label="Escolaridad" />
       <q-tab name="Estado Civil" icon="favorite" label="Estado Civil" />
     </q-tabs>
@@ -31,7 +19,6 @@
       <!-- Panel para Departamentos y Municipios -->
       <q-tab-panel name="Departamentos y Municipios">
         <div class="row">
-          <!-- Lista de subpestañas vertical en el lado izquierdo -->
           <div class="col-3">
             <q-list bordered>
               <q-item
@@ -53,7 +40,6 @@
             </q-list>
           </div>
 
-          <!-- Contenido de cada subpestaña en el lado derecho -->
           <div class="col-9">
             <q-tab-panels v-model="subTab" animated>
               <!-- Subpanel para Departamento -->
@@ -71,6 +57,8 @@
                       label="Descripción"
                       outlined
                       dense
+                      :error="!!formErrors.departamentoDescripcion"
+                      :error-message="formErrors.departamentoDescripcion"
                     />
                     <div class="row justify-end q-mt-md">
                       <q-btn
@@ -80,7 +68,7 @@
                         @click="guardarDepartamento"
                       />
                       <q-btn
-                        label="Eliminar ultimo agregado"
+                        label="Eliminar último agregado"
                         color="negative"
                         icon="delete"
                         @click="eliminarDepartamento"
@@ -91,6 +79,7 @@
                 </q-card>
               </q-tab-panel>
 
+              <!-- Subpanel para Municipio -->
               <q-tab-panel name="Municipio">
                 <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
                   <q-card-section class="text-h6 text-primary"
@@ -100,22 +89,24 @@
                     @submit.prevent="guardarMunicipio"
                     class="q-gutter-md"
                   >
-                    <!-- Select para escoger el departamento -->
                     <q-select
-                      v-model="municipioData.departamentoId"
-                      :options="departamentoStore.departamentos"
+                      v-model="municipioData.departamento"
+                      :options="departamentos"
                       option-value="id"
                       option-label="descripcion"
                       label="Departamento"
                       outlined
                       dense
+                      :error="!!formErrors.municipioDepartamento"
+                      :error-message="formErrors.municipioDepartamento"
                     />
-                    <!-- Input para la descripción del municipio -->
                     <q-input
                       v-model="municipioData.descripcion"
                       label="Descripción"
                       outlined
                       dense
+                      :error="!!formErrors.municipioDescripcion"
+                      :error-message="formErrors.municipioDescripcion"
                     />
                     <div class="row justify-end q-mt-md">
                       <q-btn
@@ -152,6 +143,8 @@
               label="Descripción"
               outlined
               dense
+              :error="!!formErrors.grupoSanguineoDescripcion"
+              :error-message="formErrors.grupoSanguineoDescripcion"
             />
             <div class="row justify-end q-mt-md">
               <q-btn
@@ -161,7 +154,7 @@
                 @click="guardarGrupoSanguineo"
               />
               <q-btn
-                label="Eliminar ultimo agregado"
+                label="Eliminar último agregado"
                 color="negative"
                 icon="delete"
                 @click="eliminarGrupoSanguineo"
@@ -184,16 +177,18 @@
               label="Descripción"
               outlined
               dense
+              :error="!!formErrors.escolaridadDescripcion"
+              :error-message="formErrors.escolaridadDescripcion"
             />
             <div class="row justify-end q-mt-md">
               <q-btn
-                label="Crear Escolariadad"
+                label="Crear Escolaridad"
                 color="primary"
                 icon="add"
                 @click="guardarEscolaridad"
               />
               <q-btn
-                label="Eliminar ultimo agregado "
+                label="Eliminar último agregado"
                 color="negative"
                 icon="delete"
                 @click="eliminarEscolaridad"
@@ -216,6 +211,8 @@
               label="Descripción"
               outlined
               dense
+              :error="!!formErrors.estadoCivilDescripcion"
+              :error-message="formErrors.estadoCivilDescripcion"
             />
             <div class="row justify-end q-mt-md">
               <q-btn
@@ -225,7 +222,7 @@
                 @click="guardarEstadoCivil"
               />
               <q-btn
-                label="Eliminar ultimo agregado"
+                label="Eliminar último agregado"
                 color="negative"
                 icon="delete"
                 @click="eliminarEstadoCivil"
@@ -240,7 +237,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import {
   useDepartamentoStore,
   useMunicipioStore,
@@ -248,71 +245,107 @@ import {
   useEscolaridadStore,
   useEstadoCivilStore,
 } from "../stores/DatosGeneralesStores";
+import { storeToRefs } from "pinia";
 
-// Estado para las pestañas activas
-const tab = ref("Departamentos y Municipios");
-const subTab = ref("Departamento");
-
-// Estados de los formularios para cada tipo
-const departamentoData = ref({ descripcion: "" });
-const municipioData = ref({ descripcion: "", departamentoId: "" });
-const grupoSanguineoData = ref({ descripcion: "" });
-const escolaridadData = ref({ descripcion: "" });
-const estadoCivilData = ref({ descripcion: "" });
-
-// Tiendas para cada tipo
-const departamentoStore = useDepartamentoStore();
-const municipioStore = useMunicipioStore();
+// Inicializo las tiendas
+const DepartamentoStore = useDepartamentoStore();
+const MunicipioStore = useMunicipioStore();
 const grupoSanguineoStore = useGrupoSanguineoStore();
 const escolaridadStore = useEscolaridadStore();
 const estadoCivilStore = useEstadoCivilStore();
 
-// Funciones para guardar y eliminar en cada sección
-const guardarDepartamento = () => {
-  departamentoStore.agregarDepartamento(departamentoData.value.descripcion);
-  departamentoData.value.descripcion = "";
-};
-const eliminarDepartamento = () =>
-  departamentoStore.eliminarUltimoDepartamento();
+const { departamentos } = storeToRefs(DepartamentoStore);
 
-function guardarMunicipio() {
-  if (municipioData.value.descripcion && municipioData.value.departamentoId) {
-    municipioStore.agregarMunicipio(
-      municipioData.value.descripcion,
-      municipioData.value.departamentoId
-    );
-  } else {
-    // Notificación o mensaje de error si los campos están vacíos
-    this.$q.notify({
-      type: "negative",
-      message: "Por favor, complete todos los campos antes de guardar.",
-      position: "top-right",
-    });
+const tab = ref("Departamentos y Municipios");
+const subTab = ref("Departamento");
+
+// Estado de los errores de validación
+const formErrors = reactive({
+  departamentoDescripcion: "",
+  municipioDepartamento: "",
+  municipioDescripcion: "",
+  grupoSanguineoDescripcion: "",
+  escolaridadDescripcion: "",
+  estadoCivilDescripcion: "",
+});
+
+// Estados de los formularios para cada tipo
+const departamentoData = reactive({ descripcion: "" });
+const municipioData = reactive({ descripcion: "", departamento: "" });
+const grupoSanguineoData = reactive({ descripcion: "" });
+const escolaridadData = reactive({ descripcion: "" });
+const estadoCivilData = reactive({ descripcion: "" });
+
+// Funciones para guardar y eliminar datos con validación
+const guardarDepartamento = () => {
+  formErrors.departamentoDescripcion = "";
+  if (!departamentoData.descripcion) {
+    formErrors.departamentoDescripcion =
+      "La descripción del departamento es obligatoria.";
+    return;
   }
-}
-// Función para eliminar el último municipio agregado
-function eliminarMunicipio() {
-  municipioStore.eliminarUltimoMunicipio();
-}
-const guardarGrupoSanguineo = () => {
-  grupoSanguineoStore.agregarGrupoSanguineo(
-    grupoSanguineoData.value.descripcion
-  );
-  grupoSanguineoData.value.descripcion = "";
+  DepartamentoStore.agregarDepartamento(departamentoData.descripcion);
+  departamentoData.descripcion = "";
 };
-const eliminarGrupoSanguineo = () =>
-  grupoSanguineoStore.eliminarUltimoGrupoSanguineo();
+
+const guardarMunicipio = () => {
+  formErrors.municipioDepartamento = "";
+  formErrors.municipioDescripcion = "";
+  if (!municipioData.departamento) {
+    formErrors.municipioDepartamento = "Seleccione un departamento.";
+  }
+  if (!municipioData.descripcion) {
+    formErrors.municipioDescripcion =
+      "La descripción del municipio es obligatoria.";
+  }
+  if (formErrors.municipioDepartamento || formErrors.municipioDescripcion)
+    return;
+
+  MunicipioStore.agregarMunicipio({ ...municipioData });
+  municipioData.descripcion = "";
+  municipioData.departamento = "";
+};
+
+const guardarGrupoSanguineo = () => {
+  formErrors.grupoSanguineoDescripcion = "";
+  if (!grupoSanguineoData.descripcion) {
+    formErrors.grupoSanguineoDescripcion =
+      "La descripción del grupo sanguíneo es obligatoria.";
+    return;
+  }
+  grupoSanguineoStore.agregarGrupoSanguineo(grupoSanguineoData.descripcion);
+  grupoSanguineoData.descripcion = "";
+};
 
 const guardarEscolaridad = () => {
-  escolaridadStore.agregarEscolaridad(escolaridadData.value.descripcion);
-  escolaridadData.value.descripcion = "";
+  formErrors.escolaridadDescripcion = "";
+  if (!escolaridadData.descripcion) {
+    formErrors.escolaridadDescripcion =
+      "La descripción de la escolaridad es obligatoria.";
+    return;
+  }
+  escolaridadStore.agregarEscolaridad(escolaridadData.descripcion);
+  escolaridadData.descripcion = "";
 };
-const eliminarEscolaridad = () => escolaridadStore.eliminarUltimaEscolaridad();
 
 const guardarEstadoCivil = () => {
-  estadoCivilStore.agregarEstadoCivil(estadoCivilData.value.descripcion);
-  estadoCivilData.value.descripcion = "";
+  formErrors.estadoCivilDescripcion = "";
+  if (!estadoCivilData.descripcion) {
+    formErrors.estadoCivilDescripcion =
+      "La descripción del estado civil es obligatoria.";
+    return;
+  }
+  estadoCivilStore.agregarEstadoCivil(estadoCivilData.descripcion);
+  estadoCivilData.descripcion = "";
 };
+
+// Funciones para eliminar el último agregado
+const eliminarDepartamento = () =>
+  DepartamentoStore.eliminarUltimoDepartamento();
+const eliminarMunicipio = () => MunicipioStore.eliminarUltimoMunicipio();
+const eliminarGrupoSanguineo = () =>
+  grupoSanguineoStore.eliminarUltimoGrupoSanguineo();
+const eliminarEscolaridad = () => escolaridadStore.eliminarUltimaEscolaridad();
 const eliminarEstadoCivil = () => estadoCivilStore.eliminarUltimoEstadoCivil();
 </script>
 
@@ -321,12 +354,9 @@ const eliminarEstadoCivil = () => estadoCivilStore.eliminarUltimoEstadoCivil();
   max-width: 700px;
   margin: 0 auto;
 }
-
 .text-primary {
   color: #1976d2;
 }
-
-/* Estilo para reducir el tamaño de la letra en las pestañas */
 .small-tabs .q-tab {
   font-size: 8px;
   padding: 4px 9px;

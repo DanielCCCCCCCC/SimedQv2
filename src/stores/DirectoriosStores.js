@@ -35,12 +35,17 @@ export const useHospitalStore = defineStore("hospitalStore", () => {
   return { hospitales, agregarHospital, eliminarHospital };
 });
 
-// Tienda para Medicamentos
+///
+///
+///
+///
+//
+///
+///Tienda para Medicamentos
 export const useMedicamentoStore = defineStore("medicamentoStore", () => {
   const medicamentos = ref(loadFromLocalStorage("medicamentos", []));
 
   const agregarMedicamento = (medicamento, configuracion) => {
-    // Agregar medicamento y configuración como un solo objeto
     if (!medicamentos.value.some((m) => m.codigo === medicamento.codigo)) {
       medicamentos.value.push({
         id: Date.now(),
@@ -60,7 +65,6 @@ export const useMedicamentoStore = defineStore("medicamentoStore", () => {
       console.warn("El medicamento no fue encontrado.");
     }
   };
-
   watch(
     medicamentos,
     (newMedicamentos) => {
@@ -72,16 +76,22 @@ export const useMedicamentoStore = defineStore("medicamentoStore", () => {
   return { medicamentos, agregarMedicamento, eliminarMedicamento };
 });
 
+///
+///
+///
+///
+//
+///
+
 // Tienda para Exámenes y Estudios
 export const useEstudioStore = defineStore("estudioStore", () => {
   const estudios = ref(loadFromLocalStorage("estudios", []));
 
-  const agregarEstudio = (estudio, configuracion) => {
+  const agregarEstudio = (estudio) => {
     // Fusionar los datos de estudio y configuración en un solo objeto
     estudios.value.push({
       id: Date.now(),
       ...estudio,
-      configuracion: { ...configuracion },
     });
   };
 

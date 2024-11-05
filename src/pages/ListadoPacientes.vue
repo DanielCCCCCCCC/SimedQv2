@@ -4,6 +4,7 @@
       ref="dataGrid"
       :data-source="formIdentificacion"
       :allow-column-reordering="true"
+      :rowAlternationEnabled="true"
       :focused-row-enabled="true"
       :focused-row-key="focusedRowKey"
       :key-expr="'id'"

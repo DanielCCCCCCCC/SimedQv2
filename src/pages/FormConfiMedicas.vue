@@ -231,72 +231,238 @@
 
 <script setup>
 import { ref } from "vue";
-import {
-  useEspecialidadMedicaStore,
-  useTiposEstudiosStore,
-  useTiposMedicamentosStore,
-  useTiposPacientesStore,
-  useGruposContactosStore,
-  useTiposCitasStore,
-} from "../stores/ConfiMedicasStores";
+import { Notify } from "quasar";
+import { useEspecialidadMedicaStore } from "../stores/ConfiMedicasStores";
 
 // Estado para las pestañas activas
 const tab = ref("Especialidades Médicas");
 
-// Estados de los formularios para cada tipo
+// Estado de formulario y errores
 const especialidadData = ref({ descripcion: "" });
-const estudioData = ref({ descripcion: "" });
-const medicamentoData = ref({ descripcion: "" });
-const pacienteData = ref({ descripcion: "" });
-const grupoContactoData = ref({ descripcion: "" });
-const citaData = ref({ descripcion: "" });
+const especialidadErrors = ref({ descripcion: "" });
 
-// Tiendas para cada tipo
+// Tienda para Especialidades Médicas
 const especialidadStore = useEspecialidadMedicaStore();
-const tiposEstudiosStore = useTiposEstudiosStore();
-const tiposMedicamentosStore = useTiposMedicamentosStore();
-const tiposPacientesStore = useTiposPacientesStore();
-const gruposContactosStore = useGruposContactosStore();
-const tiposCitasStore = useTiposCitasStore();
 
-// Funciones para guardar y eliminar en cada sección
+// Función de validación genérica
+const validarCampo = (data, errors, campo) => {
+  errors[campo] = data[campo].trim() ? "" : `El campo ${campo} es obligatorio.`;
+  return !errors[campo];
+};
+
+// Función para guardar con validación
 const guardarEspecialidad = () => {
+  if (
+    !validarCampo(
+      especialidadData.value,
+      especialidadErrors.value,
+      "descripcion"
+    )
+  ) {
+    Notify.create({
+      message: especialidadErrors.value.descripcion,
+      color: "negative",
+      position: "top-right",
+    });
+    return;
+  }
+
   especialidadStore.agregarEspecialidad(especialidadData.value.descripcion);
   especialidadData.value.descripcion = "";
+  Notify.create({
+    message: "Especialidad guardada exitosamente",
+    color: "positive",
+    position: "top-right",
+  });
 };
-const eliminarEspecialidad = () =>
+
+// Función para eliminar el último registro
+const eliminarEspecialidad = () => {
   especialidadStore.eliminarUltimaEspecialidad();
+  Notify.create({
+    message: "Última especialidad eliminada",
+    color: "warning",
+    position: "top-right",
+  });
+};
+
+import { useTiposEstudiosStore } from "../stores/ConfiMedicasStores";
+
+const estudioData = ref({ descripcion: "" });
+const estudioErrors = ref({ descripcion: "" });
+const tiposEstudiosStore = useTiposEstudiosStore();
 
 const guardarEstudio = () => {
+  if (!validarCampo(estudioData.value, estudioErrors.value, "descripcion")) {
+    Notify.create({
+      message: estudioErrors.value.descripcion,
+      color: "negative",
+      position: "top-right",
+    });
+    return;
+  }
+
   tiposEstudiosStore.agregarEstudio(estudioData.value.descripcion);
   estudioData.value.descripcion = "";
+  Notify.create({
+    message: "Tipo de estudio guardado exitosamente",
+    color: "positive",
+    position: "top-right",
+  });
 };
-const eliminarEstudio = () => tiposEstudiosStore.eliminarUltimoEstudio();
+
+const eliminarEstudio = () => {
+  tiposEstudiosStore.eliminarUltimoEstudio();
+  Notify.create({
+    message: "Último tipo de estudio eliminado",
+    color: "warning",
+    position: "top-right",
+  });
+};
+
+import { useTiposMedicamentosStore } from "../stores/ConfiMedicasStores";
+
+const medicamentoData = ref({ descripcion: "" });
+const medicamentoErrors = ref({ descripcion: "" });
+const tiposMedicamentosStore = useTiposMedicamentosStore();
 
 const guardarMedicamento = () => {
+  if (
+    !validarCampo(medicamentoData.value, medicamentoErrors.value, "descripcion")
+  ) {
+    Notify.create({
+      message: medicamentoErrors.value.descripcion,
+      color: "negative",
+      position: "top-right",
+    });
+    return;
+  }
+
   tiposMedicamentosStore.agregarMedicamento(medicamentoData.value.descripcion);
   medicamentoData.value.descripcion = "";
+  Notify.create({
+    message: "Tipo de medicamento guardado exitosamente",
+    color: "positive",
+    position: "top-right",
+  });
 };
-const eliminarMedicamento = () =>
+
+const eliminarMedicamento = () => {
   tiposMedicamentosStore.eliminarUltimoMedicamento();
+  Notify.create({
+    message: "Último tipo de medicamento eliminado",
+    color: "warning",
+    position: "top-right",
+  });
+};
+
+import { useTiposPacientesStore } from "../stores/ConfiMedicasStores";
+
+const pacienteData = ref({ descripcion: "" });
+const pacienteErrors = ref({ descripcion: "" });
+const tiposPacientesStore = useTiposPacientesStore();
 
 const guardarPaciente = () => {
+  if (!validarCampo(pacienteData.value, pacienteErrors.value, "descripcion")) {
+    Notify.create({
+      message: pacienteErrors.value.descripcion,
+      color: "negative",
+      position: "top-right",
+    });
+    return;
+  }
+
   tiposPacientesStore.agregarPaciente(pacienteData.value.descripcion);
   pacienteData.value.descripcion = "";
+  Notify.create({
+    message: "Tipo de paciente guardado exitosamente",
+    color: "positive",
+    position: "top-right",
+  });
 };
-const eliminarPaciente = () => tiposPacientesStore.eliminarUltimoPaciente();
+
+const eliminarPaciente = () => {
+  tiposPacientesStore.eliminarUltimoPaciente();
+  Notify.create({
+    message: "Último tipo de paciente eliminado",
+    color: "warning",
+    position: "top-right",
+  });
+};
+
+import { useGruposContactosStore } from "../stores/ConfiMedicasStores";
+
+const grupoContactoData = ref({ descripcion: "" });
+const grupoContactoErrors = ref({ descripcion: "" });
+const gruposContactosStore = useGruposContactosStore();
 
 const guardarGrupoContacto = () => {
+  if (
+    !validarCampo(
+      grupoContactoData.value,
+      grupoContactoErrors.value,
+      "descripcion"
+    )
+  ) {
+    Notify.create({
+      message: grupoContactoErrors.value.descripcion,
+      color: "negative",
+      position: "top-right",
+    });
+    return;
+  }
+
   gruposContactosStore.agregarGrupo(grupoContactoData.value.descripcion);
   grupoContactoData.value.descripcion = "";
+  Notify.create({
+    message: "Grupo de contacto guardado exitosamente",
+    color: "positive",
+    position: "top-right",
+  });
 };
-const eliminarGrupoContacto = () => gruposContactosStore.eliminarUltimoGrupo();
+
+const eliminarGrupoContacto = () => {
+  gruposContactosStore.eliminarUltimoGrupo();
+  Notify.create({
+    message: "Último grupo de contacto eliminado",
+    color: "warning",
+    position: "top-right",
+  });
+};
+
+import { useTiposCitasStore } from "../stores/ConfiMedicasStores";
+
+const citaData = ref({ descripcion: "" });
+const citaErrors = ref({ descripcion: "" });
+const tiposCitasStore = useTiposCitasStore();
 
 const guardarCita = () => {
+  if (!validarCampo(citaData.value, citaErrors.value, "descripcion")) {
+    Notify.create({
+      message: citaErrors.value.descripcion,
+      color: "negative",
+      position: "top-right",
+    });
+    return;
+  }
+
   tiposCitasStore.agregarCita(citaData.value.descripcion);
   citaData.value.descripcion = "";
+  Notify.create({
+    message: "Tipo de cita guardado exitosamente",
+    color: "positive",
+    position: "top-right",
+  });
 };
-const eliminarCita = () => tiposCitasStore.eliminarUltimaCita();
+
+const eliminarCita = () => {
+  tiposCitasStore.eliminarUltimaCita();
+  Notify.create({
+    message: "Último tipo de cita eliminado",
+    color: "warning",
+    position: "top-right",
+  });
+};
 </script>
 
 <style scoped>

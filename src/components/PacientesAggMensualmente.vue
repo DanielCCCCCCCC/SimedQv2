@@ -23,7 +23,7 @@ const fichaIdentificacionStore = useFichaIdentificacionStore();
 <style>
 #chart {
   height: 200px;
-  width: 750px;
+  width: 500px;
   margin-top: 20px;
   margin-left: 50px;
 }
