@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pa-md flex flex-center" style="margin-top: -70px">
+  <q-page class="q-pa-md flex flex-center">
     <q-form
       class="bg-grey-2 shadow-2 q-pa-md rounded-xl"
       style="max-width: 600px; width: 100%"
@@ -23,7 +23,8 @@
             outlined
             dense
             style="font-size: 14px; height: auto"
-            class="q-mb-sm"
+            :error="!!formErrors.Nombre"
+            :error-message="formErrors.Nombre"
           />
           <q-input
             v-model="formData.Direccion"
@@ -31,7 +32,8 @@
             outlined
             dense
             style="font-size: 14px; height: auto"
-            class="q-mb-sm"
+            :error="!!formErrors.Direccion"
+            :error-message="formErrors.Direccion"
           />
         </div>
       </div>
@@ -44,7 +46,20 @@
             outlined
             dense
             style="font-size: 14px; height: auto"
-            class="q-mb-sm"
+            :error="!!formErrors.Organizacion"
+            :error-message="formErrors.Organizacion"
+          />
+          <q-select
+            v-model="formData.Grupo"
+            :options="grupos"
+            label="Grupo"
+            option-value="id"
+            option-label="descripcion"
+            outlined
+            dense
+            style="font-size: 14px; height: auto"
+            :error="!!formErrors.Grupo"
+            :error-message="formErrors.Grupo"
           />
         </div>
 
@@ -58,7 +73,8 @@
             map-options
             outlined
             dense
-            class="q-mb-sm"
+            :error="!!formErrors.selectedDepartamento"
+            :error-message="formErrors.selectedDepartamento"
           />
           <q-select
             v-model="formData.selectedMunicipio"
@@ -68,8 +84,9 @@
             option-label="descripcion"
             outlined
             dense
-            class="q-mb-sm"
             :disable="!formData.selectedDepartamento"
+            :error="!!formErrors.selectedMunicipio"
+            :error-message="formErrors.selectedMunicipio"
           />
         </div>
       </div>
@@ -83,7 +100,8 @@
             outlined
             dense
             style="font-size: 14px; height: auto"
-            class="q-mb-sm"
+            :error="!!formErrors.Email"
+            :error-message="formErrors.Email"
           />
         </div>
 
@@ -95,7 +113,8 @@
             mask="####-####"
             dense
             style="font-size: 14px; height: auto"
-            class="q-mb-sm"
+            :error="!!formErrors.TelefonoCasa"
+            :error-message="formErrors.TelefonoCasa"
           />
           <q-input
             v-model="formData.Celular"
@@ -104,7 +123,8 @@
             mask="####-####"
             dense
             style="font-size: 14px; height: auto"
-            class="q-mb-sm"
+            :error="!!formErrors.Celular"
+            :error-message="formErrors.Celular"
           />
         </div>
       </div>
@@ -117,6 +137,8 @@
           outlined
           :autogrow="true"
           dense
+          :error="!!formErrors.Observaciones"
+          :error-message="formErrors.Observaciones"
           style="font-size: 14px; height: auto"
         />
       </div>
@@ -126,10 +148,13 @@
         label="Guardar Contacto"
         color="primary"
         class="q-mt-sm full-width"
-        style="font-size: 14px; padding: 8px 16px"
+        style="font-size: 14px; padding: 8px 2px"
       />
     </q-form>
   </q-page>
+  <div>
+    <ListadoContactos />
+  </div>
 </template>
 
 <script setup>
@@ -138,18 +163,22 @@ import {
   useDepartamentoStore,
   useMunicipioStore,
 } from "../stores/DatosGeneralesStores";
+import { useGruposContactosStore } from "src/stores/ConfiMedicasStores";
 import { useContactStore } from "../stores/ContacStores"; // Asegúrate de que la ruta es correcta
 import { storeToRefs } from "pinia";
 import { useQuasar, Notify } from "quasar";
+import ListadoContactos from "./ListadoContactos.vue";
 
 // Importar las tiendas
 const departamentoStore = useDepartamentoStore();
 const municipioStore = useMunicipioStore();
 const contactStore = useContactStore();
+const gruposContactosStore = useGruposContactosStore();
 
 // Obtener los datos de las tiendas
 const { departamentos } = storeToRefs(departamentoStore);
 const { municipios } = storeToRefs(municipioStore);
+const { grupos } = storeToRefs(gruposContactosStore);
 
 // Datos del formulario
 const formData = reactive({
@@ -157,6 +186,7 @@ const formData = reactive({
   Direccion: "",
   Organizacion: "",
   Email: "",
+  Grupo: "",
   TelefonoCasa: "",
   Celular: "",
   Observaciones: "",
@@ -182,8 +212,71 @@ watch(
   }
 );
 
+const formErrors = reactive({
+  Nombre: "",
+  Direccion: "",
+  Organizacion: "",
+  Email: "",
+  TelefonoCasa: "",
+  Grupo: "",
+  Celular: "",
+  Observaciones: "",
+  selectedDepartamento: "",
+  selectedMunicipio: "",
+});
+const validarFormulario = () => {
+  let isValid = true;
+
+  formErrors.Nombre = !formData.Nombre ? "El nombre es obligatorio" : "";
+  formErrors.Direccion = !formData.Direccion
+    ? "La dirección es obligatoria"
+    : "";
+  formErrors.Organizacion = !formData.Organizacion
+    ? "La organización es obligatoria"
+    : "";
+  formErrors.Grupo = !formData.Grupo ? "El grupo es obligatorio" : "";
+  formErrors.Email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.Email)
+    ? ""
+    : "Ingrese un email válido";
+
+  formErrors.TelefonoCasa =
+    formData.TelefonoCasa && formData.TelefonoCasa.length === 9
+      ? ""
+      : "El teléfono debe tener el formato ####-####";
+
+  formErrors.Celular =
+    formData.Celular && formData.Celular.length === 9
+      ? ""
+      : "El celular debe tener el formato ####-####";
+
+  formErrors.selectedDepartamento = formData.selectedDepartamento
+    ? ""
+    : "Seleccione un departamento";
+
+  formErrors.selectedMunicipio = formData.selectedMunicipio
+    ? ""
+    : "Seleccione un municipio";
+
+  // Revisar si hay algún error
+  isValid = Object.values(formErrors).every((error) => error === "");
+
+  if (!isValid) {
+    Notify.create({
+      message: "Por favor, corrija los errores en el formulario",
+      color: "red",
+      position: "top-right",
+    });
+  }
+
+  return isValid;
+};
+
 // Función para guardar el contacto en la tienda
 function guardarContacto() {
+  if (!validarFormulario()) {
+    return;
+  }
+
   // Validación básica
   if (!formData.Nombre || !formData.Email) {
     Notify.create({

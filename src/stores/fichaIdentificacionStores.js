@@ -1,5 +1,13 @@
 import { defineStore } from "pinia";
 import { ref, watch, computed } from "vue";
+import {
+  format,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  isSameDay,
+} from "date-fns";
+import { es } from "date-fns/locale"; // Opcional: para utilizar formato en español
 
 export const useFichaIdentificacionStore = defineStore(
   "fichaIdentificacion",
@@ -10,6 +18,8 @@ export const useFichaIdentificacionStore = defineStore(
     );
 
     function guardarDatos(nuevoFormulario) {
+      const fechaRegistro = new Date().toLocaleDateString("en-CA"); // Almacena la fecha en formato local (YYYY-MM-DD)
+
       if (!Array.isArray(formIdentificacion.value)) {
         formIdentificacion.value = [];
       }
@@ -44,6 +54,26 @@ export const useFichaIdentificacionStore = defineStore(
         JSON.stringify(formIdentificacion.value)
       );
     }
+
+    const registrosPorDia = computed(() => {
+      const inicioSemana = startOfWeek(new Date(), { weekStartsOn: 1 }); // Lunes como primer día
+      const finSemana = endOfWeek(new Date(), { weekStartsOn: 1 });
+
+      const diasSemana = eachDayOfInterval({
+        start: inicioSemana,
+        end: finSemana,
+      }).map((dia) => {
+        const diaFormato = dia.toLocaleDateString("en-CA"); // Convertir a formato YYYY-MM-DD
+        return {
+          day: format(dia, "EEEE", { locale: es }), // Opcional: en español
+          registros: formIdentificacion.value.filter(
+            (paciente) => paciente.fechaRegistro === diaFormato // Comparar fechas en formato local
+          ).length,
+        };
+      });
+
+      return diasSemana;
+    });
 
     // Computed para contar pacientes activos
     const totalActivos = computed(() => {
@@ -82,6 +112,7 @@ export const useFichaIdentificacionStore = defineStore(
       guardarDatos,
       actualizarPaciente,
       eliminarPaciente,
+      registrosPorDia,
       totalActivos,
       totalInactivos,
       dataGraficoPacientes,

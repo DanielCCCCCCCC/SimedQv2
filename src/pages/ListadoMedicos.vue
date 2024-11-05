@@ -65,6 +65,11 @@
       <dx-paging :enabled="true" :page-size="10" />
       <dx-filter-row :visible="true" />
       <dx-header-filter :visible="true" />
+
+      <DxColumn type="buttons">
+        <DxButton name="edit" icon="edit" />
+        <DxButton name="delete" icon="trash" />
+      </DxColumn>
     </dx-data-grid>
   </div>
 </template>
@@ -76,6 +81,7 @@ import {
   DxPaging,
   DxFilterRow,
   DxHeaderFilter,
+  DxButton,
   DxEditing,
 } from "devextreme-vue/data-grid";
 

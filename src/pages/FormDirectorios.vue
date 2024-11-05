@@ -30,6 +30,8 @@
                   label="Nombre"
                   outlined
                   dense
+                  :error="!!hospitalErrors.nombre"
+                  :error-message="hospitalErrors.nombre"
                 />
                 <q-input
                   class="q-mb-sm q-mr-sm"
@@ -37,6 +39,8 @@
                   label="Dirección"
                   outlined
                   dense
+                  :error="!!hospitalErrors.direccion"
+                  :error-message="hospitalErrors.direccion"
                 />
                 <q-select
                   class="q-mb-sm q-mr-sm"
@@ -47,6 +51,8 @@
                   option-label="descripcion"
                   outlined
                   dense
+                  :error="!!hospitalErrors.departamentoSeleccionado"
+                  :error-message="hospitalErrors.departamentoSeleccionado"
                 />
                 <q-select
                   class="q-mb-sm q-mr-sm"
@@ -57,6 +63,8 @@
                   option-label="descripcion"
                   outlined
                   dense
+                  :error="!!hospitalErrors.municipioSeleccionado"
+                  :error-message="hospitalErrors.municipioSeleccionado"
                 />
               </div>
               <!-- Columna derecha -->
@@ -64,10 +72,12 @@
                 <q-input
                   class="q-mb-sm q-mr-sm"
                   v-model="hospitalData.telefono"
-                  label="Teléfono Fijo"
+                  label="Teléfono "
                   outlined
                   dense
                   mask="####-####"
+                  :error="!!hospitalErrors.telefono"
+                  :error-message="hospitalErrors.telefono"
                 />
                 <q-input
                   class="q-mb-sm q-mr-sm"
@@ -76,6 +86,8 @@
                   type="email"
                   outlined
                   dense
+                  :error="!!hospitalErrors.email"
+                  :error-message="hospitalErrors.email"
                 />
                 <q-input
                   class="q-mb-sm q-mr-sm"
@@ -83,29 +95,31 @@
                   label="Web"
                   outlined
                   dense
+                  :error="!!hospitalErrors.web"
+                  :error-message="hospitalErrors.web"
                 />
               </div>
             </div>
             <!-- Botones de acción -->
             <div class="row justify-end q-mt-md">
               <q-btn
-                class="q-mb-sm q-mr-sm"
                 label="Crear"
                 color="primary"
                 icon="add"
                 @click="guardarHospital"
+                class="q-mb-sm q-mr-sm"
               />
               <q-btn
                 label="Eliminar"
                 color="negative"
                 icon="delete"
                 @click="eliminarHospital"
-                class="q-ml-sm q-mr-sm"
+                class="q-mb-sm q-mr-sm"
               />
             </div>
           </q-form>
-          <ListadoHospitales />
         </q-card>
+        <ListadoHospitales />
       </q-tab-panel>
 
       <!-- Pestaña: Medicamentos y Otros -->
@@ -142,12 +156,14 @@
                     <div class="row">
                       <div class="col">
                         <q-input
+                          class="q-mb-sm q-mr-sm"
                           v-model="medicamentoData.codigo"
                           label="Código"
                           outlined
                           dense
                         />
                         <q-input
+                          class="q-mb-sm q-mr-sm"
                           v-model="medicamentoData.descripcion"
                           label="Descripción"
                           outlined
@@ -156,12 +172,14 @@
                       </div>
                       <div class="col">
                         <q-input
+                          class="q-mb-sm q-mr-sm"
                           v-model="medicamentoData.tipo"
                           label="Tipo"
                           outlined
                           dense
                         />
                         <q-input
+                          class="q-mb-sm q-mr-sm"
                           v-model="medicamentoData.indicaciones"
                           label="Indicaciones"
                           type="textarea"
@@ -171,7 +189,6 @@
                       </div>
                     </div>
                   </q-form>
-                  <ListadoMedicamentos />
                 </q-card>
               </q-tab-panel>
 
@@ -184,12 +201,14 @@
                     <div class="row">
                       <div class="col">
                         <q-input
+                          class="q-mb-sm q-mr-sm"
                           v-model="medicamentoData.precioCosto"
                           label="Precio Costo"
                           outlined
                           dense
                         />
                         <q-input
+                          class="q-mb-sm q-mr-sm"
                           v-model="medicamentoData.precioVenta"
                           label="Precio Venta"
                           outlined
@@ -198,10 +217,12 @@
                       </div>
                       <div class="col">
                         <q-checkbox
+                          class="q-mb-sm q-mr-sm"
                           v-model="medicamentoData.facturar"
                           label="Facturar"
                         />
                         <q-select
+                          class="q-mb-sm q-mr-sm"
                           v-model="medicamentoData.status"
                           :options="statusOptions"
                           label="Status"
@@ -210,20 +231,22 @@
                         />
                       </div>
                     </div>
-                    <div class="row justify-end q-mt-md">
-                      <q-btn
-                        label="Guardar"
-                        color="primary"
-                        icon="save"
-                        @click="guardarMedicamento"
-                      />
-                    </div>
                   </q-form>
                 </q-card>
               </q-tab-panel>
             </q-tab-panels>
+            <div class="row justify-end q-mt-md">
+              <q-btn
+                class="q-mb-sm q-mr-sm"
+                label="Guardar"
+                color="primary"
+                icon="save"
+                @click="guardarMedicamento"
+              />
+            </div>
           </div>
         </div>
+        <ListadoMedicamentos />
       </q-tab-panel>
 
       <!-- Pestaña: Exámenes y Estudios -->
@@ -232,6 +255,7 @@
           <div class="col-3">
             <q-list bordered>
               <q-item
+                class="q-mb-sm q-mr-sm"
                 clickable
                 v-ripple
                 @click="subTabEstudio = 'InfoEstudio'"
@@ -240,6 +264,7 @@
                 <q-item-section>Información</q-item-section>
               </q-item>
               <q-item
+                class="q-mb-sm q-mr-sm"
                 clickable
                 v-ripple
                 @click="subTabEstudio = 'ConfigEstudio'"
@@ -260,12 +285,14 @@
                     <div class="row">
                       <div class="col">
                         <q-input
+                          class="q-mb-sm q-mr-sm"
                           v-model="estudioData.codigo"
                           label="Código"
                           outlined
                           dense
                         />
                         <q-input
+                          class="q-mb-sm q-mr-sm"
                           v-model="estudioData.descripcion"
                           label="Descripción"
                           outlined
@@ -274,12 +301,14 @@
                       </div>
                       <div class="col">
                         <q-input
+                          class="q-mb-sm q-mr-sm"
                           v-model="estudioData.clase"
                           label="Clase de Estudio"
                           outlined
                           dense
                         />
                         <q-input
+                          class="q-mb-sm q-mr-sm"
                           v-model="estudioData.indicaciones"
                           label="Indicaciones"
                           type="textarea"
@@ -301,12 +330,14 @@
                     <div class="row">
                       <div class="col">
                         <q-input
+                          class="q-mb-sm q-mr-sm"
                           v-model="estudioData.precioCosto"
                           label="Precio Costo"
                           outlined
                           dense
                         />
                         <q-input
+                          class="q-mb-sm q-mr-sm"
                           v-model="estudioData.precioVenta"
                           label="Precio Venta"
                           outlined
@@ -315,10 +346,12 @@
                       </div>
                       <div class="col">
                         <q-checkbox
+                          class="q-mb-sm q-mr-sm"
                           v-model="estudioData.facturar"
                           label="Facturar"
                         />
                         <q-select
+                          class="q-mb-sm q-mr-sm"
                           v-model="estudioData.status"
                           :options="statusOptions"
                           label="Status"
@@ -327,18 +360,19 @@
                         />
                       </div>
                     </div>
-                    <div class="row justify-end q-mt-md">
-                      <q-btn
-                        label="Guardar"
-                        color="primary"
-                        icon="save"
-                        @click="guardarEstudio"
-                      />
-                    </div>
                   </q-form>
                 </q-card>
               </q-tab-panel>
             </q-tab-panels>
+            <div class="row justify-end q-mt-md">
+              <q-btn
+                class="q-mb-sm q-mr-sm"
+                label="Guardar"
+                color="primary"
+                icon="save"
+                @click="guardarEstudio"
+              />
+            </div>
           </div>
         </div>
       </q-tab-panel>
@@ -360,6 +394,7 @@ import {
   useDepartamentoStore,
   useMunicipioStore,
 } from "../stores/DatosGeneralesStores";
+import { Notify } from "quasar";
 
 import { storeToRefs } from "pinia";
 
@@ -388,7 +423,7 @@ const hospitalData = reactive({
   web: "",
 });
 
-const formErrors = reactive({
+const hospitalErrors = reactive({
   nombre: "",
   direccion: "",
   departamentoSeleccionado: "",
@@ -397,6 +432,52 @@ const formErrors = reactive({
   email: "",
   web: "",
 });
+
+const validarFormularioHospital = () => {
+  let isValid = true;
+
+  hospitalErrors.nombre = hospitalData.nombre
+    ? ""
+    : "El nombre es obligatorio.";
+  hospitalErrors.direccion = hospitalData.direccion
+    ? ""
+    : "La dirección es obligatoria.";
+  hospitalErrors.departamentoSeleccionado =
+    hospitalData.departamentoSeleccionado ? "" : "Seleccione un departamento.";
+  hospitalErrors.municipioSeleccionado = hospitalData.municipioSeleccionado
+    ? ""
+    : "Seleccione un municipio.";
+
+  // Validación del teléfono: Debe cumplir con el formato ####-####
+  hospitalErrors.telefono =
+    hospitalData.telefono && hospitalData.telefono.length === 9
+      ? ""
+      : "El teléfono debe tener el formato ####-####.";
+
+  // Validación del email: Expresión regular para verificar el formato
+  hospitalErrors.email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(hospitalData.email)
+    ? ""
+    : "Ingrese un email válido.";
+
+  // Validación de la URL del sitio web: Campo opcional, pero si está lleno, debe tener el formato correcto
+  hospitalErrors.web =
+    hospitalData.web && !/^https?:\/\/[^\s/$.?#].[^\s]*$/.test(hospitalData.web)
+      ? "Ingrese una URL válida (debe comenzar con http:// o https://)."
+      : "";
+
+  // Verificar si no hay errores
+  isValid = Object.values(hospitalErrors).every((error) => error === "");
+
+  if (!isValid) {
+    Notify.create({
+      message: "Por favor, corrija los errores en el formulario",
+      color: "red",
+      position: "top-right",
+    });
+  }
+
+  return isValid;
+};
 
 const filteredMunicipios = computed(() => {
   if (!hospitalData.departamentoSeleccionado) {
@@ -494,8 +575,8 @@ const validarFormulario = () => {
 };
 
 const guardarHospital = () => {
-  if (!validarFormulario()) {
-    return; // Detener la función si la validación falla
+  if (!validarFormularioHospital()) {
+    return;
   }
 
   hospitalStore.agregarHospital({ ...hospitalData });

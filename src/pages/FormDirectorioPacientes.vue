@@ -1,24 +1,8 @@
 <template>
-  <DxPieChart
-    id="pie"
-    :data-source="internetLanguages"
-    type="doughnut"
-    title="Top Internet Languages"
-    palette="Soft Pastel"
-  >
-    <DxSeries argument-field="language" value-field="percent">
-      <DxSmallValuesGrouping :top-count="3" mode="topN" />
-      <DxLabel
-        :visible="true"
-        :customize-text="customizeLabel"
-        format="fixedPoint"
-      >
-        <DxConnector :visible="true" :width="1" />
-      </DxLabel>
-    </DxSeries>
-    <DxExport :enabled="true" />
-    <DxLegend horizontal-alignment="center" vertical-alignment="bottom" />
-  </DxPieChart>
+  <div class="row">
+    <PacienteActivoGraph />
+    <PacientesAggMensualmente />
+  </div>
   <!-- /////////////////// -->
   <!-- /////////////////// -->
   <!-- /////////////////// -->
@@ -106,6 +90,13 @@
                     Información Técnica
                   </q-card-section>
                   <q-form class="q-gutter-md">
+                    <q-input
+                      v-model="form.fechaRegistro"
+                      label="Fecha de Registro"
+                      outlined
+                      dense
+                      type="date"
+                    />
                     <q-input
                       v-model="form.codigo"
                       label="Codigo"
@@ -218,13 +209,7 @@
                       outlined
                       dense
                     />
-                    <!-- Campo de Estado -->
-                    <q-input
-                      v-model="form.estado"
-                      label="Estado"
-                      outlined
-                      dense
-                    />
+
                     <q-input
                       v-model="form.telCasa"
                       label="Telefono Casa"
@@ -393,12 +378,15 @@ import DxPieChart, {
   DxConnector,
   DxExport,
 } from "devextreme-vue/pie-chart";
+import PacienteActivoGraph from "src/components/PacienteActivoGraph.vue";
+import PacientesAggMensualmente from "src/components/PacientesAggMensualmente.vue";
 
 const customizeLabel = ({ argumentText, valueText }) =>
   `${argumentText}: ${valueText}%`;
 
 // Definir el formulario inicial
 const form = ref({
+  fechaRegistro: "",
   codigo: "",
   activo: true,
   tipo: "",
@@ -409,7 +397,7 @@ const form = ref({
   nombres: "",
   apellidos: "",
   direccion: "",
-  estado: "",
+
   municipio: "",
   sexo: "",
   fechaNacimiento: "",
@@ -431,6 +419,7 @@ const form = ref({
 
 const resetFormData = () => {
   form.value = {
+    fechaRegistro: "",
     codigo: "",
     activo: true,
     tipo: "",
@@ -441,7 +430,7 @@ const resetFormData = () => {
     nombres: "",
     apellidos: "",
     direccion: "",
-    estado: "",
+
     municipio: "",
     sexo: "",
     fechaNacimiento: "",

@@ -23,7 +23,6 @@
             outlined
             dense
             style="font-size: 14px; height: auto"
-            class="q-mb-sm"
             :error="!!formErrors.Nombre"
             :error-message="formErrors.Nombre"
           />
@@ -33,7 +32,6 @@
             outlined
             dense
             style="font-size: 14px; height: auto"
-            class="q-mb-sm"
             :error="!!formErrors.Direccion"
             :error-message="formErrors.Direccion"
           />
@@ -47,7 +45,6 @@
             outlined
             dense
             style="font-size: 14px; height: auto"
-            class="q-mb-sm"
             :error="!!formErrors.Especialidad"
             :error-message="formErrors.Especialidad"
           />
@@ -63,7 +60,6 @@
             mask="####-####"
             dense
             style="font-size: 14px; height: auto"
-            class="q-mb-sm"
             :error="!!formErrors.Telefono"
             :error-message="formErrors.Telefono"
           />
@@ -76,7 +72,6 @@
             mask="####-####"
             dense
             style="font-size: 14px; height: auto"
-            class="q-mb-sm"
             :error="!!formErrors.Celular"
             :error-message="formErrors.Celular"
           />
@@ -92,7 +87,6 @@
             outlined
             dense
             style="font-size: 14px; height: auto"
-            class="q-mb-sm"
             :error="!!formErrors.Email"
             :error-message="formErrors.Email"
           />
@@ -105,7 +99,6 @@
           color="primary"
           type="submit"
           style="font-size: 14px; padding: 8px 16px"
-          class="q-mb-xl"
         />
       </div>
     </q-form>

@@ -15,39 +15,48 @@
         data-field="nombre"
         caption="Nombre del Hospital"
         :allow-sorting="true"
+        :width="210"
       ></dx-column>
       <dx-column
         data-field="direccion"
         caption="Dirección"
         :allow-sorting="true"
+        :min-width="390"
       ></dx-column>
       <dx-column
         data-field="municipio"
         caption="Municipio"
         :allow-sorting="true"
         :visible="false"
+        :width="140"
       ></dx-column>
       <dx-column
         data-field="departamento"
         caption="Departamento"
         :allow-sorting="true"
         :visible="false"
+        :width="140"
       ></dx-column>
       <dx-column
         data-field="telefono"
         caption="Teléfono"
         :allow-sorting="true"
+        :visible="true"
+        :width="120"
       ></dx-column>
       <dx-column
         data-field="email"
         caption="Correo Electrónico"
         :allow-sorting="true"
+        :visible="true"
+        :width="180"
       ></dx-column>
       <dx-column
         data-field="web"
         caption="Sitio Web"
         :allow-sorting="true"
-        :visible="false"
+        :visible="true"
+        :width="120"
       ></dx-column>
 
       <!-- Configuración de edición de datos con título en la ventana modal -->
@@ -112,8 +121,10 @@ export default {
   font-size: 1.5rem;
   font-weight: bold;
   color: #333;
-  margin: 1px 0 1px; /* Menor espacio superior, más espacio inferior */
+  margin: 1px 1px; /* Menor espacio superior, más espacio inferior */
   text-align: center; /* Centrado del título */
+  flex: auto;
+  margin-top: 50px;
 }
 
 .dx-data-grid {
