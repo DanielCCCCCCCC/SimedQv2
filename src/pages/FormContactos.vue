@@ -1,10 +1,9 @@
 <template>
-  <!-- @submit="guardarContacto" -->
   <q-page class="q-pa-md flex flex-center" style="margin-top: -70px">
     <q-form
-      @submit.prevent="guardarContacto"
       class="bg-grey-2 shadow-2 q-pa-md rounded-xl"
       style="max-width: 600px; width: 100%"
+      @submit.prevent="guardarContacto"
     >
       <h1 class="text-h4 text-sky-500 text-center q-mb-md uppercase">
         Agregar Contacto
@@ -23,8 +22,6 @@
             label="Nombre"
             outlined
             dense
-            :error="!!formErrors.Nombre"
-            :error-message="formErrors.Nombre"
             style="font-size: 14px; height: auto"
             class="q-mb-sm"
           />
@@ -49,18 +46,6 @@
             style="font-size: 14px; height: auto"
             class="q-mb-sm"
           />
-
-          <q-select
-            v-model="formData.grupos"
-            :options="grupos"
-            label="Grupo"
-            option-value="id"
-            option-label="descripcion"
-            outlined
-            dense
-            style="font-size: 14px; height: auto"
-            class="q-mb-sm"
-          />
         </div>
 
         <div class="col-12 col-md-6">
@@ -73,8 +58,6 @@
             map-options
             outlined
             dense
-            :error="!!formErrors.selectedDepartamento"
-            :error-message="formErrors.selectedDepartamento"
             class="q-mb-sm"
           />
           <q-select
@@ -85,8 +68,6 @@
             option-label="descripcion"
             outlined
             dense
-            :error="!!formErrors.selectedMunicipio"
-            :error-message="formErrors.selectedMunicipio"
             class="q-mb-sm"
             :disable="!formData.selectedDepartamento"
           />
@@ -101,8 +82,6 @@
             type="email"
             outlined
             dense
-            :error="!!formErrors.Email"
-            :error-message="formErrors.Email"
             style="font-size: 14px; height: auto"
             class="q-mb-sm"
           />
@@ -151,30 +130,26 @@
       />
     </q-form>
   </q-page>
-  <!-- <ListadoContactos /> -->
 </template>
 
 <script setup>
-// import { Notify } from "quasar";
 import { ref, reactive, computed, watch } from "vue";
 import {
   useDepartamentoStore,
   useMunicipioStore,
 } from "../stores/DatosGeneralesStores";
-import { useGruposContactosStore } from "../stores/ConfiMedicasStores";
 import { useContactStore } from "../stores/ContacStores"; // Asegúrate de que la ruta es correcta
 import { storeToRefs } from "pinia";
+import { useQuasar, Notify } from "quasar";
 
 // Importar las tiendas
 const departamentoStore = useDepartamentoStore();
 const municipioStore = useMunicipioStore();
 const contactStore = useContactStore();
-const GruposContactosStore = useGruposContactosStore();
 
 // Obtener los datos de las tiendas
 const { departamentos } = storeToRefs(departamentoStore);
 const { municipios } = storeToRefs(municipioStore);
-const { grupos } = storeToRefs(GruposContactosStore);
 
 // Datos del formulario
 const formData = reactive({
@@ -182,15 +157,14 @@ const formData = reactive({
   Direccion: "",
   Organizacion: "",
   Email: "",
-  grupos: "",
   TelefonoCasa: "",
   Celular: "",
   Observaciones: "",
   selectedDepartamento: null,
   selectedMunicipio: null,
-  // ... otros campos si es necesario
 });
 
+// Computed para filtrar los municipios según el departamento seleccionado
 const filteredMunicipios = computed(() => {
   if (!formData.selectedDepartamento) {
     return [];
@@ -199,120 +173,42 @@ const filteredMunicipios = computed(() => {
     (municipio) => municipio.departamentoId === formData.selectedDepartamento.id
   );
 });
-const guardarContacto = () => {
-  // Validar el formulario antes de proceder
-  if (!validarFormulario()) {
-    return;
-  }
 
-  const nuevoContacto = {
-    ...formData,
-    DepartamentoID: formData.selectedDepartamento
-      ? formData.selectedDepartamento.id
-      : null,
-    DepartamentoDescripcion: formData.selectedDepartamento
-      ? formData.selectedDepartamento.descripcion
-      : null,
-    MunicipioID: formData.selectedMunicipio
-      ? formData.selectedMunicipio.id
-      : null,
-    MunicipioDescripcion: formData.selectedMunicipio
-      ? formData.selectedMunicipio.descripcion
-      : null,
-    GrupoID: formData.grupos && formData.grupos.id ? formData.grupos.id : null,
-    GrupoDescripcion:
-      formData.grupos && formData.grupos.descripcion
-        ? formData.grupos.descripcion
-        : null,
-  };
-
-  // Remover las propiedades que no quieras guardar
-  delete nuevoContacto.selectedDepartamento;
-  delete nuevoContacto.selectedMunicipio;
-  delete nuevoContacto.grupos; // Remover Grupo original si ya tienes propiedades desglosadas
-
-  // Agregar el contacto a la tienda
-  contactStore.agregarContacto(nuevoContacto);
-
-  alert("Contacto creado Exitosamente");
-  // Limpiar el formulario después de guardar
-  Object.keys(formData).forEach((key) => {
-    formData[key] = null;
-  });
-  // Mostrar una notificación de éxito
-
-  // Opcional: Puedes redirigir al usuario o mostrar un mensaje de éxito
-  console.log("Contacto guardado exitosamente");
-};
-const formErrors = reactive({
-  Nombre: "",
-  Email: "",
-  selectedDepartamento: "",
-  selectedMunicipio: "",
-  // Agrega otros campos si es necesario
-});
-
+// Watch para limpiar el municipio cuando cambia el departamento
 watch(
   () => formData.selectedDepartamento,
   () => {
     formData.selectedMunicipio = null;
-    console.log("Departamento seleccionado:", formData.selectedDepartamento);
   }
 );
 
-watch(
-  () => filteredMunicipios.value,
-  (newVal) => {
-    console.log("Municipios filtrados:", newVal);
-  }
-);
-const validarFormulario = () => {
-  let isValid = true;
-
-  // Resetear errores anteriores
-  Object.keys(formErrors).forEach((key) => {
-    formErrors[key] = "";
-  });
-
-  // Validar Nombre
-  if (!formData.Nombre || formData.Nombre.trim() === "") {
-    formErrors.Nombre = "El nombre es requerido";
-    isValid = false;
-  }
-
-  // Validar Email
-  if (!formData.Email || formData.Email.trim() === "") {
-    formErrors.Email = "El email es requerido";
-    isValid = false;
-  } else if (!/^\S+@\S+\.\S+$/.test(formData.Email)) {
-    formErrors.Email = "El email no es válido";
-    isValid = false;
-  }
-
-  // Validar Departamento
-  if (!formData.selectedDepartamento) {
-    formErrors.selectedDepartamento = "Debe seleccionar un departamento";
-    isValid = false;
-  }
-
-  // Validar Municipio
-  if (!formData.selectedMunicipio) {
-    formErrors.selectedMunicipio = "Debe seleccionar un municipio";
-    isValid = false;
-  }
-
-  // Añadir otras validaciones si es necesario
-
-  if (!isValid) {
+// Función para guardar el contacto en la tienda
+function guardarContacto() {
+  // Validación básica
+  if (!formData.Nombre || !formData.Email) {
     Notify.create({
-      message: "Por favor, corrija los errores en el formulario",
+      message: "Por favor, completa los campos requeridos",
       color: "red",
       position: "top-right",
     });
+    return;
   }
 
-  return isValid;
-};
+  // Agregar el contacto a la tienda
+  contactStore.agregarContacto({ ...formData });
+
+  // Limpiar el formulario
+  Object.keys(formData).forEach((key) => {
+    formData[key] =
+      key === "selectedDepartamento" || key === "selectedMunicipio" ? null : "";
+  });
+
+  Notify.create({
+    message: "Contacto guardado exitosamente",
+    color: "green",
+    position: "top-right",
+  });
+}
 </script>
 
 <style scoped>

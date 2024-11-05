@@ -3,22 +3,19 @@
     <q-form
       class="bg-grey-1 shadow-2 q-pa-md rounded-xl"
       style="max-width: 550px; width: 100%"
+      @submit.prevent="guardarMedico"
     >
-      <!-- Título -->
       <div class="text-center q-mb-md">
         <h1 class="text-h5 text-sky-900 uppercase">Agregar Médico Referente</h1>
       </div>
 
-      <!-- Avatar y campos de contacto en dos columnas -->
       <div class="row q-col-gutter-sm">
-        <!-- Columna Izquierda: Avatar -->
         <div class="col-12 col-md-3 flex flex-center q-mb-sm">
           <q-avatar size="96px" class="form-avatar">
             <q-icon name="person" size="48px" />
           </q-avatar>
         </div>
 
-        <!-- Columna Derecha: Campos del Formulario -->
         <div class="col-12 col-md-9">
           <q-input
             v-model="formData.Nombre"
@@ -27,6 +24,8 @@
             dense
             style="font-size: 14px; height: auto"
             class="q-mb-sm"
+            :error="!!formErrors.Nombre"
+            :error-message="formErrors.Nombre"
           />
           <q-input
             v-model="formData.Direccion"
@@ -35,6 +34,8 @@
             dense
             style="font-size: 14px; height: auto"
             class="q-mb-sm"
+            :error="!!formErrors.Direccion"
+            :error-message="formErrors.Direccion"
           />
           <q-select
             v-model="formData.especialidadesSeleccionadas"
@@ -47,11 +48,12 @@
             dense
             style="font-size: 14px; height: auto"
             class="q-mb-sm"
+            :error="!!formErrors.Especialidad"
+            :error-message="formErrors.Especialidad"
           />
         </div>
       </div>
 
-      <!-- Segunda Fila de Campos: Teléfono y Celular en dos columnas -->
       <div class="row q-col-gutter-sm">
         <div class="col-12 col-md-6">
           <q-input
@@ -62,6 +64,8 @@
             dense
             style="font-size: 14px; height: auto"
             class="q-mb-sm"
+            :error="!!formErrors.Telefono"
+            :error-message="formErrors.Telefono"
           />
         </div>
         <div class="col-12 col-md-6">
@@ -73,11 +77,12 @@
             dense
             style="font-size: 14px; height: auto"
             class="q-mb-sm"
+            :error="!!formErrors.Celular"
+            :error-message="formErrors.Celular"
           />
         </div>
       </div>
 
-      <!-- Tercera Fila de Campos: Email -->
       <div class="row q-col-gutter-sm">
         <div class="col-12 col-md-6">
           <q-input
@@ -88,16 +93,17 @@
             dense
             style="font-size: 14px; height: auto"
             class="q-mb-sm"
+            :error="!!formErrors.Email"
+            :error-message="formErrors.Email"
           />
         </div>
       </div>
 
-      <!-- Botón de Guardar -->
       <div class="flex justify-center q-mt-sm">
         <q-btn
           label="Guardar Médico"
           color="primary"
-          @click="guardarMedico"
+          type="submit"
           style="font-size: 14px; padding: 8px 16px"
           class="q-mb-xl"
         />
@@ -111,19 +117,17 @@
 
 <script setup>
 import { reactive } from "vue";
+import { useQuasar, Notify } from "quasar";
 import { storeToRefs } from "pinia";
 
 import { useMedicoStore } from "../stores/MedicoStores";
-import { useQuasar } from "quasar";
 import ListadoMedicos from "./ListadoMedicos.vue";
 import { useEspecialidadMedicaStore } from "../stores/ConfiMedicasStores";
 
-// Inicializar la store de médicos
 const medicoStore = useMedicoStore();
 const EspecialidadMedicaStore = useEspecialidadMedicaStore();
 const { especialidades } = storeToRefs(EspecialidadMedicaStore);
 
-// Datos del formulario
 const formData = reactive({
   Nombre: "",
   Direccion: "",
@@ -133,43 +137,82 @@ const formData = reactive({
   Email: "",
 });
 
-// Inicializar Quasar
-const $q = useQuasar();
+const formErrors = reactive({
+  Nombre: "",
+  Direccion: "",
+  Especialidad: "",
+  Telefono: "",
+  Celular: "",
+  Email: "",
+});
 
-// Función para guardar el médico en la store
+const validarFormulario = () => {
+  let isValid = true;
+
+  formErrors.Nombre = !formData.Nombre ? "El nombre es obligatorio" : "";
+  formErrors.Direccion = !formData.Direccion
+    ? "La dirección es obligatoria"
+    : "";
+  formErrors.Especialidad = !formData.especialidadesSeleccionadas
+    ? "Seleccione una especialidad"
+    : "";
+  formErrors.Telefono =
+    formData.Telefono && formData.Telefono.length === 9
+      ? ""
+      : "El teléfono debe tener el formato ####-####";
+  formErrors.Celular =
+    formData.Celular && formData.Celular.length === 9
+      ? ""
+      : "El celular debe tener el formato ####-####";
+  formErrors.Email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.Email)
+    ? ""
+    : "Ingrese un email válido";
+
+  isValid = Object.values(formErrors).every((error) => error === "");
+
+  if (!isValid) {
+    Notify.create({
+      message: "Por favor, corrija los errores en el formulario",
+      color: "red",
+      position: "top-right",
+    });
+  }
+
+  return isValid;
+};
+
 function guardarMedico() {
-  const nuevoMedico = { ...formData };
-  console.log("Nuevo médico a agregar:", nuevoMedico);
+  if (validarFormulario()) {
+    medicoStore.agregarMedico({ ...formData });
 
-  medicoStore.agregarMedico(nuevoMedico);
-  console.log("Médicos después de agregar:", medicoStore.medicos);
+    Object.keys(formData).forEach((key) => {
+      formData[key] = "";
+    });
 
-  // Limpiar el formulario
-  formData.Nombre = "";
-  formData.Direccion = "";
-  formData.especialidades = "";
-  formData.Telefono = "";
-  formData.Celular = "";
-  formData.Email = "";
-  alert("Medico guardado con exito");
+    Notify.create({
+      message: "Médico guardado con éxito",
+      color: "green",
+      position: "top-right",
+    });
+  }
 }
 </script>
 
 <style scoped>
 .q-page {
-  min-height: 100vh; /* Ocupa toda la altura de la pantalla */
+  min-height: 100vh;
 }
 
 .form-avatar {
   background-color: #acb5c7;
-  background-image: url("images/petersmith.png"); /* Reemplaza con la URL de la imagen deseada */
+  background-image: url("images/petersmith.png");
   background-size: cover;
   background-position: center;
   border-radius: 50%;
 }
 
 .q-form {
-  background-color: #042958; /* Fondo suave */
+  background-color: #042958;
 }
 
 .q-btn {

@@ -4,7 +4,7 @@
   </div>
   <div id="app-container" class="q-mb-xl q-px-md q-pa-xs q-py-md">
     <dx-data-grid
-      :data-source="medicos"
+      :data-source="medicosConEspecialidad"
       :allow-column-reordering="true"
       :show-borders="true"
       :row-alternation-enabled="true"
@@ -81,29 +81,26 @@ import {
 
 // importamos las tiendas
 import { useMedicoStore } from "../stores/MedicoStores";
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useEspecialidadMedicaStore } from "src/stores/ConfiMedicasStores";
 
-//Inicializamos la tienda
+// Inicializamos la tienda
 const medicoStore = useMedicoStore();
 const EspecialidadMedicaStore = useEspecialidadMedicaStore();
 
-//Inicializamos las propiedades reactivas.
+// Inicializamos las propiedades reactivas
 const { medicos } = storeToRefs(medicoStore);
 const { especialidades } = storeToRefs(EspecialidadMedicaStore);
 
-import { computed } from "vue";
-
-const medicosFormateados = computed(() => {
+// Computed para obtener los médicos con la descripción de especialidad
+const medicosConEspecialidad = computed(() => {
   return medicos.value.map((medico) => {
-    const especialidad = especialidades.value.find(
-      (esp) => esp.id === medico.especialidadesSeleccionadas.id
-    );
+    // Verifica si especialidadesSeleccionadas contiene una descripción válida
     return {
       ...medico,
-      especialidadesSeleccionadas: especialidad
-        ? especialidad.descripcion
+      Especialidad: medico.especialidadesSeleccionadas
+        ? medico.especialidadesSeleccionadas.descripcion
         : "N/A",
     };
   });
