@@ -296,6 +296,9 @@ export default {
     };
   },
   methods: {
+    renderTipo(data) {
+      return data.value ? data.value.descripcion : "";
+    },
     rowClick(e) {
       this.focusedRowKey = e.key;
       this.panelData = e.data;

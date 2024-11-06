@@ -98,15 +98,19 @@
                       v-model="pacienteSeleccionado.activo"
                       label="Activo"
                       dense
-                      color="primary"
                     />
+
                     <q-select
                       v-model="pacienteSeleccionado.tipo"
+                      :options="pacientes"
                       label="Tipo"
-                      :options="tipoOptions"
+                      option-value="id"
+                      option-label="descripcion"
                       outlined
                       dense
+                      style="font-size: 14px; height: auto"
                     />
+
                     <q-input
                       v-model="pacienteSeleccionado.medico"
                       label="Medico"
@@ -330,10 +334,18 @@
 <script setup>
 import { ref } from "vue";
 import { useFichaIdentificacionStore } from "../stores/fichaIdentificacionStores";
+import { useTiposPacientesStore } from "../stores/ConfiMedicasStores";
+
 import { storeToRefs } from "pinia";
 import ListadoPacientes from "./ListadoPacientes.vue";
 import PacienteActivoGraph from "src/components/PacienteActivoGraph.vue";
 import PacientesAggMensualmente from "src/components/PacientesAggMensualmente.vue";
+
+//Inicializo las tiendas
+const TiposPacientesStore = useTiposPacientesStore();
+
+//acedemos a las propiedades de la tienda
+const { pacientes } = storeToRefs(TiposPacientesStore);
 
 const pacienteSeleccionado = ref({});
 
@@ -341,6 +353,7 @@ const tab = ref("Pacientes");
 const subTabFichaIdentificacion = ref("infoTecnica");
 
 const fichaIdentificacionStore = useFichaIdentificacionStore();
+
 const {
   grupoSanguineoOptions,
   formIdentificacion,
