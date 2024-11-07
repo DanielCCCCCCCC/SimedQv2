@@ -333,6 +333,8 @@
 
 <script setup>
 import { ref } from "vue";
+import { supabase } from "../supabaseClient";
+
 import { useFichaIdentificacionStore } from "../stores/fichaIdentificacionStores";
 import { useTiposPacientesStore } from "../stores/ConfiMedicasStores";
 

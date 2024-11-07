@@ -45,9 +45,9 @@
               <!-- Subpanel para Departamento -->
               <q-tab-panel name="Departamento">
                 <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-                  <q-card-section class="text-h6 text-primary"
-                    >Departamento</q-card-section
-                  >
+                  <q-card-section class="text-h6 text-primary">
+                    Departamento
+                  </q-card-section>
                   <q-form
                     @submit.prevent="guardarDepartamento"
                     class="q-gutter-md"
@@ -82,15 +82,15 @@
               <!-- Subpanel para Municipio -->
               <q-tab-panel name="Municipio">
                 <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-                  <q-card-section class="text-h6 text-primary"
-                    >Municipio</q-card-section
-                  >
+                  <q-card-section class="text-h6 text-primary">
+                    Municipio
+                  </q-card-section>
                   <q-form
                     @submit.prevent="guardarMunicipio"
                     class="q-gutter-md"
                   >
                     <q-select
-                      v-model="municipioData.departamento"
+                      v-model="municipioData.departamentoId"
                       :options="departamentos"
                       option-value="id"
                       option-label="descripcion"
@@ -100,6 +100,7 @@
                       :error="!!formErrors.municipioDepartamento"
                       :error-message="formErrors.municipioDepartamento"
                     />
+                    <!-- @input="onDepartamentoSelected" -->
                     <q-input
                       v-model="municipioData.descripcion"
                       label="Descripción"
@@ -134,9 +135,9 @@
       <!-- Panel para Grupo Sanguíneo -->
       <q-tab-panel name="Grupo Sanguíneo">
         <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary"
-            >Grupo Sanguíneo</q-card-section
-          >
+          <q-card-section class="text-h6 text-primary">
+            Grupo Sanguíneo
+          </q-card-section>
           <q-form @submit.prevent="guardarGrupoSanguineo" class="q-gutter-md">
             <q-input
               v-model="grupoSanguineoData.descripcion"
@@ -168,9 +169,9 @@
       <!-- Panel para Escolaridad -->
       <q-tab-panel name="Escolaridad">
         <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary"
-            >Escolaridad</q-card-section
-          >
+          <q-card-section class="text-h6 text-primary">
+            Escolaridad
+          </q-card-section>
           <q-form @submit.prevent="guardarEscolaridad" class="q-gutter-md">
             <q-input
               v-model="escolaridadData.descripcion"
@@ -202,9 +203,9 @@
       <!-- Panel para Estado Civil -->
       <q-tab-panel name="Estado Civil">
         <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary"
-            >Estado Civil</q-card-section
-          >
+          <q-card-section class="text-h6 text-primary">
+            Estado Civil
+          </q-card-section>
           <q-form @submit.prevent="guardarEstadoCivil" class="q-gutter-md">
             <q-input
               v-model="estadoCivilData.descripcion"
@@ -237,7 +238,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import {
   useDepartamentoStore,
   useMunicipioStore,
@@ -247,17 +248,22 @@ import {
 } from "../stores/DatosGeneralesStores";
 import { storeToRefs } from "pinia";
 
-// Inicializo las tiendas
-const DepartamentoStore = useDepartamentoStore();
-const MunicipioStore = useMunicipioStore();
+// Inicializar tiendas
+const departamentoStore = useDepartamentoStore();
+const municipioStore = useMunicipioStore();
 const grupoSanguineoStore = useGrupoSanguineoStore();
 const escolaridadStore = useEscolaridadStore();
 const estadoCivilStore = useEstadoCivilStore();
 
-const { departamentos } = storeToRefs(DepartamentoStore);
+// Datos reactivos
+const departamentoData = reactive({ descripcion: "" });
+const municipioData = reactive({ descripcion: "", departamentoId: null });
+const grupoSanguineoData = reactive({ descripcion: "" });
+const escolaridadData = reactive({ descripcion: "" });
+const estadoCivilData = reactive({ descripcion: "" });
 
-const tab = ref("Departamentos y Municipios");
-const subTab = ref("Departamento");
+// Referencias a los datos
+const { departamentos } = storeToRefs(departamentoStore);
 
 // Estado de los errores de validación
 const formErrors = reactive({
@@ -269,14 +275,32 @@ const formErrors = reactive({
   estadoCivilDescripcion: "",
 });
 
-// Estados de los formularios para cada tipo
-const departamentoData = reactive({ descripcion: "" });
-const municipioData = reactive({ descripcion: "", departamento: "" });
-const grupoSanguineoData = reactive({ descripcion: "" });
-const escolaridadData = reactive({ descripcion: "" });
-const estadoCivilData = reactive({ descripcion: "" });
+// Cargar departamentos al montar el componente
+onMounted(() => {
+  departamentoStore.cargarDepartamentos();
+});
 
-// Funciones para guardar y eliminar datos con validación
+// Validaciones y funciones
+const validarMunicipioData = () => {
+  formErrors.municipioDepartamento = "";
+  formErrors.municipioDescripcion = "";
+
+  let isValid = true;
+
+  if (!municipioData.departamentoId) {
+    formErrors.municipioDepartamento = "Seleccione un departamento.";
+    isValid = false;
+  }
+
+  if (!municipioData.descripcion) {
+    formErrors.municipioDescripcion =
+      "La descripción del municipio es obligatoria.";
+    isValid = false;
+  }
+
+  return isValid;
+};
+
 const guardarDepartamento = () => {
   formErrors.departamentoDescripcion = "";
   if (!departamentoData.descripcion) {
@@ -284,69 +308,51 @@ const guardarDepartamento = () => {
       "La descripción del departamento es obligatoria.";
     return;
   }
-  DepartamentoStore.agregarDepartamento(departamentoData.descripcion);
+  departamentoStore.agregarDepartamento(departamentoData.descripcion);
   departamentoData.descripcion = "";
 };
 
 const guardarMunicipio = () => {
   formErrors.municipioDepartamento = "";
-  formErrors.municipioDescripcion = "";
-  if (!municipioData.departamento) {
+
+  if (!municipioData.departamentoId) {
     formErrors.municipioDepartamento = "Seleccione un departamento.";
-  }
-  if (!municipioData.descripcion) {
-    formErrors.municipioDescripcion =
-      "La descripción del municipio es obligatoria.";
-  }
-  if (formErrors.municipioDepartamento || formErrors.municipioDescripcion)
     return;
+  }
 
-  MunicipioStore.agregarMunicipio({ ...municipioData });
+  //A ESTE CODIGO SE LE RUGEGA 🙏
+  const departamentoId =
+    typeof municipioData.departamentoId === "object"
+      ? municipioData.departamentoId.id
+      : municipioData.departamentoId;
+
+  municipioStore.agregarMunicipio(
+    municipioData.descripcion,
+    departamentoId,
+    "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"
+  );
+
   municipioData.descripcion = "";
-  municipioData.departamento = "";
-};
-
-const guardarGrupoSanguineo = () => {
-  formErrors.grupoSanguineoDescripcion = "";
-  if (!grupoSanguineoData.descripcion) {
-    formErrors.grupoSanguineoDescripcion =
-      "La descripción del grupo sanguíneo es obligatoria.";
-    return;
-  }
-  grupoSanguineoStore.agregarGrupoSanguineo(grupoSanguineoData.descripcion);
-  grupoSanguineoData.descripcion = "";
-};
-
-const guardarEscolaridad = () => {
-  formErrors.escolaridadDescripcion = "";
-  if (!escolaridadData.descripcion) {
-    formErrors.escolaridadDescripcion =
-      "La descripción de la escolaridad es obligatoria.";
-    return;
-  }
-  escolaridadStore.agregarEscolaridad(escolaridadData.descripcion);
-  escolaridadData.descripcion = "";
-};
-
-const guardarEstadoCivil = () => {
-  formErrors.estadoCivilDescripcion = "";
-  if (!estadoCivilData.descripcion) {
-    formErrors.estadoCivilDescripcion =
-      "La descripción del estado civil es obligatoria.";
-    return;
-  }
-  estadoCivilStore.agregarEstadoCivil(estadoCivilData.descripcion);
-  estadoCivilData.descripcion = "";
+  municipioData.departamentoId = null;
 };
 
 // Funciones para eliminar el último agregado
-const eliminarDepartamento = () =>
-  DepartamentoStore.eliminarUltimoDepartamento();
-const eliminarMunicipio = () => MunicipioStore.eliminarUltimoMunicipio();
-const eliminarGrupoSanguineo = () =>
-  grupoSanguineoStore.eliminarUltimoGrupoSanguineo();
-const eliminarEscolaridad = () => escolaridadStore.eliminarUltimaEscolaridad();
-const eliminarEstadoCivil = () => estadoCivilStore.eliminarUltimoEstadoCivil();
+const eliminarDepartamento = () => {
+  departamentoStore.eliminarUltimoDepartamento();
+};
+
+const eliminarMunicipio = () => {
+  municipioStore.eliminarUltimoMunicipio();
+};
+
+// Función para seleccionar el ID del departamento
+// const onDepartamentoSelected = (departamento) => {
+//   municipioData.departamentoId = departamento.id;
+// };
+
+// Tabs de control
+const tab = ref("Departamentos y Municipios");
+const subTab = ref("Departamento");
 </script>
 
 <style scoped>
