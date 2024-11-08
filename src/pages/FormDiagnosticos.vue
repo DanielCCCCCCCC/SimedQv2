@@ -3,16 +3,16 @@
     <!-- Barra de navegación de pestañas -->
     <q-tabs
       v-model="tab"
-      class="bg-white text-black q-mb-sm shadow-2 rounded-borders"
+      class="bg-white text-black q-mb-sm shadow-2 rounded-borders small-tabs"
     >
       <q-tab
-        name="ClasficicacionDiagnosticos"
+        name="ClasificacionDiagnosticos"
         icon="list"
-        label="Clasificación de diagnósticos"
+        label="Clasificación de Diagnósticos"
       />
-      <q-tab name="Diagnósticos" icon="assignment" label="Diagnósticos" />
+      <q-tab name="Diagnosticos" icon="assignment" label="Diagnósticos" />
       <q-tab
-        name="Controles de Medición"
+        name="ControlesMedicion"
         icon="bar_chart"
         label="Controles de Medición"
       />
@@ -20,19 +20,19 @@
 
     <q-tab-panels v-model="tab" animated swipeable>
       <!-- Pestaña: Clasificación de Diagnósticos -->
-      <q-tab-panel name="ClasficicacionDiagnosticos">
+      <q-tab-panel name="ClasificacionDiagnosticos">
         <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary"
-            >Clasificación de Diagnósticos</q-card-section
-          >
+          <q-card-section class="text-h6 text-primary">
+            Clasificación de Diagnósticos
+          </q-card-section>
           <q-form @submit.prevent="guardarClasificacion" class="q-gutter-md">
             <q-input
               v-model="clasificacionData.nombre"
               label="Nombre"
               outlined
               dense
-              :error="!!clasificacionErrors.nombre"
-              :error-message="clasificacionErrors.nombre"
+              :error="!!formErrors.clasificacionNombre"
+              :error-message="formErrors.clasificacionNombre"
             />
             <div class="row justify-end q-mt-md">
               <q-btn
@@ -42,7 +42,7 @@
                 @click="guardarClasificacion"
               />
               <q-btn
-                label="Eliminar"
+                label="Eliminar último agregado"
                 color="negative"
                 icon="delete"
                 @click="eliminarUltimaClasificacion"
@@ -54,7 +54,7 @@
       </q-tab-panel>
 
       <!-- Pestaña: Diagnósticos -->
-      <q-tab-panel name="Diagnósticos">
+      <q-tab-panel name="Diagnosticos">
         <q-card class="q-pa-lg q-mb-md bg-grey-1 rounded shadow-2xl">
           <q-card-section class="text-h6 text-primary"
             >Diagnósticos</q-card-section
@@ -65,17 +65,19 @@
               label="Descripción"
               outlined
               dense
-              :error="!!diagnosticoErrors.descripcion"
-              :error-message="diagnosticoErrors.descripcion"
+              :error="!!formErrors.diagnosticoDescripcion"
+              :error-message="formErrors.diagnosticoDescripcion"
             />
             <q-select
               v-model="diagnosticoData.clasificacion"
               :options="opcionesClasificaciones"
+              option-value="id"
+              option-label="label"
               label="Clasificación"
               outlined
               dense
-              :error="!!diagnosticoErrors.clasificacion"
-              :error-message="diagnosticoErrors.clasificacion"
+              :error="!!formErrors.diagnosticoClasificacion"
+              :error-message="formErrors.diagnosticoClasificacion"
             />
             <div class="row justify-end q-mt-md">
               <q-btn
@@ -85,7 +87,7 @@
                 @click="guardarDiagnostico"
               />
               <q-btn
-                label="Eliminar"
+                label="Eliminar último agregado"
                 color="negative"
                 icon="delete"
                 @click="eliminarUltimoDiagnostico"
@@ -97,7 +99,7 @@
       </q-tab-panel>
 
       <!-- Pestaña: Controles de Medición -->
-      <q-tab-panel name="Controles de Medición">
+      <q-tab-panel name="ControlesMedicion">
         <q-card class="q-pa-lg q-mb-md bg-grey-1 rounded shadow-2xl">
           <q-card-section class="text-h6 text-primary"
             >Controles de Medición</q-card-section
@@ -108,8 +110,8 @@
               label="Descripción"
               outlined
               dense
-              :error="!!controlErrors.descripcion"
-              :error-message="controlErrors.descripcion"
+              :error="!!formErrors.controlDescripcion"
+              :error-message="formErrors.controlDescripcion"
             />
             <div class="row justify-end q-mt-md">
               <q-btn
@@ -119,7 +121,7 @@
                 @click="guardarControl"
               />
               <q-btn
-                label="Eliminar"
+                label="Eliminar último agregado"
                 color="negative"
                 icon="delete"
                 @click="eliminarUltimoControl"
@@ -134,7 +136,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { Notify } from "quasar";
 import {
   useClasificacionDiagnosticosStore,
@@ -143,97 +145,108 @@ import {
 } from "../stores/DiagnosticosStores";
 import { storeToRefs } from "pinia";
 
-// Estado para las pestañas activas
-const tab = ref("ClasficicacionDiagnosticos");
-
-// Tiendas y datos reactivos
+// Inicializar tiendas
 const clasificacionDiagnosticosStore = useClasificacionDiagnosticosStore();
 const diagnosticosStore = useDiagnosticosStore();
 const controlesMedicionStore = useControlesMedicionStore();
 
-// Accede a propiedades reactivas
+// Datos reactivos
+const clasificacionData = reactive({ nombre: "" });
+const diagnosticoData = reactive({ descripcion: "", clasificacion: null });
+const controlData = reactive({ descripcion: "" });
+
+// Referencias a los datos de la tienda
 const { clasificaciones } = storeToRefs(clasificacionDiagnosticosStore);
 
-// Computed para opciones de select
+// Opciones de clasificación para el select
 const opcionesClasificaciones = computed(() =>
   clasificaciones.value.map((clasificacion) => ({
     label: clasificacion.nombre,
-    value: clasificacion.id,
+    id: clasificacion.id,
   }))
 );
 
-// Datos y errores de cada sección
-const clasificacionData = reactive({ nombre: "" });
-const clasificacionErrors = reactive({ nombre: "" });
-const diagnosticoData = reactive({ descripcion: "", clasificacion: "" });
-const diagnosticoErrors = reactive({ descripcion: "", clasificacion: "" });
-const controlData = reactive({ descripcion: "" });
-const controlErrors = reactive({ descripcion: "" });
+// Estado de los errores de validación
+const formErrors = reactive({
+  clasificacionNombre: "",
+  diagnosticoDescripcion: "",
+  diagnosticoClasificacion: "",
+  controlDescripcion: "",
+});
 
-// Función de validación genérica
-const validarCampo = (data, errors, campo) => {
-  errors[campo] = data[campo].trim() ? "" : `El campo ${campo} es obligatorio.`;
-  return !errors[campo];
-};
+// Cargar datos al montar el componente
+onMounted(() => {
+  clasificacionDiagnosticosStore.cargarClasificaciones();
+  diagnosticosStore.cargarDiagnosticos();
+  controlesMedicionStore.cargarControles();
+});
 
 // Funciones de guardar
 const guardarClasificacion = () => {
-  if (validarCampo(clasificacionData, clasificacionErrors, "nombre")) {
-    clasificacionDiagnosticosStore.agregarClasificacion({
-      nombre: clasificacionData.nombre,
-    });
-    clasificacionData.nombre = ""; // Limpiar
-    Notify.create({ message: "Clasificación guardada", color: "positive" });
+  formErrors.clasificacionNombre = "";
+  if (!clasificacionData.nombre) {
+    formErrors.clasificacionNombre =
+      "El nombre de la clasificación es obligatorio.";
+    return;
   }
+  clasificacionDiagnosticosStore.agregarClasificacion(clasificacionData.nombre);
+  clasificacionData.nombre = ""; // Limpiar campo
+  Notify.create({ message: "Clasificación guardada", color: "positive" });
 };
 
 const guardarDiagnostico = () => {
-  if (
-    validarCampo(diagnosticoData, diagnosticoErrors, "descripcion") &&
-    validarCampo(diagnosticoData, diagnosticoErrors, "clasificacion")
-  ) {
-    diagnosticosStore.agregarDiagnostico({ ...diagnosticoData });
-    diagnosticoData.descripcion = "";
-    diagnosticoData.clasificacion = "";
-    Notify.create({ message: "Diagnóstico guardado", color: "positive" });
+  formErrors.diagnosticoDescripcion = "";
+  formErrors.diagnosticoClasificacion = "";
+
+  if (!diagnosticoData.descripcion) {
+    formErrors.diagnosticoDescripcion =
+      "La descripción del diagnóstico es obligatoria.";
+    return;
   }
+
+  if (!diagnosticoData.clasificacion) {
+    formErrors.diagnosticoClasificacion = "Seleccione una clasificación.";
+    return;
+  }
+
+  // Extrae el ID de la clasificación, similar a la lógica de departamentoId
+  const clasificacionId =
+    typeof diagnosticoData.clasificacion === "object"
+      ? diagnosticoData.clasificacion.id
+      : diagnosticoData.clasificacion;
+
+  diagnosticosStore.agregarDiagnostico(
+    diagnosticoData.descripcion,
+    clasificacionId
+  );
+
+  diagnosticoData.descripcion = "";
+  diagnosticoData.clasificacion = null; // Reinicia el campo de selección
+  Notify.create({ message: "Diagnóstico guardado", color: "positive" });
 };
 
 const guardarControl = () => {
-  if (validarCampo(controlData, controlErrors, "descripcion")) {
-    controlesMedicionStore.agregarControl({
-      descripcion: controlData.descripcion,
-    });
-    controlData.descripcion = ""; // Limpiar
-    Notify.create({ message: "Control guardado", color: "positive" });
+  formErrors.controlDescripcion = "";
+  if (!controlData.descripcion) {
+    formErrors.controlDescripcion =
+      "La descripción del control es obligatoria.";
+    return;
   }
+  controlesMedicionStore.agregarControl(controlData.descripcion);
+  controlData.descripcion = ""; // Limpiar campo
+  Notify.create({ message: "Control guardado", color: "positive" });
 };
 
 // Funciones para eliminar el último elemento
-const eliminarUltimaClasificacion = () => {
-  if (clasificaciones.value.length > 0) {
-    const lastItem = clasificaciones.value[clasificaciones.value.length - 1];
-    clasificacionDiagnosticosStore.eliminarClasificacion(lastItem.id);
-  }
-};
+const eliminarUltimaClasificacion = () =>
+  clasificacionDiagnosticosStore.eliminarUltimaClasificacion();
+const eliminarUltimoDiagnostico = () =>
+  diagnosticosStore.eliminarUltimoDiagnostico();
+const eliminarUltimoControl = () =>
+  controlesMedicionStore.eliminarUltimoControl();
 
-const eliminarUltimoDiagnostico = () => {
-  if (diagnosticosStore.diagnosticos.length > 0) {
-    const lastItem =
-      diagnosticosStore.diagnosticos[diagnosticosStore.diagnosticos.length - 1];
-    diagnosticosStore.eliminarDiagnostico(lastItem.id);
-  }
-};
-
-const eliminarUltimoControl = () => {
-  if (controlesMedicionStore.controles.length > 0) {
-    const lastItem =
-      controlesMedicionStore.controles[
-        controlesMedicionStore.controles.length - 1
-      ];
-    controlesMedicionStore.eliminarControl(lastItem.id);
-  }
-};
+// Tabs de control
+const tab = ref("ClasificacionDiagnosticos");
 </script>
 
 <style scoped>
@@ -243,5 +256,9 @@ const eliminarUltimoControl = () => {
 }
 .text-primary {
   color: #1976d2;
+}
+.small-tabs .q-tab {
+  font-size: 8px;
+  padding: 4px 9px;
 }
 </style>

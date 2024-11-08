@@ -42,30 +42,38 @@
                   :error="!!hospitalErrors.direccion"
                   :error-message="hospitalErrors.direccion"
                 />
+
+                <!-- ////////////////// -->
+                <!-- ////////////////// -->
+                <!-- ////////////////// -->
                 <q-select
                   class="q-mb-sm q-mr-sm"
-                  v-model="hospitalData.departamentoSeleccionado"
+                  v-model="hospitalData.departamentoId"
                   :options="departamentos"
                   label="Departamento"
                   option-value="id"
                   option-label="descripcion"
                   outlined
                   dense
-                  :error="!!hospitalErrors.departamentoSeleccionado"
-                  :error-message="hospitalErrors.departamentoSeleccionado"
+                  :error="!!hospitalErrors.departamentoId"
+                  :error-message="hospitalErrors.departamentoId"
                 />
                 <q-select
                   class="q-mb-sm q-mr-sm"
-                  v-model="hospitalData.municipioSeleccionado"
+                  v-model="hospitalData.municipioId"
                   :options="filteredMunicipios"
                   label="Municipio"
                   option-value="id"
                   option-label="descripcion"
                   outlined
                   dense
-                  :error="!!hospitalErrors.municipioSeleccionado"
-                  :error-message="hospitalErrors.municipioSeleccionado"
+                  :error="!!hospitalErrors.municipioId"
+                  :error-message="hospitalErrors.municipioId"
                 />
+
+                <!-- ////////////////// -->
+                <!-- ////////////////// -->
+                <!-- ////////////////// -->
               </div>
               <!-- Columna derecha -->
               <div class="col">
@@ -121,23 +129,7 @@
         </q-card>
         <ListadoHospitales />
       </q-tab-panel>
-      <!--  -->
-      <!--  -->
 
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
       <!-- Pestaña: Medicamentos y Otros -->
       <q-tab-panel name="Medicamentos">
         <div class="row">
@@ -281,18 +273,6 @@
         </div>
         <ListadoMedicamentos />
       </q-tab-panel>
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
-      <!--  -->
 
       <!-- Pestaña: Exámenes y Estudios -->
       <q-tab-panel name="Estudios">
@@ -440,9 +420,8 @@
     </q-tab-panels>
   </q-page>
 </template>
-
 <script setup>
-import { ref, reactive, computed, watch } from "vue";
+import { ref, reactive, computed, watch, onMounted } from "vue";
 import {
   useHospitalStore,
   useMedicamentoStore,
@@ -450,325 +429,180 @@ import {
 } from "../stores/DirectoriosStores";
 import ListadoHospitales from "./ListadoHospitales.vue";
 import ListadoMedicamentos from "./ListadoMedicamentos.vue";
-/////
+const searchQuery = ref(""); // Para almacenar el término de búsqueda
+
+//////////////
+
 import {
   useDepartamentoStore,
   useMunicipioStore,
 } from "../stores/DatosGeneralesStores";
-import { Notify } from "quasar";
 
+//////////
+
+import { Notify } from "quasar";
 import { storeToRefs } from "pinia";
 
+// Estado de las pestañas
 const tab = ref("Hospitales");
 const subTabMedicamento = ref("Info");
 const subTabEstudio = ref("InfoEstudio");
 
-// Inicializamos al tienda
+// Inicializar tiendas
 const hospitalStore = useHospitalStore();
 const medicamentoStore = useMedicamentoStore();
 const estudioStore = useEstudioStore();
-const DepartamentoStore = useDepartamentoStore();
-const MunicipioStore = useMunicipioStore();
+const departamentoStore = useDepartamentoStore();
+const municipioStore = useMunicipioStore();
 
-//Accedermos a las propiedades reactivas
-const { departamentos } = storeToRefs(DepartamentoStore);
-const { municipios } = storeToRefs(MunicipioStore);
-const { medicamentos } = storeToRefs(medicamentoStore);
+// Acceso a propiedades reactivas de las tiendas
+const { departamentos } = storeToRefs(departamentoStore);
+const { municipios } = storeToRefs(municipioStore);
 
-const hospitalData = reactive({
-  nombre: "",
-  direccion: "",
-  departamentoSeleccionado: "",
-  municipioSeleccionado: "",
-  telefono: "",
-  email: "",
-  web: "",
-});
-
-const filteredMunicipios = computed(() => {
-  if (!hospitalData.departamentoSeleccionado) {
-    return [];
-  }
-  return municipios.value.filter(
-    (municipio) =>
-      municipio.departamentoId === hospitalData.departamentoSeleccionado.id
+onMounted(async () => {
+  await municipioStore.cargarMunicipios();
+  console.log(
+    "Municipios cargados en FormDirectorios.vue:",
+    municipioStore.municipios
   );
 });
 
-const hospitalErrors = reactive({
+// Datos reactivos para el hospital
+const hospitalData = reactive({
   nombre: "",
   direccion: "",
-  departamentoSeleccionado: "",
-  municipioSeleccionado: "",
+  departamentoId: null,
+  municipioId: null,
   telefono: "",
   email: "",
   web: "",
 });
 
-const validarFormularioHospital = () => {
-  let isValid = true;
-
-  hospitalErrors.nombre = hospitalData.nombre
-    ? ""
-    : "El nombre es obligatorio.";
-  hospitalErrors.direccion = hospitalData.direccion
-    ? ""
-    : "La dirección es obligatoria.";
-  hospitalErrors.departamentoSeleccionado =
-    hospitalData.departamentoSeleccionado ? "" : "Seleccione un departamento.";
-  hospitalErrors.municipioSeleccionado = hospitalData.municipioSeleccionado
-    ? ""
-    : "Seleccione un municipio.";
-
-  // Validación del teléfono: Debe cumplir con el formato ####-####
-  hospitalErrors.telefono =
-    hospitalData.telefono && hospitalData.telefono.length === 9
-      ? ""
-      : "El teléfono debe tener el formato ####-####.";
-
-  // Validación del email: Expresión regular para verificar el formato
-  hospitalErrors.email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(hospitalData.email)
-    ? ""
-    : "Ingrese un email válido.";
-
-  // Validación de la URL del sitio web: Campo opcional, pero si está lleno, debe tener el formato correcto
-  hospitalErrors.web =
-    hospitalData.web && !/^https?:\/\/[^\s/$.?#].[^\s]*$/.test(hospitalData.web)
-      ? "Ingrese una URL válida (debe comenzar con http:// o https://)."
-      : "";
-
-  // Verificar si no hay errores
-  isValid = Object.values(hospitalErrors).every((error) => error === "");
-
-  if (!isValid) {
-    Notify.create({
-      message: "Por favor, corrija los errores en el formulario",
-      color: "red",
-      position: "top-right",
-    });
-  }
-
-  return isValid;
+const onFilterMunicipios = (val) => {
+  searchQuery.value = val;
 };
 
+// Computed para filtrar municipios basados en el departamento y el término de búsqueda
+const filteredMunicipios = computed(() => {
+  if (!hospitalData.departamentoId) {
+    return [];
+  }
+
+  const departamentoId =
+    typeof hospitalData.departamentoId === "object"
+      ? hospitalData.departamentoId.id
+      : hospitalData.departamentoId;
+
+  // console.log("Todos los municipioss:", municipios.value); // Verificar aquí
+
+  // Filtrar municipios por departamento y por término de búsqueda
+  return municipios.value
+    .filter((municipio) => municipio.departamentoId === departamentoId)
+    .filter((municipio) =>
+      municipio.descripcion
+        .toLowerCase()
+        .includes(searchQuery.value.toLowerCase())
+    );
+});
+
+// Filtrado de municipios basado en el departamento seleccionado
+// const filteredMunicipios = computed(() => {
+//   if (!hospitalData.departamentoId) {
+//     return [];
+//   }
+//   const departamentoId =
+//     typeof hospitalData.departamentoId === "object"
+//       ? hospitalData.departamentoId.id
+//       : hospitalData.departamentoId;
+
+//   console.log("Departamento seleccionado F.Filtrar LN482:", departamentoId);
+//   console.log(municipios.value);
+//   console.log(
+//     "Municipios filtrados F.Filtrar LN483:",
+//     municipios.departamentoId
+//   );
+//   return municipios.value.filter(
+//     (municipios) => municipios.departamentoId === departamentoId
+//   );
+// });
+// Watch para limpiar el municipio cuando cambia el departamento
+watch(
+  () => hospitalData.departamentoId,
+  () => {
+    hospitalData.municipioId = null;
+  }
+);
+
+// console.log(municipios.value);
+// console.log(departamentos.value);
+
+// Manejo de errores en el formulario de hospitales
+const hospitalErrors = reactive({
+  nombre: "",
+  direccion: "",
+  departamentoId: "",
+  municipioId: "",
+  telefono: "",
+  email: "",
+  web: "",
+});
+
+// Guardar hospital con lógica de extracción de `departamentoId`
 const guardarHospital = () => {
   if (!validarFormularioHospital()) {
     return;
   }
 
-  hospitalStore.agregarHospital({ ...hospitalData });
+  hospitalErrors.departamentoId = "";
+  hospitalErrors.departamentoId = "";
 
+  if (!hospitalData.departamentoId) {
+    hospitalErrors.departamentoId = "Seleccione un departamento.";
+    return;
+  }
+
+  const departamentoId =
+    typeof hospitalData.departamentoId === "object"
+      ? hospitalData.departamentoId.id
+      : hospitalData.departamentoId;
+
+  // const municipioId =
+  //   typeof hospitalData.municipioId === "object"
+  //     ? hospitalData.municipioId.id
+  //     : hospitalData.municipioId;
+
+  // const hospitalInfo = {
+  //   nombre: hospitalData.nombre,
+  //   direccion: hospitalData.direccion,
+  //   departamento_id: departamentoId, // Mapeo aquí a `departamento_id` para la base de datos
+  //   municipio_id: municipioId, // Mismo ajuste para municipio
+  //   telefono: hospitalData.telefono,
+  //   email: hospitalData.email,
+  //   web: hospitalData.web,
+  // };
+  console.log(
+    "Departamento seleccionado F.Guardar LN581:",
+    hospitalData.departamentoId
+  );
+  console.log(
+    "Municipios filtrados F.Guardar LN582:",
+    filteredMunicipios.value
+  );
+
+  hospitalStore.agregarHospital(hospitalInfo);
+
+  // Limpiar los campos después de guardar
   Object.keys(hospitalData).forEach((key) => {
     hospitalData[key] = "";
   });
 };
 
+// Eliminar hospital
 const eliminarHospital = (id) => {
   hospitalStore.eliminarHospital(id);
 };
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//APARTADO DE MEDICAMENTOS Y OTROS
-const medicamentoData = reactive({
-  codigo: "",
-  descripcion: "",
-  tipo: "",
-  indicaciones: "",
-  precioCosto: "",
-  precioVenta: "",
-  facturar: false,
-  status: "",
-});
 
-const medicamentoErrors = reactive({
-  codigo: "",
-  descripcion: "",
-  tipo: "",
-  indicaciones: "",
-  precioCosto: "",
-  precioVenta: "",
-  status: "",
-});
-
-const validarFormularioMedicamento = () => {
-  let isValid = true;
-
-  medicamentoErrors.codigo = medicamentoData.codigo
-    ? ""
-    : "El código es obligatorio.";
-  medicamentoErrors.descripcion = medicamentoData.descripcion
-    ? ""
-    : "La descripción es obligatoria.";
-  medicamentoErrors.tipo = medicamentoData.tipo
-    ? ""
-    : "Seleccione un tipo de medicamento.";
-  medicamentoErrors.indicaciones = medicamentoData.indicaciones
-    ? ""
-    : "Ingrese las indicaciones de uso.";
-
-  // Validación de precios: Verifica que sean números y positivos
-  medicamentoErrors.precioCosto =
-    medicamentoData.precioCosto &&
-    !isNaN(medicamentoData.precioCosto) &&
-    medicamentoData.precioCosto > 0
-      ? ""
-      : "Ingrese un precio de costo válido.";
-
-  medicamentoErrors.precioVenta =
-    medicamentoData.precioVenta &&
-    !isNaN(medicamentoData.precioVenta) &&
-    medicamentoData.precioVenta > 0
-      ? ""
-      : "Ingrese un precio de venta válido.";
-
-  // Validación de status
-  medicamentoErrors.status = medicamentoData.status ? "" : "Ingrese el estado";
-
-  // Verificar si no hay errores
-  isValid = Object.values(medicamentoErrors).every((error) => error === "");
-
-  if (!isValid) {
-    Notify.create({
-      message: "Por favor, corrija los errores en el formulario",
-      color: "red",
-      position: "top-right",
-    });
-  }
-
-  return isValid;
-};
-
-const guardarMedicamento = () => {
-  if (!validarFormularioMedicamento()) {
-    return;
-  }
-
-  // Guardar en la store
-  medicamentoStore.agregarMedicamento({ ...medicamentoData });
-
-  // Limpiar cada propiedad sin perder la reactividad
-  Object.keys(medicamentoData).forEach((key) => {
-    medicamentoData[key] = key === "facturar" ? false : "";
-  });
-};
-
-const eliminarMedicamento = (id) => {
-  medicamentoStore.eliminarMedicamento(id);
-};
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-// APARTADO DE ESTUDIOS
-const estudioData = reactive({
-  codigo: "",
-  descripcion: "",
-  clase: "",
-  indicaciones: "",
-  precioCosto: "",
-  precioVenta: "",
-  facturar: false,
-  status: "",
-});
-
-const estudioErrors = reactive({
-  codigo: "",
-  descripcion: "",
-  clase: "",
-  indicaciones: "",
-  precioCosto: "",
-  precioVenta: "",
-  status: "",
-  facturar: "",
-});
-
-const validarFormularioEstudio = () => {
-  let isValid = true;
-
-  // Validaciones para los campos básicos del estudio/examen
-  estudioErrors.codigo = estudioData.codigo ? "" : "El código es obligatorio.";
-  estudioErrors.descripcion = estudioData.descripcion
-    ? ""
-    : "La descripción es obligatoria.";
-  estudioErrors.indicaciones = estudioData.indicaciones
-    ? ""
-    : "La clase es obligatoria.";
-  estudioErrors.indicaciones = estudioData.indicaciones
-    ? ""
-    : "Las indicaciones son obligatorias.";
-
-  // Validación de precios: Asegúrate de que sean números y positivos
-  estudioErrors.precioCosto =
-    estudioData.precioCosto &&
-    !isNaN(estudioData.precioCosto) &&
-    estudioData.precioCosto > 0
-      ? ""
-      : "Ingrese un precio de costo válido.";
-
-  estudioErrors.precioVenta =
-    estudioData.precioVenta &&
-    !isNaN(estudioData.precioVenta) &&
-    estudioData.precioVenta > 0
-      ? ""
-      : "Ingrese un precio de venta válido.";
-
-  // Validación de status
-  estudioErrors.status = estudioData.status
-    ? ""
-    : "Seleccione un estado para el estudio.";
-
-  // Verificar si no hay errores
-  isValid = Object.values(estudioErrors).every((error) => error === "");
-
-  if (!isValid) {
-    Notify.create({
-      message: "Por favor, corrija los errores en el formulario",
-      color: "red",
-      position: "top-right",
-    });
-  }
-
-  return isValid;
-};
-
-const guardarEstudio = () => {
-  if (!validarFormularioEstudio()) {
-    return;
-  }
-
-  // Guardar en la store
-  estudioStore.agregarEstudio({ ...estudioData });
-
-  // Limpiar cada propiedad sin perder la reactividad
-  Object.keys(estudioData).forEach((key) => {
-    estudioData[key] = key === "facturar" ? false : "";
-  });
-};
-
-const eliminarEstudio = (id) => {
-  estudioStore.eliminarEstudio(id);
-};
-
-const statusOptions = ["Activo", "Inactivo"];
+// Resto del código (similar al ejemplo anterior)
 </script>
 
 <style scoped>

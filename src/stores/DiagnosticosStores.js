@@ -1,6 +1,10 @@
 // src/stores/multiStore.js
 import { defineStore } from "pinia";
-import { ref, watch } from "vue";
+import { ref, onMounted } from "vue";
+import { supabase } from "../supabaseClient";
+
+// ID del tenant fijo
+const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
 
 // Helper para cargar y guardar en localStorage
 function loadFromLocalStorage(key, defaultValue) {
@@ -18,26 +22,61 @@ export const useClasificacionDiagnosticosStore = defineStore(
   () => {
     const clasificaciones = ref(loadFromLocalStorage("clasificaciones", []));
 
-    const agregarClasificacion = (nombre) => {
-      clasificaciones.value.push({ id: Date.now(), ...nombre });
+    const cargarClasificaciones = async () => {
+      const { data, error } = await supabase
+        .from("clasificacionDiagnosticos")
+        .select("*")
+        .eq("tenant_id", tenantId)
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        console.error("Error al cargar clasificaciones:", error);
+      } else if (data) {
+        clasificaciones.value = data;
+        saveToLocalStorage("clasificaciones", clasificaciones.value);
+      }
     };
 
-    const eliminarClasificacion = (id) => {
-      clasificaciones.value = clasificaciones.value.filter(
-        (clasificacion) => clasificacion.id !== id
-      );
+    const agregarClasificacion = async (nombre) => {
+      const { data, error } = await supabase
+        .from("clasificacionDiagnosticos")
+        .insert([{ nombre, tenant_id: tenantId }]);
+
+      if (error) {
+        console.error("Error al agregar clasificación:", error);
+      } else if (data && data.length > 0) {
+        // Verificar que data no es null y tiene elementos
+        clasificaciones.value.push(data[0]);
+        saveToLocalStorage("clasificaciones", clasificaciones.value);
+      }
     };
 
-    // Observa los cambios en `clasificaciones` y los guarda en `localStorage`
-    watch(
+    const eliminarUltimaClasificacion = async () => {
+      const ultimaClasificacion =
+        clasificaciones.value[clasificaciones.value.length - 1];
+      if (!ultimaClasificacion) return;
+
+      const { error } = await supabase
+        .from("clasificacionDiagnosticos")
+        .delete()
+        .eq("id", ultimaClasificacion.id);
+
+      if (error) {
+        console.error("Error al eliminar la clasificación:", error);
+      } else {
+        clasificaciones.value.pop();
+        saveToLocalStorage("clasificaciones", clasificaciones.value);
+      }
+    };
+
+    onMounted(cargarClasificaciones);
+
+    return {
       clasificaciones,
-      (newClasificaciones) => {
-        saveToLocalStorage("clasificaciones", newClasificaciones);
-      },
-      { deep: true }
-    );
-
-    return { clasificaciones, agregarClasificacion, eliminarClasificacion };
+      cargarClasificaciones,
+      agregarClasificacion,
+      eliminarUltimaClasificacion,
+    };
   }
 );
 
@@ -45,59 +84,121 @@ export const useClasificacionDiagnosticosStore = defineStore(
 export const useDiagnosticosStore = defineStore("diagnosticos", () => {
   const diagnosticos = ref(loadFromLocalStorage("diagnosticos", []));
 
-  const agregarDiagnostico = (diagnostico) => {
-    diagnosticos.value.push({ id: Date.now(), ...diagnostico });
+  const cargarDiagnosticos = async () => {
+    const { data, error } = await supabase
+      .from("diagnosticos")
+      .select("*")
+      .eq("tenant_id", tenantId)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Error al cargar diagnósticos:", error);
+    } else if (data) {
+      diagnosticos.value = data;
+      saveToLocalStorage("diagnosticos", diagnosticos.value);
+    }
   };
 
-  const eliminarDiagnostico = (id) => {
-    diagnosticos.value = diagnosticos.value.filter(
-      (diagnostico) => diagnostico.id !== id
-    );
+  const agregarDiagnostico = async (descripcion, clasificacion) => {
+    const { data, error } = await supabase
+      .from("diagnosticos")
+      .insert([{ descripcion, clasificacion, tenant_id: tenantId }]);
+
+    if (error) {
+      console.error("Error al agregar diagnóstico:", error);
+    } else if (data && data.length > 0) {
+      // Verificar que data no es null y tiene elementos
+      diagnosticos.value.push(data[0]);
+      saveToLocalStorage("diagnosticos", diagnosticos.value);
+    }
   };
 
-  // Observa los cambios en `diagnosticos` y los guarda en `localStorage`
-  watch(
+  const eliminarUltimoDiagnostico = async () => {
+    const ultimoDiagnostico = diagnosticos.value[diagnosticos.value.length - 1];
+    if (!ultimoDiagnostico) return;
+
+    const { error } = await supabase
+      .from("diagnosticos")
+      .delete()
+      .eq("id", ultimoDiagnostico.id);
+
+    if (error) {
+      console.error("Error al eliminar el diagnóstico:", error);
+    } else {
+      diagnosticos.value.pop();
+      saveToLocalStorage("diagnosticos", diagnosticos.value);
+    }
+  };
+
+  onMounted(cargarDiagnosticos);
+
+  return {
     diagnosticos,
-    (newDiagnosticos) => {
-      saveToLocalStorage("diagnosticos", newDiagnosticos);
-    },
-    { deep: true }
-  );
-
-  return { diagnosticos, agregarDiagnostico, eliminarDiagnostico };
+    cargarDiagnosticos,
+    agregarDiagnostico,
+    eliminarUltimoDiagnostico,
+  };
 });
 
-//
-//
-//
-//
-//
-//
-//
-//
 // Tienda para Controles de Medición
 export const useControlesMedicionStore = defineStore(
   "controlesMedicion",
   () => {
     const controles = ref(loadFromLocalStorage("controles", []));
 
-    const agregarControl = (descripcion) => {
-      controles.value.push({ id: Date.now(), descripcion });
+    const cargarControles = async () => {
+      const { data, error } = await supabase
+        .from("controles")
+        .select("*")
+        .eq("tenant_id", tenantId)
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        console.error("Error al cargar controles:", error);
+      } else if (data) {
+        controles.value = data;
+        saveToLocalStorage("controles", controles.value);
+      }
     };
 
-    const eliminarControl = (id) => {
-      controles.value = controles.value.filter((control) => control.id !== id);
+    const agregarControl = async (descripcion) => {
+      const { data, error } = await supabase
+        .from("controles")
+        .insert([{ descripcion, tenant_id: tenantId }]);
+
+      if (error) {
+        console.error("Error al agregar control:", error);
+      } else if (data && data.length > 0) {
+        // Verificar que data no es null y tiene elementos
+        controles.value.push(data[0]);
+        saveToLocalStorage("controles", controles.value);
+      }
     };
 
-    // Observa los cambios en `controles` y los guarda en `localStorage`
-    watch(
+    const eliminarUltimoControl = async () => {
+      const ultimoControl = controles.value[controles.value.length - 1];
+      if (!ultimoControl) return;
+
+      const { error } = await supabase
+        .from("controles")
+        .delete()
+        .eq("id", ultimoControl.id);
+
+      if (error) {
+        console.error("Error al eliminar el control:", error);
+      } else {
+        controles.value.pop();
+        saveToLocalStorage("controles", controles.value);
+      }
+    };
+
+    onMounted(cargarControles);
+
+    return {
       controles,
-      (newControles) => {
-        saveToLocalStorage("controles", newControles);
-      },
-      { deep: true }
-    );
-
-    return { controles, agregarControl, eliminarControl };
+      cargarControles,
+      agregarControl,
+      eliminarUltimoControl,
+    };
   }
 );

@@ -37,9 +37,9 @@
       <!-- Panel para Especialidades Médicas -->
       <q-tab-panel name="Especialidades Médicas">
         <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary"
-            >Especialidades Médicas</q-card-section
-          >
+          <q-card-section class="text-h6 text-primary">
+            Especialidades Médicas
+          </q-card-section>
           <q-form @submit.prevent="guardarEspecialidad" class="q-gutter-md">
             <q-input
               v-model="especialidadData.descripcion"
@@ -69,9 +69,9 @@
       <!-- Panel para Tipos de Estudios -->
       <q-tab-panel name="Tipos de Estudios">
         <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary"
-            >Tipos de Estudios</q-card-section
-          >
+          <q-card-section class="text-h6 text-primary">
+            Tipos de Estudios
+          </q-card-section>
           <q-form @submit.prevent="guardarEstudio" class="q-gutter-md">
             <q-input
               v-model="estudioData.descripcion"
@@ -101,9 +101,9 @@
       <!-- Panel para Tipos de Medicamentos -->
       <q-tab-panel name="Tipos de Medicamentos">
         <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary"
-            >Tipos de Medicamentos</q-card-section
-          >
+          <q-card-section class="text-h6 text-primary">
+            Tipos de Medicamentos
+          </q-card-section>
           <q-form @submit.prevent="guardarMedicamento" class="q-gutter-md">
             <q-input
               v-model="medicamentoData.descripcion"
@@ -133,9 +133,9 @@
       <!-- Panel para Tipos de Pacientes -->
       <q-tab-panel name="Tipos de Pacientes">
         <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary"
-            >Tipos de Pacientes</q-card-section
-          >
+          <q-card-section class="text-h6 text-primary">
+            Tipos de Pacientes
+          </q-card-section>
           <q-form @submit.prevent="guardarPaciente" class="q-gutter-md">
             <q-input
               v-model="pacienteData.descripcion"
@@ -165,9 +165,9 @@
       <!-- Panel para Grupos de Contactos -->
       <q-tab-panel name="Grupos de Contactos">
         <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary"
-            >Grupos de Contactos</q-card-section
-          >
+          <q-card-section class="text-h6 text-primary">
+            Grupos de Contactos
+          </q-card-section>
           <q-form @submit.prevent="guardarGrupoContacto" class="q-gutter-md">
             <q-input
               v-model="grupoContactoData.descripcion"
@@ -197,9 +197,9 @@
       <!-- Panel para Tipos de Citas -->
       <q-tab-panel name="Tipos de Citas">
         <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary"
-            >Tipos de Citas</q-card-section
-          >
+          <q-card-section class="text-h6 text-primary">
+            Tipos de Citas
+          </q-card-section>
           <q-form @submit.prevent="guardarCita" class="q-gutter-md">
             <q-input
               v-model="citaData.descripcion"
@@ -232,42 +232,29 @@
 <script setup>
 import { ref } from "vue";
 import { Notify } from "quasar";
-import { useEspecialidadMedicaStore } from "../stores/ConfiMedicasStores";
 
 // Estado para las pestañas activas
 const tab = ref("Especialidades Médicas");
 
-// Estado de formulario y errores
-const especialidadData = ref({ descripcion: "" });
-const especialidadErrors = ref({ descripcion: "" });
-
-// Tienda para Especialidades Médicas
-const especialidadStore = useEspecialidadMedicaStore();
-
 // Función de validación genérica
-const validarCampo = (data, errors, campo) => {
-  errors[campo] = data[campo].trim() ? "" : `El campo ${campo} es obligatorio.`;
-  return !errors[campo];
+const validarCampo = (data, campo) => {
+  return data[campo].trim() ? "" : `El campo ${campo} es obligatorio.`;
 };
 
-// Función para guardar con validación
-const guardarEspecialidad = () => {
-  if (
-    !validarCampo(
-      especialidadData.value,
-      especialidadErrors.value,
-      "descripcion"
-    )
-  ) {
-    Notify.create({
-      message: especialidadErrors.value.descripcion,
-      color: "negative",
-      position: "top-right",
-    });
+// Especialidades Médicas
+import { useEspecialidadMedicaStore } from "../stores/ConfiMedicasStores";
+const especialidadData = ref({ descripcion: "" });
+const especialidadStore = useEspecialidadMedicaStore();
+
+const guardarEspecialidad = async () => {
+  const error = validarCampo(especialidadData.value, "descripcion");
+  if (error) {
+    Notify.create({ message: error, color: "negative", position: "top-right" });
     return;
   }
-
-  especialidadStore.agregarEspecialidad(especialidadData.value.descripcion);
+  await especialidadStore.agregarEspecialidad(
+    especialidadData.value.descripcion
+  );
   especialidadData.value.descripcion = "";
   Notify.create({
     message: "Especialidad guardada exitosamente",
@@ -276,9 +263,8 @@ const guardarEspecialidad = () => {
   });
 };
 
-// Función para eliminar el último registro
-const eliminarEspecialidad = () => {
-  especialidadStore.eliminarUltimaEspecialidad();
+const eliminarEspecialidad = async () => {
+  await especialidadStore.eliminarUltimaEspecialidad();
   Notify.create({
     message: "Última especialidad eliminada",
     color: "warning",
@@ -286,23 +272,18 @@ const eliminarEspecialidad = () => {
   });
 };
 
+// Tipos de Estudios
 import { useTiposEstudiosStore } from "../stores/ConfiMedicasStores";
-
 const estudioData = ref({ descripcion: "" });
-const estudioErrors = ref({ descripcion: "" });
 const tiposEstudiosStore = useTiposEstudiosStore();
 
-const guardarEstudio = () => {
-  if (!validarCampo(estudioData.value, estudioErrors.value, "descripcion")) {
-    Notify.create({
-      message: estudioErrors.value.descripcion,
-      color: "negative",
-      position: "top-right",
-    });
+const guardarEstudio = async () => {
+  const error = validarCampo(estudioData.value, "descripcion");
+  if (error) {
+    Notify.create({ message: error, color: "negative", position: "top-right" });
     return;
   }
-
-  tiposEstudiosStore.agregarEstudio(estudioData.value.descripcion);
+  await tiposEstudiosStore.agregarEstudio(estudioData.value.descripcion);
   estudioData.value.descripcion = "";
   Notify.create({
     message: "Tipo de estudio guardado exitosamente",
@@ -311,8 +292,8 @@ const guardarEstudio = () => {
   });
 };
 
-const eliminarEstudio = () => {
-  tiposEstudiosStore.eliminarUltimoEstudio();
+const eliminarEstudio = async () => {
+  await tiposEstudiosStore.eliminarUltimoEstudio();
   Notify.create({
     message: "Último tipo de estudio eliminado",
     color: "warning",
@@ -320,25 +301,20 @@ const eliminarEstudio = () => {
   });
 };
 
+// Tipos de Medicamentos
 import { useTiposMedicamentosStore } from "../stores/ConfiMedicasStores";
-
 const medicamentoData = ref({ descripcion: "" });
-const medicamentoErrors = ref({ descripcion: "" });
 const tiposMedicamentosStore = useTiposMedicamentosStore();
 
-const guardarMedicamento = () => {
-  if (
-    !validarCampo(medicamentoData.value, medicamentoErrors.value, "descripcion")
-  ) {
-    Notify.create({
-      message: medicamentoErrors.value.descripcion,
-      color: "negative",
-      position: "top-right",
-    });
+const guardarMedicamento = async () => {
+  const error = validarCampo(medicamentoData.value, "descripcion");
+  if (error) {
+    Notify.create({ message: error, color: "negative", position: "top-right" });
     return;
   }
-
-  tiposMedicamentosStore.agregarMedicamento(medicamentoData.value.descripcion);
+  await tiposMedicamentosStore.agregarMedicamento(
+    medicamentoData.value.descripcion
+  );
   medicamentoData.value.descripcion = "";
   Notify.create({
     message: "Tipo de medicamento guardado exitosamente",
@@ -347,8 +323,8 @@ const guardarMedicamento = () => {
   });
 };
 
-const eliminarMedicamento = () => {
-  tiposMedicamentosStore.eliminarUltimoMedicamento();
+const eliminarMedicamento = async () => {
+  await tiposMedicamentosStore.eliminarUltimoMedicamento();
   Notify.create({
     message: "Último tipo de medicamento eliminado",
     color: "warning",
@@ -356,23 +332,18 @@ const eliminarMedicamento = () => {
   });
 };
 
+// Tipos de Pacientes
 import { useTiposPacientesStore } from "../stores/ConfiMedicasStores";
-
 const pacienteData = ref({ descripcion: "" });
-const pacienteErrors = ref({ descripcion: "" });
 const tiposPacientesStore = useTiposPacientesStore();
 
-const guardarPaciente = () => {
-  if (!validarCampo(pacienteData.value, pacienteErrors.value, "descripcion")) {
-    Notify.create({
-      message: pacienteErrors.value.descripcion,
-      color: "negative",
-      position: "top-right",
-    });
+const guardarPaciente = async () => {
+  const error = validarCampo(pacienteData.value, "descripcion");
+  if (error) {
+    Notify.create({ message: error, color: "negative", position: "top-right" });
     return;
   }
-
-  tiposPacientesStore.agregarPaciente(pacienteData.value.descripcion);
+  await tiposPacientesStore.agregarPaciente(pacienteData.value.descripcion);
   pacienteData.value.descripcion = "";
   Notify.create({
     message: "Tipo de paciente guardado exitosamente",
@@ -381,8 +352,8 @@ const guardarPaciente = () => {
   });
 };
 
-const eliminarPaciente = () => {
-  tiposPacientesStore.eliminarUltimoPaciente();
+const eliminarPaciente = async () => {
+  await tiposPacientesStore.eliminarUltimoPaciente();
   Notify.create({
     message: "Último tipo de paciente eliminado",
     color: "warning",
@@ -390,29 +361,18 @@ const eliminarPaciente = () => {
   });
 };
 
+// Grupos de Contactos
 import { useGruposContactosStore } from "../stores/ConfiMedicasStores";
-
 const grupoContactoData = ref({ descripcion: "" });
-const grupoContactoErrors = ref({ descripcion: "" });
 const gruposContactosStore = useGruposContactosStore();
 
-const guardarGrupoContacto = () => {
-  if (
-    !validarCampo(
-      grupoContactoData.value,
-      grupoContactoErrors.value,
-      "descripcion"
-    )
-  ) {
-    Notify.create({
-      message: grupoContactoErrors.value.descripcion,
-      color: "negative",
-      position: "top-right",
-    });
+const guardarGrupoContacto = async () => {
+  const error = validarCampo(grupoContactoData.value, "descripcion");
+  if (error) {
+    Notify.create({ message: error, color: "negative", position: "top-right" });
     return;
   }
-
-  gruposContactosStore.agregarGrupo(grupoContactoData.value.descripcion);
+  await gruposContactosStore.agregarGrupo(grupoContactoData.value.descripcion);
   grupoContactoData.value.descripcion = "";
   Notify.create({
     message: "Grupo de contacto guardado exitosamente",
@@ -421,8 +381,8 @@ const guardarGrupoContacto = () => {
   });
 };
 
-const eliminarGrupoContacto = () => {
-  gruposContactosStore.eliminarUltimoGrupo();
+const eliminarGrupoContacto = async () => {
+  await gruposContactosStore.eliminarUltimoGrupo();
   Notify.create({
     message: "Último grupo de contacto eliminado",
     color: "warning",
@@ -430,23 +390,18 @@ const eliminarGrupoContacto = () => {
   });
 };
 
+// Tipos de Citas
 import { useTiposCitasStore } from "../stores/ConfiMedicasStores";
-
 const citaData = ref({ descripcion: "" });
-const citaErrors = ref({ descripcion: "" });
 const tiposCitasStore = useTiposCitasStore();
 
-const guardarCita = () => {
-  if (!validarCampo(citaData.value, citaErrors.value, "descripcion")) {
-    Notify.create({
-      message: citaErrors.value.descripcion,
-      color: "negative",
-      position: "top-right",
-    });
+const guardarCita = async () => {
+  const error = validarCampo(citaData.value, "descripcion");
+  if (error) {
+    Notify.create({ message: error, color: "negative", position: "top-right" });
     return;
   }
-
-  tiposCitasStore.agregarCita(citaData.value.descripcion);
+  await tiposCitasStore.agregarCita(citaData.value.descripcion);
   citaData.value.descripcion = "";
   Notify.create({
     message: "Tipo de cita guardado exitosamente",
@@ -455,8 +410,8 @@ const guardarCita = () => {
   });
 };
 
-const eliminarCita = () => {
-  tiposCitasStore.eliminarUltimaCita();
+const eliminarCita = async () => {
+  await tiposCitasStore.eliminarUltimaCita();
   Notify.create({
     message: "Último tipo de cita eliminado",
     color: "warning",

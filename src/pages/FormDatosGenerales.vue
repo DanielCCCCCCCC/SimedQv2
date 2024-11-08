@@ -100,7 +100,6 @@
                       :error="!!formErrors.municipioDepartamento"
                       :error-message="formErrors.municipioDepartamento"
                     />
-                    <!-- @input="onDepartamentoSelected" -->
                     <q-input
                       v-model="municipioData.descripcion"
                       label="Descripción"
@@ -236,9 +235,8 @@
     </q-tab-panels>
   </q-page>
 </template>
-
 <script setup>
-import { ref, reactive, onMounted, watch } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import {
   useDepartamentoStore,
   useMunicipioStore,
@@ -275,32 +273,15 @@ const formErrors = reactive({
   estadoCivilDescripcion: "",
 });
 
-// Cargar departamentos al montar el componente
+// Cargar datos al montar el componente
 onMounted(() => {
   departamentoStore.cargarDepartamentos();
+  grupoSanguineoStore.cargarGruposSanguineos();
+  escolaridadStore.cargarEscolaridades();
+  estadoCivilStore.cargarEstadosCiviles();
 });
 
-// Validaciones y funciones
-const validarMunicipioData = () => {
-  formErrors.municipioDepartamento = "";
-  formErrors.municipioDescripcion = "";
-
-  let isValid = true;
-
-  if (!municipioData.departamentoId) {
-    formErrors.municipioDepartamento = "Seleccione un departamento.";
-    isValid = false;
-  }
-
-  if (!municipioData.descripcion) {
-    formErrors.municipioDescripcion =
-      "La descripción del municipio es obligatoria.";
-    isValid = false;
-  }
-
-  return isValid;
-};
-
+// Funciones de guardar y eliminar para cada panel
 const guardarDepartamento = () => {
   formErrors.departamentoDescripcion = "";
   if (!departamentoData.descripcion) {
@@ -314,41 +295,61 @@ const guardarDepartamento = () => {
 
 const guardarMunicipio = () => {
   formErrors.municipioDepartamento = "";
-
   if (!municipioData.departamentoId) {
     formErrors.municipioDepartamento = "Seleccione un departamento.";
     return;
   }
-
-  //A ESTE CODIGO SE LE RUGEGA 🙏
   const departamentoId =
     typeof municipioData.departamentoId === "object"
       ? municipioData.departamentoId.id
       : municipioData.departamentoId;
 
-  municipioStore.agregarMunicipio(
-    municipioData.descripcion,
-    departamentoId,
-    "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"
-  );
-
+  municipioStore.agregarMunicipio(municipioData.descripcion, departamentoId);
   municipioData.descripcion = "";
   municipioData.departamentoId = null;
 };
 
+const guardarGrupoSanguineo = () => {
+  formErrors.grupoSanguineoDescripcion = "";
+  if (!grupoSanguineoData.descripcion) {
+    formErrors.grupoSanguineoDescripcion =
+      "La descripción del grupo sanguíneo es obligatoria.";
+    return;
+  }
+  grupoSanguineoStore.agregarGrupoSanguineo(grupoSanguineoData.descripcion);
+  grupoSanguineoData.descripcion = "";
+};
+
+const guardarEscolaridad = () => {
+  formErrors.escolaridadDescripcion = "";
+  if (!escolaridadData.descripcion) {
+    formErrors.escolaridadDescripcion =
+      "La descripción de escolaridad es obligatoria.";
+    return;
+  }
+  escolaridadStore.agregarEscolaridad(escolaridadData.descripcion);
+  escolaridadData.descripcion = "";
+};
+
+const guardarEstadoCivil = () => {
+  formErrors.estadoCivilDescripcion = "";
+  if (!estadoCivilData.descripcion) {
+    formErrors.estadoCivilDescripcion =
+      "La descripción del estado civil es obligatoria.";
+    return;
+  }
+  estadoCivilStore.agregarEstadoCivil(estadoCivilData.descripcion);
+  estadoCivilData.descripcion = "";
+};
+
 // Funciones para eliminar el último agregado
-const eliminarDepartamento = () => {
+const eliminarDepartamento = () =>
   departamentoStore.eliminarUltimoDepartamento();
-};
-
-const eliminarMunicipio = () => {
-  municipioStore.eliminarUltimoMunicipio();
-};
-
-// Función para seleccionar el ID del departamento
-// const onDepartamentoSelected = (departamento) => {
-//   municipioData.departamentoId = departamento.id;
-// };
+const eliminarMunicipio = () => municipioStore.eliminarUltimoMunicipio();
+const eliminarGrupoSanguineo = () =>
+  grupoSanguineoStore.eliminarUltimoGrupoSanguineo();
+const eliminarEscolaridad = () => escolaridadStore.eliminarUltimaEscolaridad();
+const eliminarEstadoCivil = () => estadoCivilStore.eliminarUltimoEstadoCivil();
 
 // Tabs de control
 const tab = ref("Departamentos y Municipios");

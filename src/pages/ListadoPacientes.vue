@@ -49,7 +49,8 @@
         data-field="codigo"
         caption="Código"
         :allow-editing="false"
-        :width="100"
+        :min-width="100"
+        :width="140"
         :visible="true"
       />
       <dx-column
@@ -57,7 +58,7 @@
         caption="Nombre"
         sort-order="asc"
         :min-width="120"
-        :width="130"
+        :width="140"
         :visible="true"
       />
       <dx-column
@@ -65,7 +66,7 @@
         caption="Apellidos"
         sort-order="asc"
         :min-width="120"
-        :width="130"
+        :width="140"
         :visible="true"
       />
       <dx-column
@@ -77,21 +78,34 @@
         :visible="false"
       />
 
-      <dx-column data-field="tipo" caption="Tipo" :width="80" :visible="true" />
+      <dx-column
+        data-field="tipo"
+        caption="Tipo"
+        :width="100"
+        :visible="true"
+      />
       <dx-column data-field="dni" caption="DNI" :width="140" :visible="true" />
       <dx-column
         data-field="email"
         caption="E-mail"
-        :width="200"
+        :width="180"
         :visible="true"
       />
-      <dx-checkbox
+      <!-- <dx-column
         data-field="activo"
         caption="Activo"
-        :width="95"
-        :visible="true"
         data-type="boolean"
-      />
+        :width="90"
+        :visible="true"
+      >
+        <template #cell="{ data }">
+          <DxCheckBox
+            v-model="data.activo"
+            :value="data.activo"
+            @value-changed="onCheckboxChange(data)"
+          />
+        </template>
+      </dx-column> -->
 
       <dx-column
         data-field="medicoCabecera"
@@ -233,6 +247,7 @@ import {
   DxEditing,
   DxButton,
 } from "devextreme-vue/data-grid";
+import DxCheckBox from "devextreme-vue/check-box"; // Importa DxCheckBox desde el módulo correcto
 import { useFichaIdentificacionStore } from "../stores/fichaIdentificacionStores";
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import { storeToRefs } from "pinia";
@@ -251,10 +266,9 @@ export default {
     DxSelection,
     DxSearchPanel,
     PacientePanel,
-    DxDataGrid,
     DxEditing,
-    DxColumn,
     DxButton,
+    // DxCheckBox,
   },
   props: {
     activeTab: {
@@ -275,6 +289,11 @@ export default {
       emit("cambiar-tab", { tab: "FichaIdentificacion", paciente: e.row.data });
     };
 
+    const onCheckboxChange = (data) => {
+      // Actualiza el estado del checkbox en la tienda o base de datos según sea necesario
+      fichaIdentificacionStore.updateActivo(data.id, data.activo);
+    };
+
     onMounted(() => {
       window.addEventListener("resize", updateWidth);
     });
@@ -286,6 +305,7 @@ export default {
       formIdentificacion,
       responsiveWidth,
       onEditButtonClick,
+      onCheckboxChange,
     };
   },
   data() {

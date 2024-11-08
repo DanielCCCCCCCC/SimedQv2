@@ -1,13 +1,13 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import { supabase } from "../supabaseClient";
 
 // Tienda para Departamentos
 export const useDepartamentoStore = defineStore("departamentos", () => {
-  const departamentos = ref(
+  const departamentos = reactive(
     JSON.parse(localStorage.getItem("departamentos")) || []
   );
-  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"; // Tenant fijo
+  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
 
   const cargarDepartamentos = async () => {
     const { data, error } = await supabase
@@ -19,10 +19,7 @@ export const useDepartamentoStore = defineStore("departamentos", () => {
       console.error("Error al cargar departamentos:", error);
     } else {
       departamentos.value = data;
-      localStorage.setItem(
-        "departamentos",
-        JSON.stringify(departamentos.value)
-      );
+      localStorage.setItem("departamentos", JSON.stringify(departamentos));
     }
   };
 
@@ -34,17 +31,13 @@ export const useDepartamentoStore = defineStore("departamentos", () => {
     if (error) {
       console.error("Error al agregar departamento:", error);
     } else if (data && data[0]) {
-      departamentos.value.push(data[0]);
-      localStorage.setItem(
-        "departamentos",
-        JSON.stringify(departamentos.value)
-      );
+      departamentos.push(data[0]);
+      localStorage.setItem("departamentos", JSON.stringify(departamentos));
     }
   };
 
   const eliminarUltimoDepartamento = async () => {
-    const ultimoDepartamento =
-      departamentos.value[departamentos.value.length - 1];
+    const ultimoDepartamento = departamentos[departamentos.length - 1];
     if (!ultimoDepartamento) return;
 
     const { error } = await supabase
@@ -55,11 +48,8 @@ export const useDepartamentoStore = defineStore("departamentos", () => {
     if (error) {
       console.error("Error al eliminar el departamento:", error);
     } else {
-      departamentos.value.pop();
-      localStorage.setItem(
-        "departamentos",
-        JSON.stringify(departamentos.value)
-      );
+      departamentos.pop();
+      localStorage.setItem("departamentos", JSON.stringify(departamentos));
     }
   };
 
@@ -70,12 +60,14 @@ export const useDepartamentoStore = defineStore("departamentos", () => {
     eliminarUltimoDepartamento,
   };
 });
+
 // Tienda para Municipios
 export const useMunicipioStore = defineStore("municipios", () => {
-  const municipios = ref(JSON.parse(localStorage.getItem("municipios")) || []);
-  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"; // Tenant fijo
+  const municipios = reactive(
+    JSON.parse(localStorage.getItem("municipios")) || []
+  );
+  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
 
-  // Cargar municipios desde Supabase
   const cargarMunicipios = async () => {
     const { data, error } = await supabase
       .from("municipios")
@@ -85,12 +77,11 @@ export const useMunicipioStore = defineStore("municipios", () => {
     if (error) {
       console.error("Error al cargar municipios:", error);
     } else {
-      municipios.value = data;
-      localStorage.setItem("municipios", JSON.stringify(municipios.value));
+      municipios.splice(0, municipios.length, ...data); // Actualiza el array de manera reactiva
+      localStorage.setItem("municipios", JSON.stringify(municipios));
     }
   };
 
-  // Agregar un nuevo municipio a Supabase
   const agregarMunicipio = async (descripcion, departamentoId) => {
     const { data, error } = await supabase
       .from("municipios")
@@ -99,14 +90,13 @@ export const useMunicipioStore = defineStore("municipios", () => {
     if (error) {
       console.error("Error al agregar municipio:", error);
     } else if (data && data[0]) {
-      municipios.value.push(data[0]);
-      localStorage.setItem("municipios", JSON.stringify(municipios.value));
+      municipios.push(data[0]);
+      localStorage.setItem("municipios", JSON.stringify(municipios));
     }
   };
 
-  // Eliminar el último municipio de Supabase y localStorage
   const eliminarUltimoMunicipio = async () => {
-    const ultimoMunicipio = municipios.value[municipios.value.length - 1];
+    const ultimoMunicipio = municipios[municipios.length - 1];
     if (!ultimoMunicipio) return;
 
     const { error } = await supabase
@@ -117,8 +107,8 @@ export const useMunicipioStore = defineStore("municipios", () => {
     if (error) {
       console.error("Error al eliminar el municipio:", error);
     } else {
-      municipios.value.pop();
-      localStorage.setItem("municipios", JSON.stringify(municipios.value));
+      municipios.pop();
+      localStorage.setItem("municipios", JSON.stringify(municipios));
     }
   };
 
@@ -132,7 +122,10 @@ export const useMunicipioStore = defineStore("municipios", () => {
 
 // Tienda para Grupo Sanguíneo
 export const useGrupoSanguineoStore = defineStore("grupoSanguineo", () => {
-  const gruposSanguineos = ref([]);
+  const gruposSanguineos = ref(
+    JSON.parse(localStorage.getItem("grupoSanguineo")) || []
+  );
+  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"; // Tenant fijo
 
   const cargarGruposSanguineos = async () => {
     const { data, error } = await supabase
@@ -154,7 +147,7 @@ export const useGrupoSanguineoStore = defineStore("grupoSanguineo", () => {
   const agregarGrupoSanguineo = async (descripcion) => {
     const { data, error } = await supabase
       .from("grupoSanguineo")
-      .insert([{ descripcion }]);
+      .insert([{ descripcion, tenant_id: tenantId }]);
 
     if (error) {
       console.error("Error al agregar grupo sanguíneo:", error);
@@ -198,7 +191,10 @@ export const useGrupoSanguineoStore = defineStore("grupoSanguineo", () => {
 
 // Tienda para Escolaridad
 export const useEscolaridadStore = defineStore("escolaridad", () => {
-  const escolaridades = ref([]);
+  const escolaridades = ref(
+    JSON.parse(localStorage.getItem("escolaridad")) || []
+  );
+  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"; // Tenant fijo
 
   const cargarEscolaridades = async () => {
     const { data, error } = await supabase
@@ -217,7 +213,7 @@ export const useEscolaridadStore = defineStore("escolaridad", () => {
   const agregarEscolaridad = async (descripcion) => {
     const { data, error } = await supabase
       .from("escolaridad")
-      .insert([{ descripcion }]);
+      .insert([{ descripcion, tenant_id: tenantId }]);
 
     if (error) {
       console.error("Error al agregar escolaridad:", error);
@@ -255,7 +251,10 @@ export const useEscolaridadStore = defineStore("escolaridad", () => {
 
 // Tienda para Estado Civil
 export const useEstadoCivilStore = defineStore("estadoCivil", () => {
-  const estadosCiviles = ref([]);
+  const estadosCiviles = ref(
+    JSON.parse(localStorage.getItem("estadoCivil")) || []
+  );
+  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"; // Tenant fijo
 
   const cargarEstadosCiviles = async () => {
     const { data, error } = await supabase
@@ -274,7 +273,7 @@ export const useEstadoCivilStore = defineStore("estadoCivil", () => {
   const agregarEstadoCivil = async (descripcion) => {
     const { data, error } = await supabase
       .from("estadoCivil")
-      .insert([{ descripcion }]);
+      .insert([{ descripcion, tenant_id: tenantId }]);
 
     if (error) {
       console.error("Error al agregar estado civil:", error);
