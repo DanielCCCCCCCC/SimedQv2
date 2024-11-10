@@ -4,10 +4,10 @@
   </div>
   <div id="app-container" class="q-mb-xl">
     <dx-data-grid
-      :data-source="medicamentos"
+      :data-source="medicamentos.value"
       :allow-column-reordering="true"
       :show-borders="true"
-      row-alternation-enabled="true"
+      :row-alternation-enabled="true"
       key-expr="codigo"
     >
       <!-- Columnas con ordenamiento habilitado -->

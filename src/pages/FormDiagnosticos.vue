@@ -191,10 +191,13 @@ const guardarClasificacion = () => {
   }
   clasificacionDiagnosticosStore.agregarClasificacion(clasificacionData.nombre);
   clasificacionData.nombre = ""; // Limpiar campo
-  Notify.create({ message: "Clasificación guardada", color: "positive" });
+  Notify.create({
+    message: "Clasificación guardada",
+    position: "top-right",
+    color: "positive",
+  });
 };
-
-const guardarDiagnostico = () => {
+const guardarDiagnostico = async () => {
   formErrors.diagnosticoDescripcion = "";
   formErrors.diagnosticoClasificacion = "";
 
@@ -209,20 +212,43 @@ const guardarDiagnostico = () => {
     return;
   }
 
-  // Extrae el ID de la clasificación, similar a la lógica de departamentoId
+  // Extraer el `id` y `descripcion` de la clasificación seleccionada
   const clasificacionId =
     typeof diagnosticoData.clasificacion === "object"
-      ? diagnosticoData.clasificacion.id
-      : diagnosticoData.clasificacion;
+      ? Number(diagnosticoData.clasificacion.id)
+      : Number(diagnosticoData.clasificacion);
 
-  diagnosticosStore.agregarDiagnostico(
-    diagnosticoData.descripcion,
-    clasificacionId
+  const clasificacionSeleccionada = opcionesClasificaciones.value.find(
+    (clasificacion) => clasificacion.id === clasificacionId
   );
+  const clasificacionDescripcion = clasificacionSeleccionada
+    ? clasificacionSeleccionada.label
+    : "";
 
-  diagnosticoData.descripcion = "";
-  diagnosticoData.clasificacion = null; // Reinicia el campo de selección
-  Notify.create({ message: "Diagnóstico guardado", color: "positive" });
+  try {
+    // Llamar a la store para agregar el diagnóstico con `clasificacionDescripcion`
+    await diagnosticosStore.agregarDiagnostico(
+      diagnosticoData.descripcion,
+      clasificacionId,
+      clasificacionDescripcion
+    );
+
+    // Limpiar los campos después de guardar
+    diagnosticoData.descripcion = "";
+    diagnosticoData.clasificacion = null;
+    Notify.create({
+      message: "Diagnóstico guardado",
+      color: "positive",
+      position: "top-right",
+    });
+  } catch (err) {
+    console.error("Error al guardar diagnóstico:", err);
+    Notify.create({
+      type: "negative",
+      message: "Error al guardar el diagnóstico",
+      position: "top-right",
+    });
+  }
 };
 
 const guardarControl = () => {
@@ -234,7 +260,11 @@ const guardarControl = () => {
   }
   controlesMedicionStore.agregarControl(controlData.descripcion);
   controlData.descripcion = ""; // Limpiar campo
-  Notify.create({ message: "Control guardado", color: "positive" });
+  Notify.create({
+    message: "Control guardado",
+    position: "top-right",
+    color: "positive",
+  });
 };
 
 // Funciones para eliminar el último elemento

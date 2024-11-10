@@ -1,12 +1,10 @@
 import { defineStore } from "pinia";
-import { ref, reactive } from "vue";
+import { ref } from "vue";
 import { supabase } from "../supabaseClient";
 
 // Tienda para Departamentos
 export const useDepartamentoStore = defineStore("departamentos", () => {
-  const departamentos = reactive(
-    JSON.parse(localStorage.getItem("departamentos")) || []
-  );
+  const departamentos = ref([]);
   const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
 
   const cargarDepartamentos = async () => {
@@ -19,7 +17,6 @@ export const useDepartamentoStore = defineStore("departamentos", () => {
       console.error("Error al cargar departamentos:", error);
     } else {
       departamentos.value = data;
-      localStorage.setItem("departamentos", JSON.stringify(departamentos));
     }
   };
 
@@ -31,13 +28,13 @@ export const useDepartamentoStore = defineStore("departamentos", () => {
     if (error) {
       console.error("Error al agregar departamento:", error);
     } else if (data && data[0]) {
-      departamentos.push(data[0]);
-      localStorage.setItem("departamentos", JSON.stringify(departamentos));
+      departamentos.value.push(data[0]);
     }
   };
 
   const eliminarUltimoDepartamento = async () => {
-    const ultimoDepartamento = departamentos[departamentos.length - 1];
+    const ultimoDepartamento =
+      departamentos.value[departamentos.value.length - 1];
     if (!ultimoDepartamento) return;
 
     const { error } = await supabase
@@ -48,8 +45,7 @@ export const useDepartamentoStore = defineStore("departamentos", () => {
     if (error) {
       console.error("Error al eliminar el departamento:", error);
     } else {
-      departamentos.pop();
-      localStorage.setItem("departamentos", JSON.stringify(departamentos));
+      departamentos.value.pop();
     }
   };
 
@@ -63,9 +59,7 @@ export const useDepartamentoStore = defineStore("departamentos", () => {
 
 // Tienda para Municipios
 export const useMunicipioStore = defineStore("municipios", () => {
-  const municipios = reactive(
-    JSON.parse(localStorage.getItem("municipios")) || []
-  );
+  const municipios = ref([]);
   const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
 
   const cargarMunicipios = async () => {
@@ -77,26 +71,33 @@ export const useMunicipioStore = defineStore("municipios", () => {
     if (error) {
       console.error("Error al cargar municipios:", error);
     } else {
-      municipios.splice(0, municipios.length, ...data); // Actualiza el array de manera reactiva
-      localStorage.setItem("municipios", JSON.stringify(municipios));
+      municipios.value = data;
     }
   };
 
-  const agregarMunicipio = async (descripcion, departamentoId) => {
-    const { data, error } = await supabase
-      .from("municipios")
-      .insert([{ descripcion, departamentoId, tenant_id: tenantId }]);
+  const agregarMunicipio = async (
+    descripcion,
+    departamentoId,
+    departamentoDescripcion
+  ) => {
+    const { data, error } = await supabase.from("municipios").insert([
+      {
+        descripcion,
+        departamentoId,
+        departamentoDescripcion,
+        tenant_id: tenantId,
+      },
+    ]);
 
     if (error) {
       console.error("Error al agregar municipio:", error);
     } else if (data && data[0]) {
-      municipios.push(data[0]);
-      localStorage.setItem("municipios", JSON.stringify(municipios));
+      municipios.value.push(data[0]);
     }
   };
 
   const eliminarUltimoMunicipio = async () => {
-    const ultimoMunicipio = municipios[municipios.length - 1];
+    const ultimoMunicipio = municipios.value[municipios.value.length - 1];
     if (!ultimoMunicipio) return;
 
     const { error } = await supabase
@@ -107,8 +108,7 @@ export const useMunicipioStore = defineStore("municipios", () => {
     if (error) {
       console.error("Error al eliminar el municipio:", error);
     } else {
-      municipios.pop();
-      localStorage.setItem("municipios", JSON.stringify(municipios));
+      municipios.value.pop();
     }
   };
 
@@ -122,10 +122,8 @@ export const useMunicipioStore = defineStore("municipios", () => {
 
 // Tienda para Grupo Sanguíneo
 export const useGrupoSanguineoStore = defineStore("grupoSanguineo", () => {
-  const gruposSanguineos = ref(
-    JSON.parse(localStorage.getItem("grupoSanguineo")) || []
-  );
-  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"; // Tenant fijo
+  const gruposSanguineos = ref([]);
+  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
 
   const cargarGruposSanguineos = async () => {
     const { data, error } = await supabase
@@ -137,10 +135,6 @@ export const useGrupoSanguineoStore = defineStore("grupoSanguineo", () => {
       console.error("Error al cargar los grupos sanguíneos:", error);
     } else {
       gruposSanguineos.value = data;
-      localStorage.setItem(
-        "grupoSanguineo",
-        JSON.stringify(gruposSanguineos.value)
-      );
     }
   };
 
@@ -153,10 +147,6 @@ export const useGrupoSanguineoStore = defineStore("grupoSanguineo", () => {
       console.error("Error al agregar grupo sanguíneo:", error);
     } else if (data && data[0]) {
       gruposSanguineos.value.push(data[0]);
-      localStorage.setItem(
-        "grupoSanguineo",
-        JSON.stringify(gruposSanguineos.value)
-      );
     }
   };
 
@@ -174,10 +164,6 @@ export const useGrupoSanguineoStore = defineStore("grupoSanguineo", () => {
       console.error("Error al eliminar el grupo sanguíneo:", error);
     } else {
       gruposSanguineos.value.pop();
-      localStorage.setItem(
-        "grupoSanguineo",
-        JSON.stringify(gruposSanguineos.value)
-      );
     }
   };
 
@@ -191,10 +177,8 @@ export const useGrupoSanguineoStore = defineStore("grupoSanguineo", () => {
 
 // Tienda para Escolaridad
 export const useEscolaridadStore = defineStore("escolaridad", () => {
-  const escolaridades = ref(
-    JSON.parse(localStorage.getItem("escolaridad")) || []
-  );
-  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"; // Tenant fijo
+  const escolaridades = ref([]);
+  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
 
   const cargarEscolaridades = async () => {
     const { data, error } = await supabase
@@ -206,7 +190,6 @@ export const useEscolaridadStore = defineStore("escolaridad", () => {
       console.error("Error al cargar escolaridades:", error);
     } else {
       escolaridades.value = data;
-      localStorage.setItem("escolaridad", JSON.stringify(escolaridades.value));
     }
   };
 
@@ -219,7 +202,6 @@ export const useEscolaridadStore = defineStore("escolaridad", () => {
       console.error("Error al agregar escolaridad:", error);
     } else if (data && data[0]) {
       escolaridades.value.push(data[0]);
-      localStorage.setItem("escolaridad", JSON.stringify(escolaridades.value));
     }
   };
 
@@ -237,7 +219,6 @@ export const useEscolaridadStore = defineStore("escolaridad", () => {
       console.error("Error al eliminar la escolaridad:", error);
     } else {
       escolaridades.value.pop();
-      localStorage.setItem("escolaridad", JSON.stringify(escolaridades.value));
     }
   };
 
@@ -251,10 +232,8 @@ export const useEscolaridadStore = defineStore("escolaridad", () => {
 
 // Tienda para Estado Civil
 export const useEstadoCivilStore = defineStore("estadoCivil", () => {
-  const estadosCiviles = ref(
-    JSON.parse(localStorage.getItem("estadoCivil")) || []
-  );
-  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"; // Tenant fijo
+  const estadosCiviles = ref([]);
+  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
 
   const cargarEstadosCiviles = async () => {
     const { data, error } = await supabase
@@ -266,7 +245,6 @@ export const useEstadoCivilStore = defineStore("estadoCivil", () => {
       console.error("Error al cargar estados civiles:", error);
     } else {
       estadosCiviles.value = data;
-      localStorage.setItem("estadoCivil", JSON.stringify(estadosCiviles.value));
     }
   };
 
@@ -279,7 +257,6 @@ export const useEstadoCivilStore = defineStore("estadoCivil", () => {
       console.error("Error al agregar estado civil:", error);
     } else if (data && data[0]) {
       estadosCiviles.value.push(data[0]);
-      localStorage.setItem("estadoCivil", JSON.stringify(estadosCiviles.value));
     }
   };
 
@@ -296,7 +273,6 @@ export const useEstadoCivilStore = defineStore("estadoCivil", () => {
       console.error("Error al eliminar el estado civil:", error);
     } else {
       estadosCiviles.value.pop();
-      localStorage.setItem("estadoCivil", JSON.stringify(estadosCiviles.value));
     }
   };
 

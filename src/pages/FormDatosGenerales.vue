@@ -245,6 +245,7 @@ import {
   useEstadoCivilStore,
 } from "../stores/DatosGeneralesStores";
 import { storeToRefs } from "pinia";
+import { Notify } from "quasar";
 
 // Inicializar tiendas
 const departamentoStore = useDepartamentoStore();
@@ -282,90 +283,234 @@ onMounted(() => {
 });
 
 // Funciones de guardar y eliminar para cada panel
-const guardarDepartamento = () => {
+const guardarDepartamento = async () => {
   formErrors.departamentoDescripcion = "";
   if (!departamentoData.descripcion) {
     formErrors.departamentoDescripcion =
       "La descripción del departamento es obligatoria.";
     return;
   }
-  departamentoStore.agregarDepartamento(departamentoData.descripcion);
+  try {
+    await departamentoStore.agregarDepartamento(departamentoData.descripcion);
+    Notify.create({
+      type: "positive",
+      message: "Departamento creado exitosamente",
+      position: "top-right",
+    });
+  } catch (error) {
+    Notify.create({
+      type: "negative",
+      message: "Error al crear departamento",
+      position: "top-right",
+    });
+  }
   departamentoData.descripcion = "";
 };
 
-const guardarMunicipio = () => {
+const guardarMunicipio = async () => {
   formErrors.municipioDepartamento = "";
   if (!municipioData.departamentoId) {
     formErrors.municipioDepartamento = "Seleccione un departamento.";
     return;
   }
-  const departamentoId =
-    typeof municipioData.departamentoId === "object"
-      ? municipioData.departamentoId.id
-      : municipioData.departamentoId;
 
-  municipioStore.agregarMunicipio(municipioData.descripcion, departamentoId);
+  // Extraer el `id` y `descripcion` del departamento seleccionado
+  const departamentoSeleccionado = departamentos.value.find(
+    (d) =>
+      d.id ===
+      (typeof municipioData.departamentoId === "object"
+        ? municipioData.departamentoId.id
+        : municipioData.departamentoId)
+  );
+
+  const departamentoId = departamentoSeleccionado?.id || null;
+  const departamentoDescripcion = departamentoSeleccionado?.descripcion || "";
+
+  try {
+    await municipioStore.agregarMunicipio(
+      municipioData.descripcion,
+      departamentoId,
+      departamentoDescripcion
+    );
+    Notify.create({
+      type: "positive",
+      message: "Municipio creado exitosamente",
+      position: "top-right",
+    });
+  } catch (error) {
+    Notify.create({
+      type: "negative",
+      message: "Error al crear municipio",
+      position: "top-right",
+    });
+  }
+
+  // Limpiar los campos después de guardar
   municipioData.descripcion = "";
   municipioData.departamentoId = null;
 };
 
-const guardarGrupoSanguineo = () => {
+const guardarGrupoSanguineo = async () => {
   formErrors.grupoSanguineoDescripcion = "";
   if (!grupoSanguineoData.descripcion) {
     formErrors.grupoSanguineoDescripcion =
       "La descripción del grupo sanguíneo es obligatoria.";
     return;
   }
-  grupoSanguineoStore.agregarGrupoSanguineo(grupoSanguineoData.descripcion);
+  try {
+    await grupoSanguineoStore.agregarGrupoSanguineo(
+      grupoSanguineoData.descripcion
+    );
+    Notify.create({
+      type: "positive",
+      message: "Grupo Sanguíneo creado exitosamente",
+      position: "top-right",
+    });
+  } catch (error) {
+    Notify.create({
+      type: "negative",
+      message: "Error al crear grupo sanguíneo",
+      position: "top-right",
+    });
+  }
   grupoSanguineoData.descripcion = "";
 };
 
-const guardarEscolaridad = () => {
+const guardarEscolaridad = async () => {
   formErrors.escolaridadDescripcion = "";
   if (!escolaridadData.descripcion) {
     formErrors.escolaridadDescripcion =
       "La descripción de escolaridad es obligatoria.";
     return;
   }
-  escolaridadStore.agregarEscolaridad(escolaridadData.descripcion);
+  try {
+    await escolaridadStore.agregarEscolaridad(escolaridadData.descripcion);
+    Notify.create({
+      type: "positive",
+      message: "Escolaridad creada exitosamente",
+      position: "top-right",
+    });
+  } catch (error) {
+    Notify.create({
+      type: "negative",
+      message: "Error al crear escolaridad",
+      position: "top-right",
+    });
+  }
   escolaridadData.descripcion = "";
 };
 
-const guardarEstadoCivil = () => {
+const guardarEstadoCivil = async () => {
   formErrors.estadoCivilDescripcion = "";
   if (!estadoCivilData.descripcion) {
     formErrors.estadoCivilDescripcion =
       "La descripción del estado civil es obligatoria.";
     return;
   }
-  estadoCivilStore.agregarEstadoCivil(estadoCivilData.descripcion);
+  try {
+    await estadoCivilStore.agregarEstadoCivil(estadoCivilData.descripcion);
+    Notify.create({
+      type: "positive",
+      message: "Estado Civil creado exitosamente",
+      position: "top-right",
+    });
+  } catch (error) {
+    Notify.create({
+      type: "negative",
+      message: "Error al crear estado civil",
+      position: "top-right",
+    });
+  }
   estadoCivilData.descripcion = "";
 };
 
 // Funciones para eliminar el último agregado
-const eliminarDepartamento = () =>
-  departamentoStore.eliminarUltimoDepartamento();
-const eliminarMunicipio = () => municipioStore.eliminarUltimoMunicipio();
-const eliminarGrupoSanguineo = () =>
-  grupoSanguineoStore.eliminarUltimoGrupoSanguineo();
-const eliminarEscolaridad = () => escolaridadStore.eliminarUltimaEscolaridad();
-const eliminarEstadoCivil = () => estadoCivilStore.eliminarUltimoEstadoCivil();
+const eliminarDepartamento = async () => {
+  try {
+    await departamentoStore.eliminarUltimoDepartamento();
+    Notify.create({
+      type: "positive",
+      message: "Departamento eliminado exitosamente",
+      position: "top-right",
+    });
+  } catch (error) {
+    Notify.create({
+      type: "negative",
+      message: "Error al eliminar departamento",
+      position: "top-right",
+    });
+  }
+};
+
+const eliminarMunicipio = async () => {
+  try {
+    await municipioStore.eliminarUltimoMunicipio();
+    Notify.create({
+      type: "positive",
+      message: "Municipio eliminado exitosamente",
+      position: "top-right",
+    });
+  } catch (error) {
+    Notify.create({
+      type: "negative",
+      message: "Error al eliminar municipio",
+      position: "top-right",
+    });
+  }
+};
+
+const eliminarGrupoSanguineo = async () => {
+  try {
+    await grupoSanguineoStore.eliminarUltimoGrupoSanguineo();
+    Notify.create({
+      type: "positive",
+      message: "Grupo Sanguíneo eliminado exitosamente",
+      position: "top-right",
+    });
+  } catch (error) {
+    Notify.create({
+      type: "negative",
+      message: "Error al eliminar grupo sanguíneo",
+      position: "top-right",
+    });
+  }
+};
+
+const eliminarEscolaridad = async () => {
+  try {
+    await escolaridadStore.eliminarUltimaEscolaridad();
+    Notify.create({
+      type: "positive",
+      message: "Escolaridad eliminada exitosamente",
+      position: "top-right",
+    });
+  } catch (error) {
+    Notify.create({
+      type: "negative",
+      message: "Error al eliminar escolaridad",
+      position: "top-right",
+    });
+  }
+};
+
+const eliminarEstadoCivil = async () => {
+  try {
+    await estadoCivilStore.eliminarUltimoEstadoCivil();
+    Notify.create({
+      type: "positive",
+      message: "Estado Civil eliminado exitosamente",
+      position: "top-right",
+    });
+  } catch (error) {
+    Notify.create({
+      type: "negative",
+      message: "Error al eliminar estado civil",
+      position: "top-right",
+    });
+  }
+};
 
 // Tabs de control
 const tab = ref("Departamentos y Municipios");
 const subTab = ref("Departamento");
 </script>
-
-<style scoped>
-.q-card {
-  max-width: 700px;
-  margin: 0 auto;
-}
-.text-primary {
-  color: #1976d2;
-}
-.small-tabs .q-tab {
-  font-size: 8px;
-  padding: 4px 9px;
-}
-</style>

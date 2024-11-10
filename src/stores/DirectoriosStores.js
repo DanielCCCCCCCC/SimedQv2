@@ -1,6 +1,7 @@
 // src/stores/ConfiMedicasStores.js
 import { defineStore } from "pinia";
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
+import { supabase } from "../supabaseClient";
 
 // Helper para cargar y guardar en localStorage
 function loadFromLocalStorage(key, defaultValue) {
@@ -12,59 +13,123 @@ function saveToLocalStorage(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
-// Tienda para Hospitales
+//
+//
+//
+//
+//
+//
+//
+// Función agregarHospital en la store
 export const useHospitalStore = defineStore("hospitalStore", () => {
-  const hospitales = ref(loadFromLocalStorage("hospitales", []));
+  const hospitales = ref([]);
+  // Función en tu store o componente para agregar el hospital y actualizar el DataGrid
+  const agregarHospital = async (hospitalInfo) => {
+    const tenant_Id = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
+    const hospitalConTenant = { ...hospitalInfo, tenant_Id };
 
-  const agregarHospital = (hospital) => {
-    hospitales.value.push({ id: Date.now(), ...hospital });
+    try {
+      const { data, error } = await supabase
+        .from("hospitales")
+        .insert([hospitalConTenant], { returning: "minimal" }); // Cambia a 'representation' si aún no retorna datos
+
+      if (error) {
+        console.error("Error al agregar hospital:", error);
+        throw new Error(error.message);
+      }
+
+      if (data && data.length > 0) {
+        hospitales.value.push(data[0]); // Actualiza el DataGrid si recibe datos
+      } else {
+        console.warn("No se recibieron datos de Supabase."); // Se muestra si el retorno es vacío o 'minimal'
+      }
+    } catch (err) {
+      console.error("Error en agregarHospital:", err.message);
+    }
   };
 
-  const eliminarHospital = (id) => {
-    hospitales.value = hospitales.value.filter((h) => h.id !== id);
-  };
+  const eliminarHospital = async (id) => {
+    try {
+      const { error } = await supabase.from("hospitales").delete().eq("id", id);
 
-  watch(
-    hospitales,
-    (newHospitales) => {
-      saveToLocalStorage("hospitales", newHospitales);
-    },
-    { deep: true }
-  );
+      if (error) {
+        console.error("Error al eliminar hospital:", error);
+      } else {
+        hospitales.value = hospitales.value.filter((h) => h.id !== id);
+      }
+    } catch (err) {
+      console.error("Error en eliminarHospital:", err.message);
+    }
+  };
 
   return { hospitales, agregarHospital, eliminarHospital };
 });
 
-///
-///
-///
-///
+//
+//
+//
+//
+//
+//
 //
 ///
 ///Tienda para Medicamentos
 export const useMedicamentoStore = defineStore("medicamentoStore", () => {
   const medicamentos = ref(loadFromLocalStorage("medicamentos", []));
+  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
 
-  const agregarMedicamento = (medicamento, configuracion) => {
+  const cargarMedicamentos = async () => {
+    const { data, error } = await supabase
+      .from("medicamentos")
+      .select("*")
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Error al cargar medicamentos:", error);
+    } else {
+      medicamentos.value = data;
+      saveToLocalStorage("medicamentos", medicamentos.value);
+    }
+  };
+
+  const agregarMedicamento = async (medicamento) => {
+    const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
+
+    // Verifica si el medicamento ya existe
     if (!medicamentos.value.some((m) => m.codigo === medicamento.codigo)) {
-      medicamentos.value.push({
-        id: Date.now(),
-        ...medicamento,
-        configuracion: { ...configuracion },
-      });
+      const { data, error } = await supabase
+        .from("medicamentos")
+        .insert([{ ...medicamento, tenant_Id: tenantId }])
+        .select(); // Asegura que siempre intente devolver los datos insertados
+
+      if (error) {
+        console.error("Error al agregar medicamento:", error);
+        return; // Sal de la función si hay un error
+      }
+
+      // Verifica si `data` tiene contenido antes de acceder al primer elemento
+      if (data && data.length > 0) {
+        medicamentos.value.push(data[0]);
+        saveToLocalStorage("medicamentos", medicamentos.value);
+      } else {
+        console.warn("No se devolvieron datos después de la inserción.");
+      }
     } else {
       console.warn("Este medicamento ya existe.");
     }
   };
 
-  const eliminarMedicamento = (id) => {
-    const index = medicamentos.value.findIndex((m) => m.id === id);
-    if (index !== -1) {
-      medicamentos.value.splice(index, 1);
+  const eliminarMedicamento = async (id) => {
+    const { error } = await supabase.from("medicamentos").delete().eq("id", id);
+
+    if (error) {
+      console.error("Error al eliminar medicamento:", error);
     } else {
-      console.warn("El medicamento no fue encontrado.");
+      medicamentos.value = medicamentos.value.filter((m) => m.id !== id);
+      saveToLocalStorage("medicamentos", medicamentos.value);
     }
   };
+
   watch(
     medicamentos,
     (newMedicamentos) => {
@@ -73,7 +138,12 @@ export const useMedicamentoStore = defineStore("medicamentoStore", () => {
     { deep: true }
   );
 
-  return { medicamentos, agregarMedicamento, eliminarMedicamento };
+  return {
+    medicamentos,
+    cargarMedicamentos,
+    agregarMedicamento,
+    eliminarMedicamento,
+  };
 });
 
 ///
@@ -82,30 +152,66 @@ export const useMedicamentoStore = defineStore("medicamentoStore", () => {
 ///
 //
 ///
+// Tienda para Estudios
+export const useEstudioStore = defineStore("examenesEstudios", () => {
+  const estudios = ref(loadFromLocalStorage("examenesEstudios", []));
+  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
 
-// Tienda para Exámenes y Estudios
-export const useEstudioStore = defineStore("estudioStore", () => {
-  const estudios = ref(loadFromLocalStorage("estudios", []));
+  const cargarEstudios = async () => {
+    const { data, error } = await supabase
+      .from("examenesEstudios")
+      .select("*")
+      .eq("tenant_id", tenantId)
+      .order("created_at", { ascending: true });
 
-  const agregarEstudio = (estudio) => {
-    // Fusionar los datos de estudio y configuración en un solo objeto
-    estudios.value.push({
-      id: Date.now(),
-      ...estudio,
-    });
+    if (error) {
+      console.error("Error al cargar estudios:", error);
+    } else if (data) {
+      estudios.value = data;
+      saveToLocalStorage("examenesEstudios", estudios.value);
+    }
   };
 
-  const eliminarEstudio = (id) => {
-    estudios.value = estudios.value.filter((e) => e.id !== id);
+  const agregarEstudio = async (estudioInfo) => {
+    const { data, error } = await supabase.from("examenesEstudios").insert([
+      {
+        ...estudioInfo,
+        tenant_id: tenantId,
+        updated_at: new Date().toISOString(), // Agrega la fecha/hora actual
+      },
+    ]);
+
+    if (error) {
+      console.error("Error al agregar estudio:", error);
+    } else if (data && data.length > 0) {
+      estudios.value.push(data[0]);
+      saveToLocalStorage("examenesEstudios", estudios.value);
+    }
   };
 
-  watch(
+  const eliminarUltimoEstudio = async () => {
+    const ultimoEstudio = estudios.value[estudios.value.length - 1];
+    if (!ultimoEstudio) return;
+
+    const { error } = await supabase
+      .from("examenesEstudios")
+      .delete()
+      .eq("id", ultimoEstudio.id);
+
+    if (error) {
+      console.error("Error al eliminar el estudio:", error);
+    } else {
+      estudios.value.pop();
+      saveToLocalStorage("examenesEstudios", estudios.value);
+    }
+  };
+
+  onMounted(cargarEstudios);
+
+  return {
     estudios,
-    (newEstudios) => {
-      saveToLocalStorage("estudios", newEstudios);
-    },
-    { deep: true }
-  );
-
-  return { estudios, agregarEstudio, eliminarEstudio };
+    cargarEstudios,
+    agregarEstudio,
+    eliminarUltimoEstudio,
+  };
 });

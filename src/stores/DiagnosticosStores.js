@@ -98,16 +98,23 @@ export const useDiagnosticosStore = defineStore("diagnosticos", () => {
       saveToLocalStorage("diagnosticos", diagnosticos.value);
     }
   };
-
-  const agregarDiagnostico = async (descripcion, clasificacion) => {
-    const { data, error } = await supabase
-      .from("diagnosticos")
-      .insert([{ descripcion, clasificacion, tenant_id: tenantId }]);
+  const agregarDiagnostico = async (
+    descripcion,
+    clasificacionId,
+    clasificacionDescripcion
+  ) => {
+    const { data, error } = await supabase.from("diagnosticos").insert([
+      {
+        descripcion,
+        clasificacionId,
+        clasificacionDescripcion,
+        tenant_id: tenantId,
+      },
+    ]);
 
     if (error) {
       console.error("Error al agregar diagnóstico:", error);
     } else if (data && data.length > 0) {
-      // Verificar que data no es null y tiene elementos
       diagnosticos.value.push(data[0]);
       saveToLocalStorage("diagnosticos", diagnosticos.value);
     }

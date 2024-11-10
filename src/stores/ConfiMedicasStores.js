@@ -86,6 +86,16 @@ export const useEspecialidadMedicaStore = defineStore(
   }
 );
 
+//
+//
+///
+//
+//
+//
+//
+//
+///
+//
 // Tipos de Estudios
 export const useTiposEstudiosStore = defineStore("tiposEstudios", () => {
   const estudios = ref(loadFromLocalStorage("tiposEstudios", []));
@@ -142,11 +152,23 @@ export const useTiposEstudiosStore = defineStore("tiposEstudios", () => {
   };
 });
 
+//
+//
+///
+//
+//
+//
+//
+//
+///
+//
 // Tipos de Medicamentos
 export const useTiposMedicamentosStore = defineStore(
   "tiposMedicamentos",
+
   () => {
     const medicamentos = ref(loadFromLocalStorage("tiposMedicamentos", []));
+    const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"; // Asegúrate de que el tenant_id sea el correcto
 
     const cargarMedicamentos = async () => {
       const { data, error } = await supabase
