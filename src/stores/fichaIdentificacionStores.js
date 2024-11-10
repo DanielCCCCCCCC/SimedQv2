@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { supabase } from "../supabaseClient"; // Asegúrate de tener configurado supabaseClient
-import { format, startOfWeek, endOfWeek, eachDayOfInterval } from "date-fns";
+import { parseISO, format, startOfMonth, endOfMonth } from "date-fns"; // Asegúrate de importar parseISO
 import { es } from "date-fns/locale";
 
 export const useFichaIdentificacionStore = defineStore(
@@ -20,6 +20,7 @@ export const useFichaIdentificacionStore = defineStore(
         console.error("Error al cargar los datos de identificación:", error);
       } else {
         formIdentificacion.value = data || [];
+        console.log("Datos cargados LN23 :", formIdentificacion.value);
       }
     };
 
@@ -70,28 +71,50 @@ export const useFichaIdentificacionStore = defineStore(
     };
 
     const registrosPorDia = computed(() => {
-      const inicioSemana = startOfWeek(new Date(), { weekStartsOn: 1 });
-      const finSemana = endOfWeek(new Date(), { weekStartsOn: 1 });
+      // Obtén el primer y último día del mes actual
+      const inicioMes = startOfMonth(new Date());
+      const finMes = endOfMonth(new Date());
 
-      return eachDayOfInterval({ start: inicioSemana, end: finSemana }).map(
-        (dia) => {
-          const diaFormato = dia.toLocaleDateString("en-CA");
-          return {
-            day: format(dia, "EEEE", { locale: es }),
-            registros: formIdentificacion.value.filter(
-              (paciente) => paciente.fechaRegistro === diaFormato
-            ).length,
-          };
-        }
-      );
+      // Inicializa un objeto para almacenar el conteo acumulado por cada día de la semana
+      const conteoPorDia = {
+        lunes: 0,
+        martes: 0,
+        miércoles: 0,
+        jueves: 0,
+        viernes: 0,
+        sábado: 0,
+        domingo: 0,
+      };
+
+      // Filtra los registros dentro del mes actual y agrúpalos por día de la semana
+      formIdentificacion.value
+        .filter((paciente) => {
+          // Asegúrate de que `fechaRegistro` esté en el formato de fecha correcto
+          const fechaRegistro = parseISO(paciente.fechaRegistro); // Usa parseISO para convertir la fecha
+          return fechaRegistro >= inicioMes && fechaRegistro <= finMes;
+        })
+        .forEach((paciente) => {
+          const fechaRegistro = parseISO(paciente.fechaRegistro); // Usa parseISO para convertir la fecha
+          const diaSemana = format(fechaRegistro, "EEEE", { locale: es });
+          conteoPorDia[diaSemana.toLowerCase()] += 1;
+        });
+
+      // Convierte el objeto de conteo a un arreglo para usarlo en el gráfico
+      return Object.entries(conteoPorDia).map(([day, registros]) => ({
+        day,
+        registros,
+      }));
     });
 
     const totalActivos = computed(
       () => formIdentificacion.value.filter((p) => p.activo).length
     );
+    console.log("ACTIVOS LN92 " + totalActivos.value);
+
     const totalInactivos = computed(
       () => formIdentificacion.value.filter((p) => !p.activo).length
     );
+    console.log("INACTIVOS LN92 " + totalInactivos.value);
 
     const dataGraficoPacientes = computed(() => [
       { estado: "Activos", cantidad: totalActivos.value },

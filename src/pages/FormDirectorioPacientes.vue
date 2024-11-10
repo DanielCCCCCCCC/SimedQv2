@@ -388,7 +388,7 @@ const { escolaridades } = storeToRefs(EscolaridadStore);
 
 // Objeto reactivo para almacenar los datos del paciente
 const pacienteSeleccionado = reactive({
-  fechaRegistro: "", // Inicializa vacío para que se seleccione manualmente
+  fechaRegistro: "", // Permitir que el usuario seleccione la fecha
   codigo: "",
   activo: false,
   tipo: null,
@@ -417,6 +417,11 @@ const pacienteSeleccionado = reactive({
   grupoSanguineo: "",
   alergias: "",
 });
+const formatFecha = (fecha) => {
+  return fecha instanceof Date
+    ? fecha.toLocaleDateString("en-CA") // Formato "yyyy-MM-dd"
+    : fecha;
+};
 
 const tab = ref("Pacientes");
 const subTabFichaIdentificacion = ref("infoTecnica");
@@ -433,16 +438,24 @@ onMounted(async () => {
   await MunicipioStore.cargarMunicipios();
   await GrupoSanguineoStore.cargarGruposSanguineos();
   await EscolaridadStore.cargarEscolaridades();
+  await fichaIdentificacionStore.cargarDatos();
 });
 
 // Función para guardar el formulario en la tienda
 const guardarDatosFormulario = () => {
-  // Convierte `fechaRegistro` a Date si no está vacío
-  if (pacienteSeleccionado.fechaRegistro) {
-    pacienteSeleccionado.fechaRegistro = new Date(
-      pacienteSeleccionado.fechaRegistro
-    );
-  }
+  // Asegúrate de que las fechas tengan el formato correcto antes de guardar
+  pacienteSeleccionado.fechaRegistro = formatFecha(
+    pacienteSeleccionado.fechaRegistro
+  );
+  pacienteSeleccionado.fechaNacimiento = formatFecha(
+    pacienteSeleccionado.fechaNacimiento
+  );
+  // // Convierte `fechaRegistro` a Date si no está vacío
+  // if (pacienteSeleccionado.fechaRegistro) {
+  //   pacienteSeleccionado.fechaRegistro = new Date(
+  //     pacienteSeleccionado.fechaRegistro
+  //   );
+  // }
 
   // Extraer `id` y `descripcion` del tipo de paciente seleccionado
   const tipoPacienteSeleccionado = tpacientes.value.find(
@@ -549,9 +562,15 @@ const guardarDatosFormulario = () => {
   });
 
   // Limpiar el formulario después de guardar
-  Object.keys(pacienteSeleccionado).forEach(
-    (key) => (pacienteSeleccionado[key] = "")
-  );
+  Object.keys(pacienteSeleccionado).forEach((key) => {
+    if (typeof pacienteSeleccionado[key] === "boolean") {
+      pacienteSeleccionado[key] = false;
+    } else if (Array.isArray(pacienteSeleccionado[key])) {
+      pacienteSeleccionado[key] = [];
+    } else {
+      pacienteSeleccionado[key] = "";
+    }
+  });
 };
 </script>
 

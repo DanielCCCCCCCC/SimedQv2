@@ -128,6 +128,7 @@
               </q-tab-panel>
             </q-tab-panels>
           </div>
+          <ListadoMunicipios />
         </div>
       </q-tab-panel>
 
@@ -244,6 +245,8 @@ import {
   useEscolaridadStore,
   useEstadoCivilStore,
 } from "../stores/DatosGeneralesStores";
+import ListadoMunicipios from "./ListadoMunicipios.vue";
+
 import { storeToRefs } from "pinia";
 import { Notify } from "quasar";
 

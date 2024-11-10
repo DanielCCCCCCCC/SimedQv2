@@ -19,11 +19,27 @@ function saveToLocalStorage(key, value) {
 //
 //
 //
-//
-// Función agregarHospital en la store
+//// Tienda para Hospitales
 export const useHospitalStore = defineStore("hospitalStore", () => {
   const hospitales = ref([]);
-  // Función en tu store o componente para agregar el hospital y actualizar el DataGrid
+
+  const cargarHospitales = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("hospitales")
+        .select("*")
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        console.error("Error al cargar hospitales:", error);
+      } else {
+        hospitales.value = data || [];
+      }
+    } catch (err) {
+      console.error("Error en cargarHospitales:", err.message);
+    }
+  };
+
   const agregarHospital = async (hospitalInfo) => {
     const tenant_Id = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
     const hospitalConTenant = { ...hospitalInfo, tenant_Id };
@@ -31,17 +47,12 @@ export const useHospitalStore = defineStore("hospitalStore", () => {
     try {
       const { data, error } = await supabase
         .from("hospitales")
-        .insert([hospitalConTenant], { returning: "minimal" }); // Cambia a 'representation' si aún no retorna datos
+        .insert([hospitalConTenant], { returning: "representation" });
 
       if (error) {
         console.error("Error al agregar hospital:", error);
-        throw new Error(error.message);
-      }
-
-      if (data && data.length > 0) {
-        hospitales.value.push(data[0]); // Actualiza el DataGrid si recibe datos
-      } else {
-        console.warn("No se recibieron datos de Supabase."); // Se muestra si el retorno es vacío o 'minimal'
+      } else if (data && data[0]) {
+        hospitales.value.push(data[0]);
       }
     } catch (err) {
       console.error("Error en agregarHospital:", err.message);
@@ -62,9 +73,8 @@ export const useHospitalStore = defineStore("hospitalStore", () => {
     }
   };
 
-  return { hospitales, agregarHospital, eliminarHospital };
+  return { hospitales, cargarHospitales, agregarHospital, eliminarHospital };
 });
-
 //
 //
 //

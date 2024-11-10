@@ -36,7 +36,7 @@
     <q-tab-panels v-model="tab" animated swipeable>
       <!-- Panel para Especialidades Médicas -->
       <q-tab-panel name="Especialidades Médicas">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
+        <q-card class="q-pa-sm q-mt-md bg-grey-1 q-mb-xl rounded shadow-2xl">
           <q-card-section class="text-h6 text-primary">
             Especialidades Médicas
           </q-card-section>
@@ -64,6 +64,9 @@
             </div>
           </q-form>
         </q-card>
+        <div>
+          <ListadoEspecialidadesMedicas />
+        </div>
       </q-tab-panel>
 
       <!-- Panel para Tipos de Estudios -->
@@ -96,6 +99,9 @@
             </div>
           </q-form>
         </q-card>
+        <div>
+          <ListadoTiposEstudios />
+        </div>
       </q-tab-panel>
 
       <!-- Panel para Tipos de Medicamentos -->
@@ -128,6 +134,9 @@
             </div>
           </q-form>
         </q-card>
+        <div>
+          <ListadoTiposMedicamentos />
+        </div>
       </q-tab-panel>
 
       <!-- Panel para Tipos de Pacientes -->
@@ -160,6 +169,9 @@
             </div>
           </q-form>
         </q-card>
+        <div>
+          <ListadoTipoPacientes />
+        </div>
       </q-tab-panel>
 
       <!-- Panel para Grupos de Contactos -->
@@ -192,6 +204,7 @@
             </div>
           </q-form>
         </q-card>
+        <ListadoGruposContactos />
       </q-tab-panel>
 
       <!-- Panel para Tipos de Citas -->
@@ -224,6 +237,7 @@
             </div>
           </q-form>
         </q-card>
+        <ListadoTiposCitas />
       </q-tab-panel>
     </q-tab-panels>
   </q-page>
@@ -232,6 +246,12 @@
 <script setup>
 import { ref } from "vue";
 import { Notify } from "quasar";
+import ListadoEspecialidadesMedicas from "./ListadoEspecialidadesMedicas.vue";
+import ListadoTiposEstudios from "./ListadoTiposEstudios.vue";
+import ListadoTiposMedicamentos from "./ListadoTiposMedicamentos.vue";
+import ListadoTipoPacientes from "./ListadoTipoPacientes.vue";
+import ListadoGruposContactos from "./ListadoGruposContactos.vue";
+import ListadoTiposCitas from "./ListadoTiposCitas.vue";
 
 // Estado para las pestañas activas
 const tab = ref("Especialidades Médicas");
@@ -392,6 +412,7 @@ const eliminarGrupoContacto = async () => {
 
 // Tipos de Citas
 import { useTiposCitasStore } from "../stores/ConfiMedicasStores";
+// import ListadoTiposEstudios from "./ListadoTiposEstudios.vue";
 const citaData = ref({ descripcion: "" });
 const tiposCitasStore = useTiposCitasStore();
 

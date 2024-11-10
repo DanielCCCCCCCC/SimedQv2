@@ -1,7 +1,9 @@
 <template>
   <div>
     <h5 class="titulo">Estado de Pacientes</h5>
+    <!-- Muestra el gráfico solo cuando los datos están listos -->
     <DxPieChart
+      v-if="datosCargados"
       id="pie"
       :data-source="dataGraficoPacientes"
       type="doughnut"
@@ -27,8 +29,9 @@
   </div>
 </template>
 
-<script setup lang="js">
+<script setup>
 import { useFichaIdentificacionStore } from "../stores/fichaIdentificacionStores";
+import { onMounted, ref } from "vue";
 import DxPieChart, {
   DxLegend,
   DxSeries,
@@ -38,27 +41,20 @@ import DxPieChart, {
   DxConnector,
   DxExport,
 } from "devextreme-vue/pie-chart";
+import { storeToRefs } from "pinia";
 
-// Cargar la tienda
-const fichaIdentificacionStore = useFichaIdentificacionStore();
+// Instancia de la tienda
+const FichaIdentificacionStore = useFichaIdentificacionStore();
+const { dataGraficoPacientes } = storeToRefs(FichaIdentificacionStore);
 
-// Acceder a `dataGraficoPacientes` directamente de la tienda
-const { dataGraficoPacientes } = fichaIdentificacionStore;
+const datosCargados = ref(false);
 
-const customizeTooltip = ({ valueText, percent }) => ({
-  text: `${valueText} - ${(percent * 100).toFixed(2)}%`,
+onMounted(async () => {
+  await FichaIdentificacionStore.cargarDatos();
+  datosCargados.value = true; // Establece datosCargados a true cuando la carga está completa
+});
+
+const customizeTooltip = ({ valueText, percentText }) => ({
+  text: `${valueText} pacientes (${percentText})`,
 });
 </script>
-
-<style>
-#pie {
-  margin-left: 50px;
-  margin-top: -30px;
-}
-.titulo {
-  margin-top: 10px;
-  font-family: "Segoe UI Light", "Helvetica Neue", "Trebuchet MS", "Verdana",
-    "sans-serif";
-  text-align: center;
-}
-</style>

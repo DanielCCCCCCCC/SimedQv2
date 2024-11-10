@@ -22,10 +22,11 @@
 
       <!-- Opciones -->
       <dx-scrolling mode="virtual" />
-      <dx-column-chooser :enabled="false" />
+      <dx-column-chooser :enabled="true" />
       <dx-sorting mode="multiple" />
       <dx-header-filter :visible="true" />
-      <dx-load-panel :show-pane="false" />
+      <dx-load-panel :show-pane="true" />
+
       <dx-selection
         select-all-mode="allPages"
         show-check-boxes-mode="always"
@@ -268,6 +269,7 @@ export default {
     PacientePanel,
     DxEditing,
     DxButton,
+
     // DxCheckBox,
   },
   props: {

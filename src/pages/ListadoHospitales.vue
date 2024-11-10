@@ -1,136 +1,131 @@
 <template>
-  <div class="row">
-    <h4 class="header-title">Hospitales Existentes</h4>
-  </div>
-  <div id="app-container" class="q-mb-xl">
-    <dx-data-grid
+  <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
+    <DxDataGrid
       :data-source="hospitales"
-      :allow-column-reordering="true"
-      row-alternation-enabled="true"
-      :rowAlternationEnabled="true"
+      key-expr="id"
       :show-borders="true"
-      key-expr="nombre"
+      class="custom-data-grid"
+      :allow-column-reordering="true"
+      :column-auto-width="true"
+      height="400px"
     >
-      <!-- Columnas con ordenamiento habilitado -->
-      <dx-column
-        data-field="nombre"
-        caption="Nombre del Hospital"
-        :allow-sorting="true"
-        :width="210"
-      ></dx-column>
-      <dx-column
-        data-field="direccion"
-        caption="Dirección"
-        :allow-sorting="true"
-        :min-width="390"
-      ></dx-column>
-      <dx-column
-        data-field="municipio"
-        caption="Municipio"
-        :allow-sorting="true"
-        :visible="false"
-        :width="140"
-      ></dx-column>
-      <dx-column
-        data-field="departamento"
-        caption="Departamento"
-        :allow-sorting="true"
-        :visible="false"
-        :width="140"
-      ></dx-column>
-      <dx-column
-        data-field="telefono"
-        caption="Teléfono"
-        :allow-sorting="true"
-        :visible="true"
-        :width="120"
-      ></dx-column>
-      <dx-column
-        data-field="email"
-        caption="Correo Electrónico"
-        :allow-sorting="true"
-        :visible="true"
-        :width="180"
-      ></dx-column>
-      <dx-column
-        data-field="web"
-        caption="Sitio Web"
-        :allow-sorting="true"
-        :visible="true"
-        :width="120"
-      ></dx-column>
+      <DxColumn data-field="nombre" caption="Nombre" />
+      <DxColumn data-field="direccion" caption="Dirección" />
 
-      <!-- Configuración de edición de datos con título en la ventana modal -->
-      <dx-editing
-        mode="popup"
-        :allow-updating="true"
-        :allow-adding="true"
-        :allow-deleting="true"
-        :popup="{
-          title: 'Editar Información del Hospital',
-          showTitle: true,
-          width: 700,
-          height: 400,
-        }"
+      <DxColumn data-field="departamento_id" caption="Departamento" />
+      <DxColumn data-field="municipio" caption="Municipio" />
+      <DxColumn data-field="estado" caption="Estado" />
+      <DxColumn data-field="telefono" caption="Teléfono" />
+      <DxColumn data-field="email" caption="Email" />
+      <DxColumn data-field="web" caption="Sitio Web" />
+
+      <!-- Agregar resumen de conteo de hospitales -->
+      <DxSummary>
+        <DxGroupItem summary-type="count" displayFormat="{0} hospitales" />
+      </DxSummary>
+
+      <DxColumnChooser :enabled="true" />
+      <DxFilterRow :visible="true" />
+      <DxSearchPanel :visible="true" />
+      <DxGroupPanel :visible="true" />
+      <DxGrouping :auto-expand-all="false" />
+    </DxDataGrid>
+
+    <!-- Botones para agregar y eliminar hospitales
+    <div class="row justify-end q-mt-md">
+      <q-btn
+        label="Agregar Hospital"
+        color="primary"
+        icon="add"
+        @click="abrirFormularioAgregar"
       />
+      <q-btn
+        label="Eliminar Último"
+        color="negative"
+        icon="delete"
+        @click="eliminarUltimoHospital"
+        class="q-ml-sm"
+      />
+    </div> -->
 
-      <!-- Paginación y filtros -->
-      <dx-paging :enabled="true" :page-size="10" />
-      <dx-filter-row :visible="true" />
-      <dx-header-filter :visible="true" />
-    </dx-data-grid>
-  </div>
+    <!-- Formulario de entrada para agregar un hospital
+    <q-dialog v-model="mostrarFormulario">
+      <q-card>
+        <q-card-section class="text-h6">Agregar Hospital</q-card-section>
+        <q-form @submit.prevent="agregarNuevoHospital" class="q-gutter-md">
+          <q-input v-model="nuevoHospital.nombre" label="Nombre" outlined />
+          <q-input
+            v-model="nuevoHospital.direccion"
+            label="Dirección"
+            outlined
+          />
+          <q-input
+            v-model="nuevoHospital.municipio"
+            label="Municipio"
+            outlined
+          />
+          <q-input v-model="nuevoHospital.estado" label="Estado" outlined />
+          <q-input v-model="nuevoHospital.telefono" label="Teléfono" outlined />
+          <q-input v-model="nuevoHospital.email" label="Email" outlined />
+          <q-input v-model="nuevoHospital.web" label="Sitio Web" outlined />
+          <q-btn label="Agregar" type="submit" color="primary" />
+          <q-btn label="Cancelar" flat @click="mostrarFormulario = false" />
+        </q-form>
+      </q-card>
+    </q-dialog> -->
+  </q-card>
 </template>
-
-<script>
+<script setup>
 import {
   DxDataGrid,
   DxColumn,
-  DxPaging,
+  DxSummary,
+  DxGroupItem,
+  DxColumnChooser,
   DxFilterRow,
-  DxHeaderFilter,
-  DxEditing,
+  DxSearchPanel,
+  DxGroupPanel,
+  DxGrouping,
 } from "devextreme-vue/data-grid";
+import { ref, onMounted } from "vue";
 import { useHospitalStore } from "../stores/DirectoriosStores";
+import { storeToRefs } from "pinia";
 
-export default {
-  components: {
-    DxDataGrid,
-    DxColumn,
-    DxPaging,
-    DxFilterRow,
-    DxHeaderFilter,
-    DxEditing,
-  },
-  setup() {
-    const hospitalStore = useHospitalStore();
-    const hospitales = hospitalStore.hospitales; // Datos de la tienda de hospitales
-    return {
-      hospitales,
-    };
-  },
+const hospitalStore = useHospitalStore();
+const { hospitales } = storeToRefs(hospitalStore);
+
+const mostrarFormulario = ref(false);
+const nuevoHospital = ref({
+  nombre: "",
+  direccion: "",
+  municipio: "",
+  estado: "",
+  telefono: "",
+  email: "",
+  web: "",
+});
+
+// Cargar los hospitales al montar el componente
+onMounted(async () => {
+  await hospitalStore.cargarHospitales();
+});
+
+const abrirFormularioAgregar = () => {
+  mostrarFormulario.value = true;
+};
+
+const agregarNuevoHospital = async () => {
+  await hospitalStore.agregarHospital(nuevoHospital.value);
+  mostrarFormulario.value = false;
+  Object.keys(nuevoHospital.value).forEach(
+    (key) => (nuevoHospital.value[key] = "")
+  );
+};
+
+const eliminarUltimoHospital = async () => {
+  if (hospitales.value.length > 0) {
+    const ultimoHospital = hospitales.value[hospitales.value.length - 1];
+    await hospitalStore.eliminarHospital(ultimoHospital.id);
+  }
 };
 </script>
-
-<style scoped>
-#app-container {
-  padding: 0 4px; /* Reducción del padding superior */
-  background-color: #f9f9f9; /* Fondo claro */
-}
-
-.header-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-  margin: 1px 1px; /* Menor espacio superior, más espacio inferior */
-  text-align: center; /* Centrado del título */
-  flex: auto;
-  margin-top: 50px;
-}
-
-.dx-data-grid {
-  background-color: #ffffff; /* Fondo blanco para el DataGrid */
-  border-radius: 8px; /* Bordes redondeados */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
-}
-</style>
