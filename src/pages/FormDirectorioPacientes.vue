@@ -102,7 +102,7 @@
 
                     <q-select
                       v-model="pacienteSeleccionado.tipo"
-                      :options="pacientes"
+                      :options="tpacientes"
                       label="Tipo"
                       option-value="id"
                       option-label="descripcion"
@@ -110,28 +110,26 @@
                       dense
                       style="font-size: 14px; height: auto"
                     />
-
                     <q-input
                       v-model="pacienteSeleccionado.medico"
                       label="Medico"
-                      :options="medicoNOptions"
                       outlined
                       dense
                     />
-                    <q-select
+                    <!-- <q-select
                       v-model="pacienteSeleccionado.medicoCabecera"
                       label="Medico Cabecera"
                       :options="medicoCabeceraOptions"
                       outlined
                       dense
-                    />
-                    <q-select
+                    /> -->
+                    <!-- <q-select
                       v-model="pacienteSeleccionado.referidoPor"
                       label="Referido por"
                       :options="referidoPorOptions"
                       outlined
                       dense
-                    />
+                    /> -->
                   </q-form>
                 </q-card>
               </q-tab-panel>
@@ -167,20 +165,35 @@
                       dense
                       type="date"
                     />
-                    <q-select
+                    <q-input
                       v-model="pacienteSeleccionado.sexo"
                       label="Sexo"
-                      :options="sexoOptions"
                       outlined
                       dense
                     />
+
+                    <!--  -->
+                    <!--  -->
+                    <!--  -->
+                    <!--  -->
+                    <!--  -->
+                    <!--  -->
+                    <!--  -->
                     <q-select
                       v-model="pacienteSeleccionado.estadoCivil"
+                      :options="estadosCiviles"
+                      option-value="id"
+                      option-label="descripcion"
                       label="Estado Civil"
-                      :options="estadoCivilOptions"
                       outlined
                       dense
                     />
+                    <!--  -->
+                    <!--  -->
+                    <!--  -->
+                    <!--  -->
+                    <!--  -->
+                    <!--  -->
                     <q-input
                       v-model="pacienteSeleccionado.observaciones"
                       label="Observaciones"
@@ -226,14 +239,18 @@
                     <q-select
                       v-model="pacienteSeleccionado.departamento"
                       label="Departamento"
-                      :options="departamentoOptions"
+                      :options="departamentos"
+                      option-value="id"
+                      option-label="descripcion"
                       outlined
                       dense
                     />
                     <q-select
                       v-model="pacienteSeleccionado.municipio"
                       label="Municipio"
-                      :options="municipioOptions"
+                      :options="municipios"
+                      option-value="id"
+                      option-label="descripcion"
                       outlined
                       dense
                     />
@@ -282,8 +299,11 @@
                     Más Datos
                   </q-card-section>
                   <q-form class="q-gutter-md">
-                    <q-input
+                    <q-select
                       v-model="pacienteSeleccionado.escolaridad"
+                      :options="escolaridades"
+                      option-value="id"
+                      option-label="descripcion"
                       label="Escolaridad"
                       outlined
                       dense
@@ -297,7 +317,9 @@
                     <q-select
                       v-model="pacienteSeleccionado.grupoSanguineo"
                       label="Grupo Sanguineo"
-                      :options="grupoSanguineoOptions"
+                      :options="gruposSanguineos"
+                      option-value="id"
+                      option-label="descripcion"
                       outlined
                       dense
                     />
@@ -326,114 +348,210 @@
     </q-tab-panels>
   </q-page>
   <div>
-    <p>Total de pacientes activos: {{ totalActivos }}</p>
-    <p>Total de pacientes inactivos: {{ totalInactivos }}</p>
+    <!-- <p>Total de pacientes activos: {{ totalActivos }}</p>
+    <p>Total de pacientes inactivos: {{ totalInactivos }}</p> -->
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { supabase } from "../supabaseClient";
-
+import { ref, reactive, onMounted } from "vue";
 import { useFichaIdentificacionStore } from "../stores/fichaIdentificacionStores";
 import { useTiposPacientesStore } from "../stores/ConfiMedicasStores";
-
+import {
+  useEstadoCivilStore,
+  useDepartamentoStore,
+  useMunicipioStore,
+  useGrupoSanguineoStore,
+  useEscolaridadStore,
+} from "../stores/DatosGeneralesStores";
 import { storeToRefs } from "pinia";
 import ListadoPacientes from "./ListadoPacientes.vue";
 import PacienteActivoGraph from "src/components/PacienteActivoGraph.vue";
 import PacientesAggMensualmente from "src/components/PacientesAggMensualmente.vue";
 
-//Inicializo las tiendas
+// Inicializo las tiendas
 const TiposPacientesStore = useTiposPacientesStore();
+const fichaIdentificacionStore = useFichaIdentificacionStore();
+const EstadoCivilStore = useEstadoCivilStore();
+const DepartamentoStore = useDepartamentoStore();
+const MunicipioStore = useMunicipioStore();
+const GrupoSanguineoStore = useGrupoSanguineoStore();
+const EscolaridadStore = useEscolaridadStore();
 
-//acedemos a las propiedades de la tienda
-const { pacientes } = storeToRefs(TiposPacientesStore);
+// Acceso a las propiedades de la tienda
+const { tpacientes } = storeToRefs(TiposPacientesStore);
+const { estadosCiviles } = storeToRefs(EstadoCivilStore);
+const { departamentos } = storeToRefs(DepartamentoStore);
+const { municipios } = storeToRefs(MunicipioStore);
+const { gruposSanguineos } = storeToRefs(GrupoSanguineoStore);
+const { escolaridades } = storeToRefs(EscolaridadStore);
 
-const pacienteSeleccionado = ref({});
+// Objeto reactivo para almacenar los datos del paciente
+const pacienteSeleccionado = reactive({
+  fechaRegistro: "", // Inicializa vacío para que se seleccione manualmente
+  codigo: "",
+  activo: false,
+  tipo: null,
+  medico: "",
+  // medicoCabecera: null,
+  // referidoPor: "",
+  dni: "",
+  nombres: "",
+  apellidos: "",
+  fechaNacimiento: "",
+  sexo: "",
+  estadoCivil: null,
+  observaciones: "",
+  direccion: "",
+  telCasa: "",
+  telPersonal: "",
+  email: "",
+  departamento: null,
+  municipio: null,
+  organizacion: "",
+  conyugue: "",
+  madre: "",
+  padre: "",
+  escolaridad: "",
+  ocupacion: "",
+  grupoSanguineo: "",
+  alergias: "",
+});
 
 const tab = ref("Pacientes");
 const subTabFichaIdentificacion = ref("infoTecnica");
-
-const fichaIdentificacionStore = useFichaIdentificacionStore();
-
-const {
-  grupoSanguineoOptions,
-  formIdentificacion,
-  guardarDatos,
-  tipoOptions,
-  medicoCabeceraOptions,
-  referidoPorOptions,
-  departamentoOptions,
-  municipioOptions,
-  sexoOptions,
-  estadoCivilOptions,
-  medicoNOptions,
-  totalActivos,
-  totalInactivos,
-} = storeToRefs(fichaIdentificacionStore);
-
-// Función para iniciar un nuevo paciente en blanco
-const iniciarNuevoPaciente = () => {
-  pacienteSeleccionado.value = {
-    id: null,
-
-    fechaRegistro: "",
-    codigo: "",
-    activo: true,
-    tipo: "",
-    dni: "",
-    medico: "",
-    medicoCabecera: "",
-    referidoPor: "",
-    nombres: "",
-    apellidos: "",
-    direccion: "",
-    municipio: "",
-    sexo: "",
-    fechaNacimiento: "",
-    estadoCivil: "",
-    conyugue: "",
-    madre: "",
-    padre: "",
-    organizacion: "",
-    observaciones: "",
-    escolaridad: "",
-    ocupacion: "",
-    grupoSanguineo: "",
-    VIH: "",
-    telCasa: "",
-    telPersonal: "",
-    email: "",
-    alergias: "",
-  };
-  tab.value = "FichaIdentificacion"; // Cambia a la pestaña de creación
-};
-
 const cambiarTab = ({ tab: nuevaTab, paciente }) => {
   tab.value = nuevaTab;
   pacienteSeleccionado.value = paciente ? { ...paciente } : {}; // Si no hay paciente, inicializa un objeto vacío
 };
 
+// Cargar datos al montar el componente
+onMounted(async () => {
+  await EstadoCivilStore.cargarEstadosCiviles();
+  await TiposPacientesStore.cargarPacientes();
+  await DepartamentoStore.cargarDepartamentos();
+  await MunicipioStore.cargarMunicipios();
+  await GrupoSanguineoStore.cargarGruposSanguineos();
+  await EscolaridadStore.cargarEscolaridades();
+});
+
+// Función para guardar el formulario en la tienda
 const guardarDatosFormulario = () => {
-  if (pacienteSeleccionado.value.id) {
-    // Modo edición
-    const pacienteIndex = formIdentificacion.value.findIndex(
-      (p) => p.id === pacienteSeleccionado.value.id
+  // Convierte `fechaRegistro` a Date si no está vacío
+  if (pacienteSeleccionado.fechaRegistro) {
+    pacienteSeleccionado.fechaRegistro = new Date(
+      pacienteSeleccionado.fechaRegistro
     );
-    if (pacienteIndex !== -1) {
-      formIdentificacion.value[pacienteIndex] = {
-        ...pacienteSeleccionado.value,
-      };
-    }
-  } else {
-    // Modo creación: asignar un id único al nuevo paciente
-    pacienteSeleccionado.value.id = Date.now();
-    formIdentificacion.value.push({ ...pacienteSeleccionado.value });
   }
 
-  alert("PACIENTE GUARDADO CON ÉXITO");
-  tab.value = "Pacientes"; // Vuelve a la pestaña de la lista de pacientes
-  iniciarNuevoPaciente(); // Reinicia el formulario para un nuevo paciente
+  // Extraer `id` y `descripcion` del tipo de paciente seleccionado
+  const tipoPacienteSeleccionado = tpacientes.value.find(
+    (d) =>
+      d.id ===
+      (typeof pacienteSeleccionado.tipo === "object"
+        ? pacienteSeleccionado.tipo.id
+        : pacienteSeleccionado.tipo)
+  );
+  const tipoId = tipoPacienteSeleccionado?.id || null;
+  const tipoDescripcion = tipoPacienteSeleccionado?.descripcion || "";
+
+  // Extraer `id` y `descripcion` del estado civil seleccionado
+  const estadoCivilSeleccionado = estadosCiviles.value.find(
+    (e) =>
+      e.id ===
+      (typeof pacienteSeleccionado.estadoCivil === "object"
+        ? pacienteSeleccionado.estadoCivil.id
+        : pacienteSeleccionado.estadoCivil)
+  );
+  const estadoCivilId = estadoCivilSeleccionado?.id || null;
+  const estadoCivilDescripcion = estadoCivilSeleccionado?.descripcion || "";
+
+  // Extraer `id` y `descripcion` del departamento seleccionado
+  const departamentoSeleccionado = departamentos.value.find(
+    (d) =>
+      d.id ===
+      (typeof pacienteSeleccionado.departamento === "object"
+        ? pacienteSeleccionado.departamento.id
+        : pacienteSeleccionado.departamento)
+  );
+  const departamentoId = departamentoSeleccionado?.id || null;
+  const departamentoDescripcion = departamentoSeleccionado?.descripcion || "";
+
+  // Extraer `id` y `descripcion` del municipio seleccionado
+  const municipioSeleccionado = municipios.value.find(
+    (m) =>
+      m.id ===
+      (typeof pacienteSeleccionado.municipio === "object"
+        ? pacienteSeleccionado.municipio.id
+        : pacienteSeleccionado.municipio)
+  );
+  const municipioId = municipioSeleccionado?.id || null;
+  const municipioDescripcion = municipioSeleccionado?.descripcion || "";
+
+  // Extraer `id` y `descripcion` de la escolaridad seleccionada
+  const escolaridadSeleccionada = escolaridades.value.find(
+    (s) =>
+      s.id ===
+      (typeof pacienteSeleccionado.escolaridad === "object"
+        ? pacienteSeleccionado.escolaridad.id
+        : pacienteSeleccionado.escolaridad)
+  );
+  const escolaridadId = escolaridadSeleccionada?.id || null;
+  const escolaridadDescripcion = escolaridadSeleccionada?.descripcion || "";
+
+  // Extraer `id` y `descripcion` del grupo sanguíneo seleccionado
+  const grupoSanguineoSeleccionado = gruposSanguineos.value.find(
+    (g) =>
+      g.id ===
+      (typeof pacienteSeleccionado.grupoSanguineo === "object"
+        ? pacienteSeleccionado.grupoSanguineo.id
+        : pacienteSeleccionado.grupoSanguineo)
+  );
+  const grupoSanguineoId = grupoSanguineoSeleccionado?.id || null;
+  const grupoSanguineoDescripcion =
+    grupoSanguineoSeleccionado?.descripcion || "";
+
+  // Guarda los datos en la tienda usando fichaIdentificacionStore
+  fichaIdentificacionStore.guardarDatos({
+    fechaRegistro: pacienteSeleccionado.fechaRegistro,
+    codigo: pacienteSeleccionado.codigo,
+    activo: pacienteSeleccionado.activo,
+    tipoId,
+    tipoDescripcion,
+    medico: pacienteSeleccionado.medico,
+    dni: pacienteSeleccionado.dni,
+    nombres: pacienteSeleccionado.nombres,
+    apellidos: pacienteSeleccionado.apellidos,
+    fechaNacimiento: pacienteSeleccionado.fechaNacimiento,
+    sexo: pacienteSeleccionado.sexo,
+    estadoCivilId,
+    estadoCivilDescripcion,
+    observaciones: pacienteSeleccionado.observaciones,
+    direccion: pacienteSeleccionado.direccion,
+    telCasa: pacienteSeleccionado.telCasa,
+    telPersonal: pacienteSeleccionado.telPersonal,
+    email: pacienteSeleccionado.email,
+    departamentoId,
+    departamentoDescripcion,
+    municipioId,
+    municipioDescripcion,
+    organizacion: pacienteSeleccionado.organizacion,
+    conyugue: pacienteSeleccionado.conyugue,
+    madre: pacienteSeleccionado.madre,
+    padre: pacienteSeleccionado.padre,
+    escolaridadId,
+    escolaridadDescripcion,
+    ocupacion: pacienteSeleccionado.ocupacion,
+    grupoSanguineoId,
+    grupoSanguineoDescripcion,
+    alergias: pacienteSeleccionado.alergias,
+    vih: pacienteSeleccionado.vih ?? false, // Asegura que `vih` tenga un valor predeterminado de `false` si está vacío
+  });
+
+  // Limpiar el formulario después de guardar
+  Object.keys(pacienteSeleccionado).forEach(
+    (key) => (pacienteSeleccionado[key] = "")
+  );
 };
 </script>
 

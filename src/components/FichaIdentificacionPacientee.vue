@@ -1,11 +1,10 @@
-<template>
+<!-- <template>
   <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
     <q-card-section class="text-h6 text-primary"
       >Ficha de Identificación</q-card-section
     >
     <q-form class="q-gutter-md">
       <div class="row q-col-gutter-md">
-        <!-- Columna de la izquierda (Foto del paciente y otros datos) -->
         <div class="col-4">
           <q-img
             src="/statics/placeholder-image.png"
@@ -51,7 +50,6 @@
           />
         </div>
 
-        <!-- Columna de la derecha (Detalles del paciente) -->
         <div class="col-8">
           <q-input v-model="form.nombre" label="Nombre" outlined dense />
           <q-input v-model="form.direccion" label="Dirección" outlined dense />
@@ -164,13 +162,10 @@ const sexoOptions = ["Masculino", "Femenino"];
 const estadoCivilOptions = ["Soltero", "Casado", "Viudo"];
 
 const guardarFicha = () => {
-  // Lógica para guardar los datos de la ficha
   console.log("Ficha guardada", form.value);
 };
 
-const eliminarFicha = () => {
-  // Lógica para eliminar los datos de la ficha
-  console.log("Ficha eliminada");
+const eliminarFicha = () => {  console.log("Ficha eliminada");
 };
 </script>
 
@@ -183,4 +178,4 @@ const eliminarFicha = () => {
 .text-primary {
   color: #1976d2;
 }
-</style>
+</style> -->

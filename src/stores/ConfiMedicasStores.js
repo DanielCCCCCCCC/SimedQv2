@@ -3,17 +3,6 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { supabase } from "../supabaseClient";
 
-// Helper para cargar datos desde localStorage
-function loadFromLocalStorage(key, defaultValue) {
-  const saved = localStorage.getItem(key);
-  return saved ? JSON.parse(saved) : defaultValue;
-}
-
-// Helper para guardar datos en localStorage
-function saveToLocalStorage(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
-
 const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"; // Tenant fijo
 
 // Tienda para Especialidades Médicas
@@ -24,7 +13,7 @@ export const useEspecialidadMedicaStore = defineStore(
 
     const cargarEspecialidades = async () => {
       const { data, error } = await supabase
-        .from("especialidadesMedicas") // Cambiado a "especialidadesMedicas"
+        .from("especialidadesMedicas")
         .select("*")
         .order("created_at", { ascending: true });
 
@@ -32,27 +21,18 @@ export const useEspecialidadMedicaStore = defineStore(
         console.error("Error al cargar especialidades:", error);
       } else {
         especialidades.value = data;
-        localStorage.setItem(
-          "especialidadesMedicas",
-          JSON.stringify(especialidades.value)
-        );
       }
     };
 
     const agregarEspecialidad = async (descripcion) => {
-      const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"; // Asegúrate de que el tenant_id sea el correcto
       const { data, error } = await supabase
-        .from("especialidadesMedicas") // Cambiado a "especialidadesMedicas"
+        .from("especialidadesMedicas")
         .insert([{ descripcion, tenant_id: tenantId }]);
 
       if (error) {
         console.error("Error al agregar especialidad:", error);
       } else if (data && data[0]) {
         especialidades.value.push(data[0]);
-        localStorage.setItem(
-          "especialidadesMedicas",
-          JSON.stringify(especialidades.value)
-        );
       }
     };
 
@@ -62,7 +42,7 @@ export const useEspecialidadMedicaStore = defineStore(
       if (!ultimaEspecialidad) return;
 
       const { error } = await supabase
-        .from("especialidadesMedicas") // Cambiado a "especialidadesMedicas"
+        .from("especialidadesMedicas")
         .delete()
         .eq("id", ultimaEspecialidad.id);
 
@@ -70,10 +50,6 @@ export const useEspecialidadMedicaStore = defineStore(
         console.error("Error al eliminar la especialidad:", error);
       } else {
         especialidades.value.pop();
-        localStorage.setItem(
-          "especialidadesMedicas",
-          JSON.stringify(especialidades.value)
-        );
       }
     };
 
@@ -86,19 +62,9 @@ export const useEspecialidadMedicaStore = defineStore(
   }
 );
 
-//
-//
-///
-//
-//
-//
-//
-//
-///
-//
-// Tipos de Estudios
+// Tienda para Tipos de Estudios
 export const useTiposEstudiosStore = defineStore("tiposEstudios", () => {
-  const estudios = ref(loadFromLocalStorage("tiposEstudios", []));
+  const estudios = ref([]);
 
   const cargarEstudios = async () => {
     const { data, error } = await supabase
@@ -110,7 +76,6 @@ export const useTiposEstudiosStore = defineStore("tiposEstudios", () => {
       console.error("Error al cargar estudios:", error);
     } else {
       estudios.value = data;
-      saveToLocalStorage("tiposEstudios", estudios.value);
     }
   };
 
@@ -123,7 +88,6 @@ export const useTiposEstudiosStore = defineStore("tiposEstudios", () => {
       console.error("Error al agregar estudio:", error);
     } else if (data && data[0]) {
       estudios.value.push(data[0]);
-      saveToLocalStorage("tiposEstudios", estudios.value);
     }
   };
 
@@ -140,7 +104,6 @@ export const useTiposEstudiosStore = defineStore("tiposEstudios", () => {
       console.error("Error al eliminar el estudio:", error);
     } else {
       estudios.value.pop();
-      saveToLocalStorage("tiposEstudios", estudios.value);
     }
   };
 
@@ -152,23 +115,11 @@ export const useTiposEstudiosStore = defineStore("tiposEstudios", () => {
   };
 });
 
-//
-//
-///
-//
-//
-//
-//
-//
-///
-//
-// Tipos de Medicamentos
+// Tienda para Tipos de Medicamentos
 export const useTiposMedicamentosStore = defineStore(
   "tiposMedicamentos",
-
   () => {
-    const medicamentos = ref(loadFromLocalStorage("tiposMedicamentos", []));
-    const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"; // Asegúrate de que el tenant_id sea el correcto
+    const medicamentos = ref([]);
 
     const cargarMedicamentos = async () => {
       const { data, error } = await supabase
@@ -180,7 +131,6 @@ export const useTiposMedicamentosStore = defineStore(
         console.error("Error al cargar medicamentos:", error);
       } else {
         medicamentos.value = data;
-        saveToLocalStorage("tiposMedicamentos", medicamentos.value);
       }
     };
 
@@ -193,7 +143,6 @@ export const useTiposMedicamentosStore = defineStore(
         console.error("Error al agregar medicamento:", error);
       } else if (data && data[0]) {
         medicamentos.value.push(data[0]);
-        saveToLocalStorage("tiposMedicamentos", medicamentos.value);
       }
     };
 
@@ -211,7 +160,6 @@ export const useTiposMedicamentosStore = defineStore(
         console.error("Error al eliminar el medicamento:", error);
       } else {
         medicamentos.value.pop();
-        saveToLocalStorage("tiposMedicamentos", medicamentos.value);
       }
     };
 
@@ -224,9 +172,9 @@ export const useTiposMedicamentosStore = defineStore(
   }
 );
 
-// Tipos de Pacientes
+// Tienda para Tipos de Pacientes
 export const useTiposPacientesStore = defineStore("tiposPacientes", () => {
-  const pacientes = ref(loadFromLocalStorage("tiposPacientes", []));
+  const tpacientes = ref([]);
 
   const cargarPacientes = async () => {
     const { data, error } = await supabase
@@ -237,8 +185,7 @@ export const useTiposPacientesStore = defineStore("tiposPacientes", () => {
     if (error) {
       console.error("Error al cargar pacientes:", error);
     } else {
-      pacientes.value = data;
-      saveToLocalStorage("tiposPacientes", pacientes.value);
+      tpacientes.value = data;
     }
   };
 
@@ -250,13 +197,12 @@ export const useTiposPacientesStore = defineStore("tiposPacientes", () => {
     if (error) {
       console.error("Error al agregar paciente:", error);
     } else if (data && data[0]) {
-      pacientes.value.push(data[0]);
-      saveToLocalStorage("tiposPacientes", pacientes.value);
+      tpacientes.value.push(data[0]);
     }
   };
 
   const eliminarUltimoPaciente = async () => {
-    const ultimoPaciente = pacientes.value[pacientes.value.length - 1];
+    const ultimoPaciente = tpacientes.value[tpacientes.value.length - 1];
     if (!ultimoPaciente) return;
 
     const { error } = await supabase
@@ -267,22 +213,21 @@ export const useTiposPacientesStore = defineStore("tiposPacientes", () => {
     if (error) {
       console.error("Error al eliminar el paciente:", error);
     } else {
-      pacientes.value.pop();
-      saveToLocalStorage("tiposPacientes", pacientes.value);
+      tpacientes.value.pop();
     }
   };
 
   return {
-    pacientes,
+    tpacientes,
     cargarPacientes,
     agregarPaciente,
     eliminarUltimoPaciente,
   };
 });
 
-// Grupos de Contactos
+// Tienda para Grupos de Contactos
 export const useGruposContactosStore = defineStore("gruposContactos", () => {
-  const grupos = ref(loadFromLocalStorage("gruposContactos", []));
+  const grupos = ref([]);
 
   const cargarGrupos = async () => {
     const { data, error } = await supabase
@@ -294,7 +239,6 @@ export const useGruposContactosStore = defineStore("gruposContactos", () => {
       console.error("Error al cargar grupos:", error);
     } else {
       grupos.value = data;
-      saveToLocalStorage("gruposContactos", grupos.value);
     }
   };
 
@@ -307,7 +251,6 @@ export const useGruposContactosStore = defineStore("gruposContactos", () => {
       console.error("Error al agregar grupo:", error);
     } else if (data && data[0]) {
       grupos.value.push(data[0]);
-      saveToLocalStorage("gruposContactos", grupos.value);
     }
   };
 
@@ -324,7 +267,6 @@ export const useGruposContactosStore = defineStore("gruposContactos", () => {
       console.error("Error al eliminar el grupo:", error);
     } else {
       grupos.value.pop();
-      saveToLocalStorage("gruposContactos", grupos.value);
     }
   };
 
@@ -336,9 +278,9 @@ export const useGruposContactosStore = defineStore("gruposContactos", () => {
   };
 });
 
-// Tipos de Citas
+// Tienda para Tipos de Citas
 export const useTiposCitasStore = defineStore("tiposCitas", () => {
-  const citas = ref(loadFromLocalStorage("tiposCitas", []));
+  const citas = ref([]);
 
   const cargarCitas = async () => {
     const { data, error } = await supabase
@@ -350,7 +292,6 @@ export const useTiposCitasStore = defineStore("tiposCitas", () => {
       console.error("Error al cargar citas:", error);
     } else {
       citas.value = data;
-      saveToLocalStorage("tiposCitas", citas.value);
     }
   };
 
@@ -363,7 +304,6 @@ export const useTiposCitasStore = defineStore("tiposCitas", () => {
       console.error("Error al agregar cita:", error);
     } else if (data && data[0]) {
       citas.value.push(data[0]);
-      saveToLocalStorage("tiposCitas", citas.value);
     }
   };
 
@@ -380,7 +320,6 @@ export const useTiposCitasStore = defineStore("tiposCitas", () => {
       console.error("Error al eliminar la cita:", error);
     } else {
       citas.value.pop();
-      saveToLocalStorage("tiposCitas", citas.value);
     }
   };
 

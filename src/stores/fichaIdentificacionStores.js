@@ -1,115 +1,106 @@
 import { defineStore } from "pinia";
-import { ref, watch, computed } from "vue";
-import {
-  format,
-  startOfWeek,
-  endOfWeek,
-  eachDayOfInterval,
-  isSameDay,
-} from "date-fns";
-import { es } from "date-fns/locale"; // Opcional: para utilizar formato en español
+import { ref, computed } from "vue";
+import { supabase } from "../supabaseClient"; // Asegúrate de tener configurado supabaseClient
+import { format, startOfWeek, endOfWeek, eachDayOfInterval } from "date-fns";
+import { es } from "date-fns/locale";
 
 export const useFichaIdentificacionStore = defineStore(
   "fichaIdentificacion",
   () => {
-    // Intenta cargar los datos desde LocalStorage al iniciar la store
-    const formIdentificacion = ref(
-      JSON.parse(localStorage.getItem("fichaIdentificacion") || "[]")
-    );
+    const formIdentificacion = ref([]);
+    const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"; // Reemplaza con tu tenant ID
 
-    function guardarDatos(nuevoFormulario) {
-      const fechaRegistro = new Date().toLocaleDateString("en-CA"); // Almacena la fecha en formato local (YYYY-MM-DD)
+    const cargarDatos = async () => {
+      const { data, error } = await supabase
+        .from("fichaIdentificacion")
+        .select("*")
+        .order("created_at", { ascending: true });
 
-      if (!Array.isArray(formIdentificacion.value)) {
-        formIdentificacion.value = [];
+      if (error) {
+        console.error("Error al cargar los datos de identificación:", error);
+      } else {
+        formIdentificacion.value = data || [];
       }
-      formIdentificacion.value.push({ id: Date.now(), ...nuevoFormulario });
-      console.log(formIdentificacion.value);
-      // Actualiza LocalStorage cada vez que se agrega un nuevo formulario
-      localStorage.setItem(
-        "fichaIdentificacion",
-        JSON.stringify(formIdentificacion.value)
-      );
-    }
-    console.log(formIdentificacion.value);
+    };
 
-    function actualizarPaciente(pacienteActualizado) {
-      const index = formIdentificacion.value.findIndex(
-        (p) => p.id === pacienteActualizado.id
-      );
-      if (index !== -1) {
-        formIdentificacion.value[index] = pacienteActualizado;
-        localStorage.setItem(
-          "fichaIdentificacion",
-          JSON.stringify(formIdentificacion.value)
+    const guardarDatos = async (nuevoFormulario) => {
+      const fechaRegistro = new Date().toLocaleDateString("en-CA");
+      const { data, error } = await supabase
+        .from("fichaIdentificacion")
+        .insert([{ ...nuevoFormulario, fechaRegistro, tenant_id: tenantId }]);
+
+      if (error) {
+        console.error("Error al guardar los datos de identificación:", error);
+      } else if (data && data[0]) {
+        formIdentificacion.value.push(data[0]);
+      }
+    };
+
+    const actualizarPaciente = async (pacienteActualizado) => {
+      const { data, error } = await supabase
+        .from("fichaIdentificacion")
+        .update(pacienteActualizado)
+        .eq("id", pacienteActualizado.id);
+
+      if (error) {
+        console.error("Error al actualizar los datos del paciente:", error);
+      } else {
+        const index = formIdentificacion.value.findIndex(
+          (p) => p.id === pacienteActualizado.id
+        );
+        if (index !== -1) {
+          formIdentificacion.value[index] = data[0];
+        }
+      }
+    };
+
+    const eliminarPaciente = async (id) => {
+      const { error } = await supabase
+        .from("fichaIdentificacion")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error al eliminar el paciente:", error);
+      } else {
+        formIdentificacion.value = formIdentificacion.value.filter(
+          (p) => p.id !== id
         );
       }
-    }
-
-    function eliminarPaciente(id) {
-      formIdentificacion.value = formIdentificacion.value.filter(
-        (p) => p.id !== id
-      );
-      localStorage.setItem(
-        "fichaIdentificacion",
-        JSON.stringify(formIdentificacion.value)
-      );
-    }
+    };
 
     const registrosPorDia = computed(() => {
-      const inicioSemana = startOfWeek(new Date(), { weekStartsOn: 1 }); // Lunes como primer día
+      const inicioSemana = startOfWeek(new Date(), { weekStartsOn: 1 });
       const finSemana = endOfWeek(new Date(), { weekStartsOn: 1 });
 
-      const diasSemana = eachDayOfInterval({
-        start: inicioSemana,
-        end: finSemana,
-      }).map((dia) => {
-        const diaFormato = dia.toLocaleDateString("en-CA"); // Convertir a formato YYYY-MM-DD
-        return {
-          day: format(dia, "EEEE", { locale: es }), // Opcional: en español
-          registros: formIdentificacion.value.filter(
-            (paciente) => paciente.fechaRegistro === diaFormato // Comparar fechas en formato local
-          ).length,
-        };
-      });
-
-      return diasSemana;
+      return eachDayOfInterval({ start: inicioSemana, end: finSemana }).map(
+        (dia) => {
+          const diaFormato = dia.toLocaleDateString("en-CA");
+          return {
+            day: format(dia, "EEEE", { locale: es }),
+            registros: formIdentificacion.value.filter(
+              (paciente) => paciente.fechaRegistro === diaFormato
+            ).length,
+          };
+        }
+      );
     });
 
-    // Computed para contar pacientes activos
-    const totalActivos = computed(() => {
-      return formIdentificacion.value.filter((paciente) => paciente.activo)
-        .length;
-    });
-
-    // Computed para contar pacientes inactivos
-    const totalInactivos = computed(() => {
-      return formIdentificacion.value.filter((paciente) => !paciente.activo)
-        .length;
-    });
-
-    // Arreglo reactivo para usar en gráficos
-    const dataGraficoPacientes = computed(() => {
-      return [
-        { estado: "Activos", cantidad: totalActivos.value },
-        { estado: "Inactivos", cantidad: totalInactivos.value },
-      ];
-    });
-
-    // Observa los cambios en `formIdentificacion` para actualizar LocalStorage automáticamente
-    watch(
-      formIdentificacion,
-      (newFormIdentificacion) => {
-        localStorage.setItem(
-          "fichaIdentificacion",
-          JSON.stringify(newFormIdentificacion)
-        );
-      },
-      { deep: true }
+    const totalActivos = computed(
+      () => formIdentificacion.value.filter((p) => p.activo).length
     );
+    const totalInactivos = computed(
+      () => formIdentificacion.value.filter((p) => !p.activo).length
+    );
+
+    const dataGraficoPacientes = computed(() => [
+      { estado: "Activos", cantidad: totalActivos.value },
+      { estado: "Inactivos", cantidad: totalInactivos.value },
+    ]);
 
     return {
       formIdentificacion,
+      cargarDatos,
       guardarDatos,
       actualizarPaciente,
       eliminarPaciente,
