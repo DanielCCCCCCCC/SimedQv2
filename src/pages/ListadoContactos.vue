@@ -2,18 +2,42 @@
   <div class="row justify-center q-py-md">
     <h4 class="header-title">Contactos Existentes</h4>
   </div>
-  <div id="app-container" class="q-mb-xl q-px-md q-pa-xs q-py-md">
+
+  <!-- Vista de tarjetas para dispositivos móviles -->
+  <div v-if="isMobileView" class="card-container">
+    <div v-for="contacto in contactos" :key="contacto.id" class="contact-card">
+      <h5>{{ contacto.nombre }}</h5>
+      <p><strong>Dirección:</strong> {{ contacto.direccion }}</p>
+      <p><strong>Organización:</strong> {{ contacto.organizacion }}</p>
+      <p><strong>Email:</strong> {{ contacto.email }}</p>
+      <p><strong>Teléfono Casa:</strong> {{ contacto.telefonoCasa }}</p>
+      <div class="card-actions">
+        <q-btn
+          icon="edit"
+          label="Editar"
+          color="primary"
+          @click="handleEdit(contacto)"
+        />
+        <q-btn
+          icon="delete"
+          label="Eliminar"
+          color="negative"
+          @click="handleDelete(contacto.id)"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- DataGrid para pantallas grandes -->
+  <div v-else id="app-container" class="q-mb-xl q-px-md q-pa-xs q-py-md">
     <DxDataGrid
       :data-source="contactos"
       :allow-column-reordering="true"
       :show-borders="true"
       :row-alternation-enabled="true"
       key-expr="id"
-      :column-auto-width="false"
-      :column-min-width="50"
       :width="responsiveWidth"
     >
-      <!-- Columnas de datos de contacto -->
       <DxColumn data-field="nombre" caption="Nombre" :allow-sorting="true" />
       <DxColumn
         data-field="direccion"
@@ -62,14 +86,6 @@
         :visible="false"
       />
 
-      <!-- Botones de acción -->
-      <DxColumn type="buttons">
-        <DxButton name="edit" icon="edit" />
-
-        <DxButton name="delete" icon="trash" @click="handleDelete" />
-      </DxColumn>
-
-      <!-- Configuración de edición -->
       <DxEditing
         mode="popup"
         :allow-updating="true"
@@ -82,14 +98,17 @@
           height: 470,
         }"
       />
-
-      <!-- Paginación y filtros -->
       <DxPaging :enabled="true" :page-size="10" />
       <DxFilterRow :visible="true" />
       <DxHeaderFilter :visible="true" />
+      <DxColumn type="buttons">
+        <DxButton name="edit" icon="edit" />
+        <DxButton name="delete" icon="trash" @click="handleDelete" />
+      </DxColumn>
     </DxDataGrid>
   </div>
 </template>
+
 <script setup>
 import {
   DxDataGrid,
@@ -100,7 +119,7 @@ import {
   DxEditing,
   DxButton,
 } from "devextreme-vue/data-grid";
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useContactStore } from "../stores/ContacStores";
 import { Notify } from "quasar";
 import { storeToRefs } from "pinia";
@@ -108,28 +127,27 @@ import { storeToRefs } from "pinia";
 // Acceder a la tienda de contactos
 const contactStore = useContactStore();
 const { eliminarContacto, cargarContactos } = contactStore;
-const { contactos } = storeToRefs(contactStore); // contactos es un ref, así que usa contactos.value en la data-source
+const { contactos } = storeToRefs(contactStore);
+
+// Detectar vista móvil
+const isMobileView = computed(() => window.innerWidth < 600);
+
+// Ancho responsivo para el DataGrid en pantallas grandes
 const responsiveWidth = ref(window.innerWidth < 600 ? "100%" : "auto");
+const updateWidth = () =>
+  (responsiveWidth.value = window.innerWidth < 600 ? "100%" : "auto");
 
-// Función para actualizar el ancho cuando cambia el tamaño de la ventana
-const updateWidth = () => {
-  responsiveWidth.value = window.innerWidth < 600 ? "100%" : "auto";
-};
-
-// Cargar los contactos al montar el componente
 onMounted(async () => {
   await cargarContactos();
-  console.log(contactos.value); // Verificar que los contactos se han cargado correctamente
   window.addEventListener("resize", updateWidth);
 });
 
-onBeforeUnmount(() => {
+onUnmounted(() => {
   window.removeEventListener("resize", updateWidth);
 });
 
 // Manejar la eliminación de un contacto
-const handleDelete = async (e) => {
-  const contactoId = e.row.data.id;
+const handleDelete = async (contactoId) => {
   try {
     await eliminarContacto(contactoId);
     Notify.create({
@@ -146,13 +164,14 @@ const handleDelete = async (e) => {
     });
   }
 };
+
+const handleEdit = (contacto) => {
+  // Lógica de edición aquí
+};
 </script>
 
 <style scoped>
 #app-container {
-  margin-bottom: 100px;
-  margin-left: 40px;
-  margin-right: 40px;
   padding: 0 4px;
   background-color: #ffffff;
 }
@@ -162,33 +181,33 @@ const handleDelete = async (e) => {
   font-weight: bold;
   color: #333;
   text-align: center;
-  margin-bottom: -40px;
+  margin-bottom: -10px;
 }
 
-.dx-data-grid {
-  background-color: #ffffff;
+/* Vista de tarjetas en dispositivos móviles */
+.card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.contact-card {
+  border: 1px solid #ddd;
+  padding: 16px;
   border-radius: 8px;
+  background-color: #ffffff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Ajustes responsivos */
-@media (max-width: 600px) {
-  .header-title {
-    font-size: 1.2rem;
-  }
-
-  .dx-data-grid {
-    font-size: 0.9rem;
-  }
+.contact-card h5 {
+  margin: 0 0 8px;
+  font-size: 1.2em;
 }
 
-@media (max-width: 400px) {
-  .header-title {
-    font-size: 1rem;
-  }
-
-  .dx-data-grid {
-    font-size: 0.8rem;
-  }
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
 }
 </style>

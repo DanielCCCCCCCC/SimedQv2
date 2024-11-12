@@ -2,7 +2,38 @@
   <div class="row">
     <h4 class="header-title">Diagnósticos</h4>
   </div>
-  <div id="app-container" class="q-mb-xl">
+
+  <!-- Vista de tarjetas para dispositivos móviles -->
+  <div v-if="isMobileView" class="card-container">
+    <div
+      v-for="diagnostico in diagnosticos"
+      :key="diagnostico.id"
+      class="diagnostico-card"
+    >
+      <h5>{{ diagnostico.descripcion }}</h5>
+      <p>
+        <strong>Clasificación:</strong>
+        {{ diagnostico.clasificacionDescripcion }}
+      </p>
+      <div class="card-actions">
+        <q-btn
+          icon="edit"
+          label="Editar"
+          color="primary"
+          @click="onEditButtonClick(diagnostico)"
+        />
+        <q-btn
+          icon="delete"
+          label="Eliminar"
+          color="negative"
+          @click="onDeleteButtonClick(diagnostico.id)"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- DataGrid para pantallas grandes -->
+  <div v-else id="app-container" class="q-mb-xl">
     <DxDataGrid
       :data-source="diagnosticos"
       :allow-column-reordering="true"
@@ -24,14 +55,14 @@
         :allow-sorting="true"
         min-width="150"
         width="200"
-      ></DxColumn>
+      />
       <DxColumn
         data-field="clasificacionDescripcion"
         caption="Clasificación"
         :allow-sorting="true"
         min-width="150"
         width="200"
-      ></DxColumn>
+      />
 
       <!-- Botones de acción -->
       <DxColumn type="buttons">
@@ -61,7 +92,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   DxDataGrid,
   DxColumn,
@@ -76,59 +107,39 @@ import {
   DxLoadPanel,
 } from "devextreme-vue/data-grid";
 import { useDiagnosticosStore } from "../stores/DiagnosticosStores";
-import { storeToRefs } from "pinia";
-import { onMounted } from "vue";
 import { Notify } from "quasar";
+import { storeToRefs } from "pinia";
+import { onMounted, computed } from "vue";
 
-export default {
-  components: {
-    DxDataGrid,
-    DxColumn,
-    DxPaging,
-    DxFilterRow,
-    DxHeaderFilter,
-    DxEditing,
-    DxButton,
-    DxColumnChooser,
-    DxScrolling,
-    DxSorting,
-    DxLoadPanel,
-  },
-  setup() {
-    const diagnosticoStore = useDiagnosticosStore();
-    const { diagnosticos } = storeToRefs(diagnosticoStore);
+// Acceder a la tienda de diagnósticos
+const diagnosticoStore = useDiagnosticosStore();
+const { diagnosticos } = storeToRefs(diagnosticoStore);
 
-    // Método para eliminar un diagnóstico
-    const onDeleteButtonClick = async (e) => {
-      const id = e.row.data.id;
-      try {
-        await diagnosticoStore.eliminarDiagnostico(id);
-        Notify.create({
-          message: "Diagnóstico eliminado exitosamente",
-          color: "positive",
-          position: "top-right",
-        });
-        console.log("Diagnóstico eliminado:", id);
-      } catch (error) {
-        Notify.create({
-          message: "Error al eliminar el diagnóstico",
-          color: "negative",
-          position: "top-right",
-        });
-        console.error("Error al eliminar diagnóstico:", error);
-      }
-    };
+// Computed para detectar si la vista es móvil
+const isMobileView = computed(() => window.innerWidth < 600);
 
-    onMounted(async () => {
-      await diagnosticoStore.cargarDiagnosticos();
+// Método para eliminar un diagnóstico
+const onDeleteButtonClick = async (id) => {
+  try {
+    await diagnosticoStore.eliminarDiagnostico(id);
+    Notify.create({
+      message: "Diagnóstico eliminado exitosamente",
+      color: "positive",
+      position: "top-right",
     });
-
-    return {
-      diagnosticos,
-      onDeleteButtonClick,
-    };
-  },
+  } catch (error) {
+    Notify.create({
+      message: "Error al eliminar el diagnóstico",
+      color: "negative",
+      position: "top-right",
+    });
+    console.error("Error al eliminar diagnóstico:", error);
+  }
 };
+
+onMounted(async () => {
+  await diagnosticoStore.cargarDiagnosticos();
+});
 </script>
 
 <style scoped>
@@ -149,7 +160,33 @@ export default {
   font-size: 1.5rem;
   font-weight: bold;
   color: #333;
-  margin: 1px 0 1px;
   text-align: center;
+}
+
+/* Estilos de tarjeta para vista móvil */
+.card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.diagnostico-card {
+  border: 1px solid #ddd;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.diagnostico-card h5 {
+  margin: 0 0 8px;
+  font-size: 1.2em;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
 }
 </style>

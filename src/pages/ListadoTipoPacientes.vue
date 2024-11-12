@@ -10,6 +10,7 @@
       :column-resizing-mode="'widget'"
       height="400px"
     >
+      <!-- Columnas -->
       <DxColumn data-field="descripcion" caption="Tipo de Paciente">
         <DxRequiredRule />
       </DxColumn>
@@ -21,6 +22,13 @@
         <DxRequiredRule />
       </DxColumn>
 
+      <!-- Botones de edición y eliminación -->
+      <DxColumn type="buttons">
+        <DxButton icon="edit" hint="Editar" @click="actualizarPaciente" />
+        <DxButton icon="trash" hint="Eliminar" @click="eliminarPaciente" />
+      </DxColumn>
+
+      <!-- Opciones adicionales -->
       <DxSummary>
         <DxGroupItem summary-type="count" displayFormat="{0} pacientes" />
       </DxSummary>
@@ -45,14 +53,41 @@ import {
   DxSearchPanel,
   DxGroupPanel,
   DxGrouping,
+  DxButton,
 } from "devextreme-vue/data-grid";
 import { useTiposPacientesStore } from "../stores/ConfiMedicasStores";
 import { storeToRefs } from "pinia";
+import { Notify } from "quasar";
 
 const pacientesStore = useTiposPacientesStore();
 const { tpacientes } = storeToRefs(pacientesStore);
 pacientesStore.cargarPacientes();
+
+// Función para actualizar paciente
+const actualizarPaciente = (e) => {
+  const paciente = e.row.data;
+  pacientesStore.actualizarPaciente(paciente).then(() => {
+    Notify.create({
+      type: "positive",
+      message: "Paciente actualizado con éxito",
+      position: "top-right",
+    });
+  });
+};
+
+// Función para eliminar paciente
+const eliminarPaciente = (e) => {
+  const pacienteId = e.row.data.id;
+  pacientesStore.eliminarPaciente(pacienteId).then(() => {
+    Notify.create({
+      type: "negative",
+      message: "Paciente eliminado",
+      position: "top-right",
+    });
+  });
+};
 </script>
+
 <style scoped>
 #app-container {
   padding: 0 4px;

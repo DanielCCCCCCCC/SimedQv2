@@ -12,6 +12,7 @@ export const useMedicoStore = defineStore("medicoStore", () => {
       console.error("Error al cargar médicos:", error.message);
     } else {
       medicos.value = data;
+      console.log(medicos.value);
     }
   }
 
@@ -32,6 +33,19 @@ export const useMedicoStore = defineStore("medicoStore", () => {
     }
   }
 
+  // Función para eliminar un médico de la base de datos de Supabase
+  async function eliminarMedico(id) {
+    const { error } = await supabase.from("medicos").delete().eq("id", id);
+    if (error) {
+      console.error("Error al eliminar médico:", error.message);
+      return false; // Retorna false si hay un error
+    } else {
+      // Elimina el médico de la lista localmente después de una eliminación exitosa
+      medicos.value = medicos.value.filter((medico) => medico.id !== id);
+      return true; // Retorna true si se eliminó correctamente
+    }
+  }
+
   // Llamar a cargarMedicos al montar la store
   cargarMedicos();
 
@@ -39,5 +53,6 @@ export const useMedicoStore = defineStore("medicoStore", () => {
     medicos,
     agregarMedico,
     cargarMedicos,
+    eliminarMedico, // Exporta la función eliminarMedico
   };
 });

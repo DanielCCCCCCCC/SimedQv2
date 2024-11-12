@@ -1,8 +1,14 @@
 <template>
-  <div class="row">
-    <PacienteActivoGraph />
-    <PacientesAggMensualmente />
+  <div class="row q-col-gutter-md">
+    <!-- Gráficos ajustados para pantallas pequeñas -->
+    <div class="col-12 col-md-4">
+      <PacienteActivoGraph class="grafico-responsivo" />
+    </div>
+    <div class="col-12 col-md-4">
+      <PacientesAggMensualmente class="grafico-responsivo" />
+    </div>
   </div>
+
   <q-page class="q-pa-md">
     <!-- Barra de pestañas principales -->
     <q-tabs
@@ -27,7 +33,7 @@
       <q-tab-panel name="FichaIdentificacion">
         <div class="row">
           <!-- Lista de subpestañas vertical -->
-          <div class="col-3 q-mt-md">
+          <div class="col-12 col-md-3 q-mt-md">
             <q-list bordered>
               <q-item
                 clickable
@@ -82,7 +88,7 @@
           </div>
 
           <!-- Contenido de subpestañas -->
-          <div class="col-9">
+          <div class="col-12 col-md-9">
             <q-tab-panels v-model="subTabFichaIdentificacion" animated>
               <q-tab-panel name="infoTecnica">
                 <q-card
@@ -92,13 +98,6 @@
                     Información Técnica
                   </q-card-section>
                   <q-form class="q-gutter-md">
-                    <!-- <q-input
-                      v-model="pacienteSeleccionado.fechaRegistro"
-                      label="Fecha de Registro"
-                      outlined
-                      dense
-                      type="date"
-                    /> -->
                     <q-input
                       v-model="pacienteSeleccionado.codigo"
                       label="Código"
@@ -323,14 +322,6 @@
             </q-tab-panels>
           </div>
         </div>
-
-        <!-- <div class="row justify-center q-mt-md">
-          <q-btn
-            label="Guardar Formulario"
-            color="primary"
-            @click="guardarDatosFormulario"
-          />
-        </div> -->
       </q-tab-panel>
     </q-tab-panels>
   </q-page>
@@ -425,14 +416,14 @@ watch(
 const tab = ref("Pacientes");
 const subTabFichaIdentificacion = ref("infoTecnica");
 
-// Cambia a la pestaña `FichaIdentificacion` y asigna los datos del paciente seleccionado
+// Cambia a la pestaña FichaIdentificacion y asigna los datos del paciente seleccionado
 const cambiarTab = ({ tab: nuevaTab, paciente }) => {
   tab.value = nuevaTab;
 
   // Copiar todos los datos del paciente a pacienteSeleccionado
   Object.assign(pacienteSeleccionado, paciente);
 
-  // Ajustar los campos `tipo`, `estadoCivil`, `departamento`, `municipio`, `escolaridad`, `grupoSanguineo`
+  // Ajustar los campos tipo, estadoCivil, departamento, municipio, escolaridad, grupoSanguineo
   const tipoPacienteSeleccionado = tpacientes.value.find(
     (tipo) => tipo.id === paciente.tipoId
   );
@@ -612,6 +603,19 @@ const guardarDatosFormulario = () => {
 </script>
 
 <style scoped>
+.grafico-responsivo {
+  width: 100%;
+  max-width: 300px; /* Tamaño pequeño en pantallas grandes */
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .grafico-responsivo {
+    max-width: 100%; /* Ocupar el ancho completo en pantallas pequeñas */
+    height: 250px; /* Ajustar la altura para pantallas pequeñas */
+  }
+}
+
 .q-card {
   max-width: 700px;
   margin: 0 auto;
@@ -620,21 +624,22 @@ const guardarDatosFormulario = () => {
 .text-primary {
   color: #1976d2;
 }
+
 .formS {
-  border-top-left-radius: 40px; /* Esquina superior izquierda */
-  border-top-right-radius: 15px; /* Esquina superior derecha */
-  border-bottom-right-radius: 30px; /* Esquina inferior derecha */
-  border-bottom-left-radius: 25px; /* Esquina inferior izquierda */
+  border-top-left-radius: 40px;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 30px;
+  border-bottom-left-radius: 25px;
 }
+
 .contenedor-boton {
-  position: relative;
   display: flex;
   justify-content: center;
 }
 
 .boton-centrado {
-  position: absolute;
-  /* left: 50%; */
-  transform: translateX(-1%);
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
 }
 </style>

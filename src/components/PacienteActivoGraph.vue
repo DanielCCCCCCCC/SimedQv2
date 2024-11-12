@@ -8,7 +8,7 @@
       :data-source="dataGraficoPacientes"
       type="doughnut"
       palette="Soft Pastel"
-      width="350"
+      width="300"
       height="250"
     >
       <DxSeries argument-field="estado" value-field="cantidad">
@@ -58,3 +58,17 @@ const customizeTooltip = ({ valueText, percentText }) => ({
   text: `${valueText} pacientes (${percentText})`,
 });
 </script>
+<style>
+#DxPieChart {
+  height: 200px;
+  width: 500px;
+  margin-top: 20px;
+  margin-left: 10px;
+}
+.titulo {
+  margin-top: 10px;
+  font-family: "Segoe UI Light", "Helvetica Neue", "Trebuchet MS", "Verdana",
+    "sans-serif";
+  text-align: center;
+}
+</style>

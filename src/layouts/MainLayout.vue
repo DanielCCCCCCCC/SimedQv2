@@ -17,8 +17,6 @@
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
         <!-- Agenda Section -->
-        <q-item class="bg-primary text-dark"> </q-item>
-
         <q-expansion-item
           class="bg-grey-4 shadow-2 text-dark"
           label="Agenda"
@@ -26,6 +24,7 @@
         >
           <q-item
             class="bg-grey-1 text-dark"
+            :class="{ 'selected-item': selectedRoute === '/controlCitas' }"
             clickable
             @click="navigateTo('/controlCitas')"
           >
@@ -34,13 +33,16 @@
 
           <q-item
             class="bg-grey-1 text-dark"
+            :class="{ 'selected-item': selectedRoute === '/contactos' }"
             clickable
             @click="navigateTo('/contactos')"
           >
             <q-item-section>Contactos</q-item-section>
           </q-item>
+
           <q-item
             class="bg-grey-1 text-dark"
+            :class="{ 'selected-item': selectedRoute === '/medicos' }"
             clickable
             @click="navigateTo('/medicos')"
           >
@@ -56,6 +58,7 @@
         >
           <q-item
             class="bg-grey-1 text-dark"
+            :class="{ 'selected-item': selectedRoute === '/visor-pacientes' }"
             clickable
             @click="navigateTo('/visor-pacientes')"
           >
@@ -63,6 +66,7 @@
           </q-item>
           <q-item
             class="bg-grey-1 text-dark"
+            :class="{ 'selected-item': selectedRoute === '/abrir-expedientes' }"
             clickable
             @click="navigateTo('/abrir-expedientes')"
           >
@@ -70,6 +74,7 @@
           </q-item>
           <q-item
             class="bg-grey-1 text-dark"
+            :class="{ 'selected-item': selectedRoute === '/recetas' }"
             clickable
             @click="navigateTo('/recetas')"
           >
@@ -77,6 +82,7 @@
           </q-item>
           <q-item
             class="bg-grey-1 text-dark"
+            :class="{ 'selected-item': selectedRoute === '/control-medicion' }"
             clickable
             @click="navigateTo('/control-medicion')"
           >
@@ -92,6 +98,9 @@
         >
           <q-item
             class="bg-grey-1 text-dark"
+            :class="{
+              'selected-item': selectedRoute === '/directoriopacientes',
+            }"
             clickable
             @click="navigateTo('/directoriopacientes')"
           >
@@ -100,6 +109,7 @@
 
           <q-item
             class="bg-grey-1 text-dark"
+            :class="{ 'selected-item': selectedRoute === '/directorios' }"
             clickable
             @click="navigateTo('/directorios')"
           >
@@ -108,6 +118,7 @@
 
           <q-item
             class="bg-grey-1 text-dark"
+            :class="{ 'selected-item': selectedRoute === '/diagnosticos' }"
             clickable
             @click="navigateTo('/diagnosticos')"
           >
@@ -115,6 +126,9 @@
           </q-item>
           <q-item
             class="bg-grey-1 text-dark"
+            :class="{
+              'selected-item': selectedRoute === '/configuracionesMedicas',
+            }"
             clickable
             @click="navigateTo('/configuracionesMedicas')"
           >
@@ -123,49 +137,13 @@
 
           <q-item
             class="bg-grey-1 text-dark"
+            :class="{ 'selected-item': selectedRoute === '/datosGenerales' }"
             clickable
             @click="navigateTo('/datosGenerales')"
           >
             <q-item-section>Datos Generales</q-item-section>
           </q-item>
         </q-expansion-item>
-        <!--
-        <q-expansion-item
-          class="bg-grey-4 shadow-2 text-dark"
-          label="Datos Generales"
-          icon="General information"
-        >
-          <q-item
-            class="bg-grey-1 text-dark"
-            clickable
-            @click="navigateTo('/depaMuni')"
-          >
-            <q-item-section>Departamentos y municipios</q-item-section>
-          </q-item>
-
-          <q-item
-            class="bg-grey-1 text-dark"
-            clickable
-            @click="navigateTo('/grupSanguineo')"
-          >
-            <q-item-section>Grupo Sanguineo</q-item-section>
-          </q-item>
-          <q-item
-            class="bg-grey-1 text-dark"
-            clickable
-            @click="navigateTo('/escolaridad')"
-          >
-            <q-item-section>Escolaridad</q-item-section>
-          </q-item>
-
-          <q-item
-            class="bg-grey-1 text-dark"
-            clickable
-            @click="navigateTo('/estadoCivil')"
-          >
-            <q-item-section>Estado Civil</q-item-section>
-          </q-item>
-        </q-expansion-item> -->
       </q-list>
     </q-drawer>
 
@@ -176,19 +154,33 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { ref, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
 const leftDrawerOpen = ref(false);
 const router = useRouter();
+const route = useRoute();
+
+const selectedRoute = ref(route.path); // Ruta activa inicial
+
+// Observa cambios en la ruta actual para actualizar el seleccionado
+watch(route, (newRoute) => {
+  selectedRoute.value = newRoute.path;
+});
 
 const toggleLeftDrawer = () => {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 };
 
 const navigateTo = (path) => {
+  selectedRoute.value = path; // Actualiza la ruta seleccionada
   router.push(path);
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.selected-item {
+  background-color: #86b8e3 !important; /* Color de fondo para el enlace seleccionado */
+  color: white !important; /* Color de texto para el enlace seleccionado */
+}
+</style>

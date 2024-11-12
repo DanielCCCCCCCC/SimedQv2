@@ -10,6 +10,7 @@
       :column-resizing-mode="'widget'"
       height="400px"
     >
+      <!-- Columnas -->
       <DxColumn data-field="descripcion" caption="Tipo de Estudio">
         <DxRequiredRule />
       </DxColumn>
@@ -21,6 +22,13 @@
         <DxRequiredRule />
       </DxColumn>
 
+      <!-- Botones de edición y eliminación -->
+      <DxColumn type="buttons">
+        <DxButton icon="edit" hint="Editar" @click="actualizarEstudio" />
+        <DxButton icon="trash" hint="Eliminar" @click="eliminarEstudio" />
+      </DxColumn>
+
+      <!-- Opciones adicionales -->
       <DxSummary>
         <DxGroupItem summary-type="count" displayFormat="{0} estudios" />
       </DxSummary>
@@ -45,14 +53,41 @@ import {
   DxSearchPanel,
   DxGroupPanel,
   DxGrouping,
+  DxButton,
 } from "devextreme-vue/data-grid";
 import { useTiposEstudiosStore } from "../stores/ConfiMedicasStores";
 import { storeToRefs } from "pinia";
+import { Notify } from "quasar";
 
 const estudiosStore = useTiposEstudiosStore();
 const { estudios } = storeToRefs(estudiosStore);
 estudiosStore.cargarEstudios();
+
+// Función para actualizar estudio
+const actualizarEstudio = (e) => {
+  const estudio = e.row.data;
+  estudiosStore.actualizarEstudio(estudio).then(() => {
+    Notify.create({
+      type: "positive",
+      message: "Estudio actualizado con éxito",
+      position: "top-right",
+    });
+  });
+};
+
+// Función para eliminar estudio
+const eliminarEstudio = (e) => {
+  const estudioId = e.row.data.id;
+  estudiosStore.eliminarEstudio(estudioId).then(() => {
+    Notify.create({
+      type: "negative",
+      message: "Estudio eliminado",
+      position: "top-right",
+    });
+  });
+};
 </script>
+
 <style scoped>
 #app-container {
   padding: 0 4px;

@@ -197,28 +197,24 @@ export const useEstudioStore = defineStore("examenesEstudios", () => {
     }
   };
 
-  const eliminarUltimoEstudio = async () => {
-    const ultimoEstudio = estudios.value[estudios.value.length - 1];
-    if (!ultimoEstudio) return;
-
+  const eliminarEstudio = async (id) => {
     const { error } = await supabase
       .from("examenesEstudios")
       .delete()
-      .eq("id", ultimoEstudio.id);
+      .eq("id", id);
 
     if (error) {
-      console.error("Error al eliminar el estudio:", error);
+      console.error("Error al eliminar la cita:", error);
     } else {
-      estudios.value.pop();
+      estudios.value = estudios.value.filter((estudios) => estudios.id !== id);
     }
+    onMounted(cargarEstudios);
   };
-
-  onMounted(cargarEstudios);
 
   return {
     estudios,
     cargarEstudios,
     agregarEstudio,
-    eliminarUltimoEstudio,
+    eliminarEstudio,
   };
 });

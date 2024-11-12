@@ -13,8 +13,8 @@
   </div>
 </template>
 
-<script setup lang="js">
-import { useFichaIdentificacionStore } from "../stores/fichaIdentificacionStores"
+<script setup>
+import { useFichaIdentificacionStore } from "../stores/fichaIdentificacionStores";
 import { DxChart, DxSeries } from "devextreme-vue/chart";
 
 // Instancia de la tienda
@@ -25,7 +25,7 @@ const fichaIdentificacionStore = useFichaIdentificacionStore();
   height: 200px;
   width: 500px;
   margin-top: 20px;
-  margin-left: 50px;
+  margin-left: 10px;
 }
 .titulo {
   margin-top: 10px;

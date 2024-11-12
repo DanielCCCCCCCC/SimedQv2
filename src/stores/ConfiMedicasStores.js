@@ -1,4 +1,3 @@
-// src/stores/multiStore.js
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { supabase } from "../supabaseClient";
@@ -36,20 +35,18 @@ export const useEspecialidadMedicaStore = defineStore(
       }
     };
 
-    const eliminarUltimaEspecialidad = async () => {
-      const ultimaEspecialidad =
-        especialidades.value[especialidades.value.length - 1];
-      if (!ultimaEspecialidad) return;
-
+    const eliminarEspecialidad = async (id) => {
       const { error } = await supabase
         .from("especialidadesMedicas")
         .delete()
-        .eq("id", ultimaEspecialidad.id);
+        .eq("id", id);
 
       if (error) {
         console.error("Error al eliminar la especialidad:", error);
       } else {
-        especialidades.value.pop();
+        especialidades.value = especialidades.value.filter(
+          (especialidad) => especialidad.id !== id
+        );
       }
     };
 
@@ -57,7 +54,7 @@ export const useEspecialidadMedicaStore = defineStore(
       especialidades,
       cargarEspecialidades,
       agregarEspecialidad,
-      eliminarUltimaEspecialidad,
+      eliminarEspecialidad,
     };
   }
 );
@@ -91,19 +88,16 @@ export const useTiposEstudiosStore = defineStore("tiposEstudios", () => {
     }
   };
 
-  const eliminarUltimoEstudio = async () => {
-    const ultimoEstudio = estudios.value[estudios.value.length - 1];
-    if (!ultimoEstudio) return;
-
+  const eliminarEstudio = async (id) => {
     const { error } = await supabase
       .from("tiposEstudios")
       .delete()
-      .eq("id", ultimoEstudio.id);
+      .eq("id", id);
 
     if (error) {
       console.error("Error al eliminar el estudio:", error);
     } else {
-      estudios.value.pop();
+      estudios.value = estudios.value.filter((estudio) => estudio.id !== id);
     }
   };
 
@@ -111,7 +105,7 @@ export const useTiposEstudiosStore = defineStore("tiposEstudios", () => {
     estudios,
     cargarEstudios,
     agregarEstudio,
-    eliminarUltimoEstudio,
+    eliminarEstudio,
   };
 });
 
@@ -146,20 +140,18 @@ export const useTiposMedicamentosStore = defineStore(
       }
     };
 
-    const eliminarUltimoMedicamento = async () => {
-      const ultimoMedicamento =
-        medicamentos.value[medicamentos.value.length - 1];
-      if (!ultimoMedicamento) return;
-
+    const eliminarMedicamento = async (id) => {
       const { error } = await supabase
         .from("tiposMedicamentos")
         .delete()
-        .eq("id", ultimoMedicamento.id);
+        .eq("id", id);
 
       if (error) {
         console.error("Error al eliminar el medicamento:", error);
       } else {
-        medicamentos.value.pop();
+        medicamentos.value = medicamentos.value.filter(
+          (medicamento) => medicamento.id !== id
+        );
       }
     };
 
@@ -167,7 +159,7 @@ export const useTiposMedicamentosStore = defineStore(
       medicamentos,
       cargarMedicamentos,
       agregarMedicamento,
-      eliminarUltimoMedicamento,
+      eliminarMedicamento,
     };
   }
 );
@@ -201,19 +193,18 @@ export const useTiposPacientesStore = defineStore("tiposPacientes", () => {
     }
   };
 
-  const eliminarUltimoPaciente = async () => {
-    const ultimoPaciente = tpacientes.value[tpacientes.value.length - 1];
-    if (!ultimoPaciente) return;
-
+  const eliminarPaciente = async (id) => {
     const { error } = await supabase
       .from("tiposPacientes")
       .delete()
-      .eq("id", ultimoPaciente.id);
+      .eq("id", id);
 
     if (error) {
       console.error("Error al eliminar el paciente:", error);
     } else {
-      tpacientes.value.pop();
+      tpacientes.value = tpacientes.value.filter(
+        (paciente) => paciente.id !== id
+      );
     }
   };
 
@@ -221,7 +212,7 @@ export const useTiposPacientesStore = defineStore("tiposPacientes", () => {
     tpacientes,
     cargarPacientes,
     agregarPaciente,
-    eliminarUltimoPaciente,
+    eliminarPaciente,
   };
 });
 
@@ -254,19 +245,16 @@ export const useGruposContactosStore = defineStore("gruposContactos", () => {
     }
   };
 
-  const eliminarUltimoGrupo = async () => {
-    const ultimoGrupo = grupos.value[grupos.value.length - 1];
-    if (!ultimoGrupo) return;
-
+  const eliminarGrupo = async (id) => {
     const { error } = await supabase
       .from("gruposContactos")
       .delete()
-      .eq("id", ultimoGrupo.id);
+      .eq("id", id);
 
     if (error) {
       console.error("Error al eliminar el grupo:", error);
     } else {
-      grupos.value.pop();
+      grupos.value = grupos.value.filter((grupo) => grupo.id !== id);
     }
   };
 
@@ -274,7 +262,7 @@ export const useGruposContactosStore = defineStore("gruposContactos", () => {
     grupos,
     cargarGrupos,
     agregarGrupo,
-    eliminarUltimoGrupo,
+    eliminarGrupo,
   };
 });
 
@@ -307,19 +295,13 @@ export const useTiposCitasStore = defineStore("tiposCitas", () => {
     }
   };
 
-  const eliminarUltimaCita = async () => {
-    const ultimaCita = citas.value[citas.value.length - 1];
-    if (!ultimaCita) return;
-
-    const { error } = await supabase
-      .from("tiposCitas")
-      .delete()
-      .eq("id", ultimaCita.id);
+  const eliminarCita = async (id) => {
+    const { error } = await supabase.from("tiposCitas").delete().eq("id", id);
 
     if (error) {
       console.error("Error al eliminar la cita:", error);
     } else {
-      citas.value.pop();
+      citas.value = citas.value.filter((cita) => cita.id !== id);
     }
   };
 
@@ -327,6 +309,6 @@ export const useTiposCitasStore = defineStore("tiposCitas", () => {
     citas,
     cargarCitas,
     agregarCita,
-    eliminarUltimaCita,
+    eliminarCita,
   };
 });

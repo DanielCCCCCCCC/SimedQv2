@@ -2,7 +2,34 @@
   <div class="row">
     <h4 class="header-title">Clasificación de Diagnósticos</h4>
   </div>
-  <div id="app-container" class="q-mb-xl">
+
+  <!-- Vista de tarjetas para dispositivos móviles -->
+  <div v-if="isMobileView" class="card-container">
+    <div
+      v-for="clasificacion in clasificaciones"
+      :key="clasificacion.id"
+      class="clasificacion-card"
+    >
+      <h5>{{ clasificacion.nombre }}</h5>
+      <div class="card-actions">
+        <q-btn
+          icon="edit"
+          label="Editar"
+          color="primary"
+          @click="onEditButtonClick(clasificacion)"
+        />
+        <q-btn
+          icon="delete"
+          label="Eliminar"
+          color="negative"
+          @click="onDeleteButtonClick(clasificacion.id)"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- DataGrid para pantallas grandes -->
+  <div v-else id="app-container" class="q-mb-xl">
     <DxDataGrid
       :data-source="clasificaciones"
       :allow-column-reordering="true"
@@ -24,7 +51,7 @@
         :allow-sorting="true"
         min-width="150"
         width="200"
-      ></DxColumn>
+      />
 
       <!-- Botones de acción -->
       <DxColumn type="buttons">
@@ -54,7 +81,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   DxDataGrid,
   DxColumn,
@@ -71,57 +98,37 @@ import {
 import { useClasificacionDiagnosticosStore } from "../stores/DiagnosticosStores";
 import { Notify } from "quasar";
 import { storeToRefs } from "pinia";
-import { onMounted } from "vue";
+import { onMounted, computed } from "vue";
 
-export default {
-  components: {
-    DxDataGrid,
-    DxColumn,
-    DxPaging,
-    DxFilterRow,
-    DxHeaderFilter,
-    DxEditing,
-    DxButton,
-    DxColumnChooser,
-    DxScrolling,
-    DxSorting,
-    DxLoadPanel,
-  },
-  setup() {
-    const clasificacionStore = useClasificacionDiagnosticosStore();
-    const { clasificaciones } = storeToRefs(clasificacionStore);
+// Acceder a la tienda de clasificaciones de diagnósticos
+const clasificacionStore = useClasificacionDiagnosticosStore();
+const { clasificaciones } = storeToRefs(clasificacionStore);
 
-    // Método para eliminar una clasificación
-    const onDeleteButtonClick = async (e) => {
-      const id = e.row.data.id;
-      try {
-        await clasificacionStore.eliminarClasificacion(id);
-        Notify.create({
-          message: "Clasificación eliminada exitosamente",
-          color: "positive",
-          position: "top-right",
-        });
-        console.log("Clasificación eliminada:", id);
-      } catch (error) {
-        Notify.create({
-          message: "Error al eliminar la clasificación",
-          color: "negative",
-          position: "top-right",
-        });
-        console.error("Error al eliminar clasificación:", error);
-      }
-    };
+// Computed para detectar si la vista es móvil
+const isMobileView = computed(() => window.innerWidth < 600);
 
-    onMounted(async () => {
-      await clasificacionStore.cargarClasificaciones();
+// Método para eliminar una clasificación
+const onDeleteButtonClick = async (id) => {
+  try {
+    await clasificacionStore.eliminarClasificacion(id);
+    Notify.create({
+      message: "Clasificación eliminada exitosamente",
+      color: "positive",
+      position: "top-right",
     });
-
-    return {
-      clasificaciones,
-      onDeleteButtonClick,
-    };
-  },
+  } catch (error) {
+    Notify.create({
+      message: "Error al eliminar la clasificación",
+      color: "negative",
+      position: "top-right",
+    });
+    console.error("Error al eliminar clasificación:", error);
+  }
 };
+
+onMounted(async () => {
+  await clasificacionStore.cargarClasificaciones();
+});
 </script>
 
 <style scoped>
@@ -142,7 +149,33 @@ export default {
   font-size: 1.5rem;
   font-weight: bold;
   color: #333;
-  margin: 1px 0 1px;
   text-align: center;
+}
+
+/* Estilos de tarjeta para vista móvil */
+.card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.clasificacion-card {
+  border: 1px solid #ddd;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.clasificacion-card h5 {
+  margin: 0 0 8px;
+  font-size: 1.2em;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
 }
 </style>

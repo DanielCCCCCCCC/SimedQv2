@@ -2,9 +2,35 @@
   <div class="row justify-center q-py-md">
     <h4 class="header-title">Médicos Existentes</h4>
   </div>
-  <div id="app-container" class="q-mb-xl q-px-md q-pa-xs q-py-md">
+
+  <!-- Vista de tarjetas para dispositivos móviles -->
+  <div v-if="isMobileView" class="card-container">
+    <div v-for="medico in medicos" :key="medico.id" class="medico-card">
+      <h5>{{ medico.nombre }}</h5>
+      <p><strong>Especialidad:</strong> {{ medico.especialidadDescripcion }}</p>
+      <p><strong>Celular:</strong> {{ medico.telefonoCasa }}</p>
+      <p><strong>Email:</strong> {{ medico.email }}</p>
+      <div class="card-actions">
+        <q-btn
+          icon="edit"
+          label="Editar"
+          color="primary"
+          @click="onEditButtonClick(medico)"
+        />
+        <q-btn
+          icon="delete"
+          label="Eliminar"
+          color="negative"
+          @click="onDeleteButtonClick(medico.id)"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- DataGrid para pantallas grandes -->
+  <div v-else id="app-container" class="q-mb-xl q-px-md q-pa-xs q-py-md">
     <DxDataGrid
-      :data-source="medicosConEspecialidad"
+      :data-source="medicos"
       :allow-column-reordering="true"
       :row-alternation-enabled="true"
       :show-borders="true"
@@ -13,7 +39,6 @@
       :column-min-width="50"
       :width="responsiveWidth"
     >
-      <!-- Columnas con ordenamiento habilitado -->
       <DxColumn
         data-field="nombre"
         caption="Nombre Completo"
@@ -47,7 +72,6 @@
         :allow-sorting="true"
       ></DxColumn>
 
-      <!-- Configuración de edición de datos con título en la ventana modal -->
       <DxEditing
         mode="popup"
         :allow-updating="true"
@@ -61,19 +85,18 @@
         }"
       />
 
-      <!-- Paginación y filtros -->
       <DxPaging :enabled="true" :page-size="10" />
       <DxFilterRow :visible="true" />
       <DxHeaderFilter :visible="true" />
 
-      <!-- Botones de acción -->
       <DxColumn type="buttons">
-        <DxButton name="edit" icon="edit" />
-        <DxButton name="delete" icon="trash" />
+        <DxButton name="edit" icon="edit" @click="onEditButtonClick" />
+        <DxButton name="delete" icon="trash" @click="onDeleteButtonClick" />
       </DxColumn>
     </DxDataGrid>
   </div>
 </template>
+
 <script setup>
 import {
   DxDataGrid,
@@ -84,8 +107,7 @@ import {
   DxButton,
   DxEditing,
 } from "devextreme-vue/data-grid";
-import { DxCheckBox } from "devextreme-vue/check-box";
-
+import { Notify } from "quasar";
 import { useMedicoStore } from "../stores/MedicoStores";
 import { ref, onMounted, computed, onUnmounted } from "vue";
 import { storeToRefs } from "pinia";
@@ -94,34 +116,60 @@ import { storeToRefs } from "pinia";
 const medicoStore = useMedicoStore();
 const { medicos } = storeToRefs(medicoStore);
 
+// Detectar vista móvil
+const isMobileView = computed(() => window.innerWidth < 600);
+
 // Cargamos los médicos al montar el componente
 onMounted(async () => {
   await medicoStore.cargarMedicos();
 });
 
-// Computed para obtener los médicos con la descripción de especialidad
-const medicosConEspecialidad = computed(() => {
-  return medicos.value.map((medico) => ({
-    ...medico,
-    especialidadDescripcion: medico.especialidadesSeleccionadas || "N/A",
-  }));
-});
-
-// Ancho responsivo
+// Ancho responsivo para el DataGrid
 const responsiveWidth = ref(window.innerWidth < 600 ? "100%" : "auto");
+const updateWidth = () =>
+  (responsiveWidth.value = window.innerWidth < 600 ? "100%" : "auto");
 
-// Función para actualizar el ancho cuando cambia el tamaño de la ventana
-const updateWidth = () => {
-  responsiveWidth.value = window.innerWidth < 600 ? "100%" : "auto";
-};
-
-// Escucha los cambios de tamaño de la ventana
 window.addEventListener("resize", updateWidth);
-
-// Remover el EventListener cuando el componente se desmonte
 onUnmounted(() => {
   window.removeEventListener("resize", updateWidth);
 });
+
+// Funciones para editar y eliminar un médico
+const onEditButtonClick = async (medico) => {
+  try {
+    await medicoStore.actualizarMedico(medico);
+    Notify.create({
+      message: "Médico actualizado exitosamente",
+      color: "positive",
+      position: "top-right",
+    });
+  } catch (error) {
+    console.error("Error al actualizar médico:", error);
+    Notify.create({
+      message: "Error al actualizar médico",
+      color: "negative",
+      position: "top-right",
+    });
+  }
+};
+
+const onDeleteButtonClick = async (id) => {
+  try {
+    await medicoStore.eliminarMedico(id);
+    Notify.create({
+      message: "Médico eliminado exitosamente",
+      color: "positive",
+      position: "top-right",
+    });
+  } catch (error) {
+    console.error("Error al eliminar médico:", error);
+    Notify.create({
+      message: "Error al eliminar médico",
+      color: "negative",
+      position: "top-right",
+    });
+  }
+};
 </script>
 
 <style scoped>
@@ -139,28 +187,30 @@ onUnmounted(() => {
   margin-bottom: -10px;
 }
 
-.custom-data-grid {
-  background-color: #ffffff;
+/* Estilos para la vista de tarjetas en móvil */
+.card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.medico-card {
+  border: 1px solid #ddd;
+  padding: 16px;
   border-radius: 8px;
+  background-color: #ffffff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Ajustes responsivos */
-@media (max-width: 600px) {
-  .header-title {
-    font-size: 1.2rem;
-  }
-  .custom-data-grid {
-    font-size: 0.9rem;
-  }
+.medico-card h5 {
+  margin: 0 0 8px;
+  font-size: 1.2em;
 }
 
-@media (max-width: 400px) {
-  .header-title {
-    font-size: 1rem;
-  }
-  .custom-data-grid {
-    font-size: 0.8rem;
-  }
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
 }
 </style>

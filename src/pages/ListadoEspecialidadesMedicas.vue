@@ -10,6 +10,7 @@
       :column-resizing-mode="'widget'"
       height="400px"
     >
+      <!-- Columnas -->
       <DxColumn data-field="descripcion" caption="Especialidad Médica">
         <DxRequiredRule />
       </DxColumn>
@@ -22,6 +23,13 @@
         <DxRequiredRule />
       </DxColumn>
 
+      <!-- Botones de edición y eliminación -->
+      <DxColumn type="buttons">
+        <DxButton icon="edit" hint="Editar" @click="actualizarEspecialidad" />
+        <DxButton icon="trash" hint="Eliminar" @click="eliminarEspecialidad" />
+      </DxColumn>
+
+      <!-- Opciones adicionales -->
       <DxSummary>
         <DxGroupItem summary-type="count" displayFormat="{0} especialidades" />
       </DxSummary>
@@ -46,28 +54,54 @@ import {
   DxSearchPanel,
   DxGroupPanel,
   DxGrouping,
+  DxButton,
 } from "devextreme-vue/data-grid";
 import { useEspecialidadMedicaStore } from "../stores/ConfiMedicasStores";
 import { storeToRefs } from "pinia";
+import { Notify } from "quasar";
 
 // Instancia de la tienda y referencia reactiva
 const especialidadesStore = useEspecialidadMedicaStore();
 const { especialidades } = storeToRefs(especialidadesStore);
 especialidadesStore.cargarEspecialidades();
+
+// Función para actualizar especialidad
+const actualizarEspecialidad = (e) => {
+  const especialidad = e.row.data;
+  especialidadesStore.actualizarEspecialidad(especialidad).then(() => {
+    Notify.create({
+      type: "positive",
+      message: "Especialidad actualizada con éxito",
+      position: "top-right",
+    });
+  });
+};
+
+// Función para eliminar especialidad
+const eliminarEspecialidad = (e) => {
+  const especialidadId = e.row.data.id;
+  especialidadesStore.eliminarEspecialidad(especialidadId).then(() => {
+    Notify.create({
+      type: "negative",
+      message: "Especialidad eliminada",
+      position: "top-right",
+    });
+  });
+};
 </script>
 
 <style scoped>
 #app-container {
   padding: 0 4px;
   background-color: #f9f9f9;
-  width: 100%; /* Ajuste para que ocupe el 100% del ancho disponible */
+  width: 100%;
 }
 
 .custom-data-grid {
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%; /* Hacer que el DataGrid ocupe el 100% del ancho del contenedor */
+  width: 100%;
 }
 
 .header-title {

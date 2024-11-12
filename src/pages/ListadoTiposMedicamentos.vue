@@ -10,6 +10,7 @@
       :column-resizing-mode="'widget'"
       height="400px"
     >
+      <!-- Columnas -->
       <DxColumn data-field="descripcion" caption="Tipo de Medicamento">
         <DxRequiredRule />
       </DxColumn>
@@ -21,6 +22,13 @@
         <DxRequiredRule />
       </DxColumn>
 
+      <!-- Botones de edición y eliminación -->
+      <DxColumn type="buttons">
+        <DxButton icon="edit" hint="Editar" @click="actualizarMedicamento" />
+        <DxButton icon="trash" hint="Eliminar" @click="eliminarMedicamento" />
+      </DxColumn>
+
+      <!-- Opciones adicionales -->
       <DxSummary>
         <DxGroupItem summary-type="count" displayFormat="{0} medicamentos" />
       </DxSummary>
@@ -45,14 +53,41 @@ import {
   DxSearchPanel,
   DxGroupPanel,
   DxGrouping,
+  DxButton,
 } from "devextreme-vue/data-grid";
 import { useTiposMedicamentosStore } from "../stores/ConfiMedicasStores";
 import { storeToRefs } from "pinia";
+import { Notify } from "quasar";
 
 const medicamentosStore = useTiposMedicamentosStore();
 const { medicamentos } = storeToRefs(medicamentosStore);
 medicamentosStore.cargarMedicamentos();
+
+// Función para actualizar medicamento
+const actualizarMedicamento = (e) => {
+  const medicamento = e.row.data;
+  medicamentosStore.actualizarMedicamento(medicamento).then(() => {
+    Notify.create({
+      type: "positive",
+      message: "Medicamento actualizado con éxito",
+      position: "top-right",
+    });
+  });
+};
+
+// Función para eliminar medicamento
+const eliminarMedicamento = (e) => {
+  const medicamentoId = e.row.data.id;
+  medicamentosStore.eliminarMedicamento(medicamentoId).then(() => {
+    Notify.create({
+      type: "negative",
+      message: "Medicamento eliminado",
+      position: "top-right",
+    });
+  });
+};
 </script>
+
 <style scoped>
 #app-container {
   padding: 0 4px;

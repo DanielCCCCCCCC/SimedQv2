@@ -10,6 +10,7 @@
       :column-resizing-mode="'widget'"
       height="400px"
     >
+      <!-- Columnas -->
       <DxColumn data-field="descripcion" caption="Tipo de Cita">
         <DxRequiredRule />
       </DxColumn>
@@ -21,6 +22,13 @@
         <DxRequiredRule />
       </DxColumn>
 
+      <!-- Botones de edición y eliminación -->
+      <DxColumn type="buttons">
+        <DxButton icon="edit" hint="Editar" @click="actualizarCita" />
+        <DxButton icon="trash" hint="Eliminar" @click="eliminarCita" />
+      </DxColumn>
+
+      <!-- Opciones adicionales -->
       <DxSummary>
         <DxGroupItem summary-type="count" displayFormat="{0} citas" />
       </DxSummary>
@@ -45,14 +53,41 @@ import {
   DxSearchPanel,
   DxGroupPanel,
   DxGrouping,
+  DxButton,
 } from "devextreme-vue/data-grid";
 import { useTiposCitasStore } from "../stores/ConfiMedicasStores";
 import { storeToRefs } from "pinia";
+import { Notify } from "quasar";
 
 const citasStore = useTiposCitasStore();
 const { citas } = storeToRefs(citasStore);
 citasStore.cargarCitas();
+
+// Función para actualizar cita
+const actualizarCita = (e) => {
+  const cita = e.row.data;
+  citasStore.actualizarCita(cita).then(() => {
+    Notify.create({
+      type: "positive",
+      message: "Cita actualizada con éxito",
+      position: "top-right",
+    });
+  });
+};
+
+// Función para eliminar cita
+const eliminarCita = (e) => {
+  const citaId = e.row.data.id;
+  citasStore.eliminarCita(citaId).then(() => {
+    Notify.create({
+      type: "negative",
+      message: "Cita eliminada",
+      position: "top-right",
+    });
+  });
+};
 </script>
+
 <style scoped>
 #app-container {
   padding: 0 4px;
