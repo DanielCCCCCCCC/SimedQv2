@@ -53,3 +53,25 @@ const medicamentosStore = useTiposMedicamentosStore();
 const { medicamentos } = storeToRefs(medicamentosStore);
 medicamentosStore.cargarMedicamentos();
 </script>
+<style scoped>
+#app-container {
+  padding: 0 4px;
+  background-color: #f9f9f9;
+  width: 100%; /* Ajuste para que ocupe el 100% del ancho disponible */
+}
+
+.custom-data-grid {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Hacer que el DataGrid ocupe el 100% del ancho del contenedor */
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  margin: 1px 0 1px;
+  text-align: center;
+}
+</style>

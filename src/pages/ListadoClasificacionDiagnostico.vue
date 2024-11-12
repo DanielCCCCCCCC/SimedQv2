@@ -1,90 +1,48 @@
 <template>
   <div class="row">
-    <h4 class="header-title">Hospitales</h4>
+    <h4 class="header-title">Clasificación de Diagnósticos</h4>
   </div>
   <div id="app-container" class="q-mb-xl">
     <dx-data-grid
-      :data-source="hospitales"
+      :data-source="clasificaciones"
       :allow-column-reordering="true"
       :show-borders="true"
       class="custom-data-grid"
       :row-alternation-enabled="true"
       key-expr="id"
     >
-      dx-scrolling mode="virtual" />
+      <dx-scrolling mode="virtual" />
       <dx-column-chooser :enabled="true" />
       <dx-sorting mode="multiple" />
       <dx-header-filter :visible="true" />
       <dx-load-panel :show-pane="true" />
 
-      <!-- Columnas con ordenamiento habilitado -->
+      <!-- Columna para nombre de clasificación -->
       <dx-column
         data-field="nombre"
-        caption="Nombre"
+        caption="Nombre de Clasificación"
         :allow-sorting="true"
         min-width="150"
-        width="180"
-      ></dx-column>
-      <dx-column
-        data-field="direccion"
-        caption="Dirección"
-        :allow-sorting="true"
-        min-width="150"
-        width="140"
-      ></dx-column>
-      <dx-column
-        data-field="departamentoDescripcion"
-        caption="Departamento"
-        :allow-sorting="true"
-        min-width="100"
-        width="130"
-      ></dx-column>
-      <dx-column
-        data-field="municipioDescripcion"
-        caption="Municipio"
-        :allow-sorting="true"
-        min-width="100"
-        width="120"
+        width="200"
       ></dx-column>
 
-      <dx-column
-        data-field="telefono"
-        caption="Teléfono"
-        :allow-sorting="true"
-        min-width="100"
-        width="100"
-      ></dx-column>
-      <dx-column
-        data-field="email"
-        caption="Email"
-        :allow-sorting="true"
-        min-width="100"
-        width="160"
-      ></dx-column>
-      <dx-column
-        data-field="web"
-        caption="Sitio Web"
-        :allow-sorting="true"
-        min-width="100"
-        width="150"
-      ></dx-column>
-
+      <!-- Botones de acción -->
       <dx-column type="buttons">
         <dx-button name="edit" icon="edit" />
         <dx-button name="delete" icon="trash" />
       </dx-column>
 
-      <!-- Configuración de edición de datos con título en la ventana modal -->
+      <!-- Configuración de edición -->
       <dx-editing
         mode="popup"
         :allow-updating="true"
         :allow-adding="true"
         :allow-deleting="true"
         :popup="{
-          title: 'Editar Información del Hospital',
+          title: 'Editar Clasificación',
           showTitle: true,
-          width: 700,
-          height: 400,
+          width: 500,
+          height: 300,
         }"
       />
 
@@ -107,7 +65,7 @@ import {
   DxButton,
   DxColumnChooser,
 } from "devextreme-vue/data-grid";
-import { useHospitalStore } from "../stores/DirectoriosStores";
+import { useClasificacionDiagnosticosStore } from "../stores/DiagnosticosStores";
 import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
 
@@ -123,18 +81,17 @@ export default {
     DxColumnChooser,
   },
   setup() {
-    const hospitalStore = useHospitalStore();
-    const { hospitales } = storeToRefs(hospitalStore); // Datos de la tienda de hospitales
+    const clasificacionStore = useClasificacionDiagnosticosStore();
+    const { clasificaciones } = storeToRefs(clasificacionStore);
     onMounted(async () => {
-      await hospitalStore.cargarHospitales();
+      await clasificacionStore.cargarClasificaciones();
     });
     return {
-      hospitales,
+      clasificaciones,
     };
   },
 };
 </script>
-
 <style scoped>
 #app-container {
   padding: 0 4px;

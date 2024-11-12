@@ -4,9 +4,10 @@
   </div>
   <div id="app-container" class="q-mb-xl">
     <dx-data-grid
-      :data-source="medicamentos.value"
+      :data-source="medicamentos"
       :allow-column-reordering="true"
       :show-borders="true"
+      class="custom-data-grid"
       :row-alternation-enabled="true"
       key-expr="codigo"
     >
@@ -33,8 +34,6 @@
         :allow-sorting="true"
         :visible="false"
       ></dx-column>
-
-      <!-- Configuración del medicamento (sub-objeto) -->
       <dx-column
         data-field="precioCosto"
         caption="Precio Costo"
@@ -57,6 +56,14 @@
         caption="Status"
         :allow-sorting="true"
       ></dx-column>
+
+      <!-- Configuración de botones de acción -->
+      <dx-column type="buttons">
+        <!-- Botón de edición con ícono -->
+        <dx-button name="edit" icon="edit" />
+        <!-- Botón de eliminación con ícono -->
+        <dx-button name="delete" icon="trash" />
+      </dx-column>
 
       <!-- Configuración de edición de datos con título en la ventana modal -->
       <dx-editing
@@ -88,8 +95,11 @@ import {
   DxFilterRow,
   DxHeaderFilter,
   DxEditing,
+  DxButton,
 } from "devextreme-vue/data-grid";
 import { useMedicamentoStore } from "../stores/DirectoriosStores";
+import { storeToRefs } from "pinia";
+import { onMounted } from "vue";
 
 export default {
   components: {
@@ -99,34 +109,52 @@ export default {
     DxFilterRow,
     DxHeaderFilter,
     DxEditing,
+    DxButton,
   },
   setup() {
     const medicamentoStore = useMedicamentoStore();
-    const medicamentos = medicamentoStore.medicamentos; // Datos de la tienda de medicamentos
+    const { medicamentos } = storeToRefs(medicamentoStore);
+    // const medicamentos = medicamentoStore.medicamentos; // Datos de la tienda de medicamentos
+    onMounted(async () => {
+      await medicamentoStore.cargarMedicamentos();
+    });
     return {
       medicamentos,
     };
   },
 };
+
+// setup() {
+//     const hospitalStore = useHospitalStore();
+//     const { hospitales } = storeToRefs(hospitalStore); // Datos de la tienda de hospitales
+//     onMounted(async () => {
+//       await hospitalStore.cargarHospitales();
+//     });
+//     return {
+//       hospitales,
+//     };
+//   },
 </script>
 
 <style scoped>
 #app-container {
-  padding: 0 4px; /* Reducción del padding superior */
-  background-color: #f9f9f9; /* Fondo claro */
+  padding: 0 4px;
+  background-color: #f9f9f9;
+  width: 100%; /* Ajuste para que ocupe el 100% del ancho disponible */
+}
+
+.custom-data-grid {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Hacer que el DataGrid ocupe el 100% del ancho del contenedor */
 }
 
 .header-title {
   font-size: 1.5rem;
   font-weight: bold;
   color: #333;
-  margin: 1px 0 1px; /* Menor espacio superior, más espacio inferior */
-  text-align: center; /* Centrado del título */
-}
-
-.dx-data-grid {
-  background-color: #ffffff; /* Fondo blanco para el DataGrid */
-  border-radius: 8px; /* Bordes redondeados */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+  margin: 1px 0 1px;
+  text-align: center;
 }
 </style>

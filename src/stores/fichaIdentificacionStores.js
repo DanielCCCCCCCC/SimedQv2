@@ -36,22 +36,33 @@ export const useFichaIdentificacionStore = defineStore(
         formIdentificacion.value.push(data[0]);
       }
     };
-
     const actualizarPaciente = async (pacienteActualizado) => {
-      const { data, error } = await supabase
-        .from("fichaIdentificacion")
-        .update(pacienteActualizado)
-        .eq("id", pacienteActualizado.id);
+      try {
+        const { data, error } = await supabase
+          .from("fichaIdentificacion")
+          .update(pacienteActualizado)
+          .eq("id", pacienteActualizado.id);
 
-      if (error) {
-        console.error("Error al actualizar los datos del paciente:", error);
-      } else {
+        if (error) {
+          console.error("Error en la actualización:", error);
+          throw error;
+        } else if (!data || data.length === 0) {
+          console.warn(
+            "Actualización fallida: No se encontraron registros con el id proporcionado."
+          );
+          throw new Error(
+            "La actualización falló. No se encontraron registros actualizados."
+          );
+        }
+
         const index = formIdentificacion.value.findIndex(
           (p) => p.id === pacienteActualizado.id
         );
         if (index !== -1) {
           formIdentificacion.value[index] = data[0];
         }
+      } catch (error) {
+        console.error("Error al actualizar los datos del paciente:", error);
       }
     };
 

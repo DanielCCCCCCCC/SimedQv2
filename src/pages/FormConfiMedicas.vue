@@ -36,10 +36,10 @@
     <q-tab-panels v-model="tab" animated swipeable>
       <!-- Panel para Especialidades Médicas -->
       <q-tab-panel name="Especialidades Médicas">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 q-mb-xl rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary">
-            Especialidades Médicas
-          </q-card-section>
+        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+          <q-card-section class="text-h6 text-primary"
+            >Especialidades Médicas</q-card-section
+          >
           <q-form @submit.prevent="guardarEspecialidad" class="q-gutter-md">
             <q-input
               v-model="especialidadData.descripcion"
@@ -71,10 +71,10 @@
 
       <!-- Panel para Tipos de Estudios -->
       <q-tab-panel name="Tipos de Estudios">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary">
-            Tipos de Estudios
-          </q-card-section>
+        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+          <q-card-section class="text-h6 text-primary"
+            >Tipos de Estudios</q-card-section
+          >
           <q-form @submit.prevent="guardarEstudio" class="q-gutter-md">
             <q-input
               v-model="estudioData.descripcion"
@@ -106,10 +106,10 @@
 
       <!-- Panel para Tipos de Medicamentos -->
       <q-tab-panel name="Tipos de Medicamentos">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary">
-            Tipos de Medicamentos
-          </q-card-section>
+        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+          <q-card-section class="text-h6 text-primary"
+            >Tipos de Medicamentos</q-card-section
+          >
           <q-form @submit.prevent="guardarMedicamento" class="q-gutter-md">
             <q-input
               v-model="medicamentoData.descripcion"
@@ -141,10 +141,10 @@
 
       <!-- Panel para Tipos de Pacientes -->
       <q-tab-panel name="Tipos de Pacientes">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary">
-            Tipos de Pacientes
-          </q-card-section>
+        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+          <q-card-section class="text-h6 text-primary"
+            >Tipos de Pacientes</q-card-section
+          >
           <q-form @submit.prevent="guardarPaciente" class="q-gutter-md">
             <q-input
               v-model="pacienteData.descripcion"
@@ -176,10 +176,10 @@
 
       <!-- Panel para Grupos de Contactos -->
       <q-tab-panel name="Grupos de Contactos">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary">
-            Grupos de Contactos
-          </q-card-section>
+        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+          <q-card-section class="text-h6 text-primary"
+            >Grupos de Contactos</q-card-section
+          >
           <q-form @submit.prevent="guardarGrupoContacto" class="q-gutter-md">
             <q-input
               v-model="grupoContactoData.descripcion"
@@ -209,10 +209,10 @@
 
       <!-- Panel para Tipos de Citas -->
       <q-tab-panel name="Tipos de Citas">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary">
-            Tipos de Citas
-          </q-card-section>
+        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+          <q-card-section class="text-h6 text-primary"
+            >Tipos de Citas</q-card-section
+          >
           <q-form @submit.prevent="guardarCita" class="q-gutter-md">
             <q-input
               v-model="citaData.descripcion"
@@ -443,17 +443,29 @@ const eliminarCita = async () => {
 
 <style scoped>
 .q-card {
-  max-width: 700px;
+  max-width: 1100px;
   margin: 0 auto;
+}
+
+.wide-card {
+  max-width: 700px;
+  width: 100%;
+  margin-bottom: 50px;
+}
+
+.q-tab-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.listado-componente {
+  max-width: 1800px;
+  width: 100%;
+  margin: 50px auto;
 }
 
 .text-primary {
   color: #1976d2;
-}
-
-/* Estilo para reducir el tamaño de la letra en las pestañas */
-.small-tabs .q-tab {
-  font-size: 8px; /* Reduce el tamaño de la letra */
-  padding: 4px 9px; /* Ajusta el padding para ocupar menos espacio */
 }
 </style>

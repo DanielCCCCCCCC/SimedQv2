@@ -44,7 +44,9 @@
             <q-tab-panels v-model="subTab" animated>
               <!-- Subpanel para Departamento -->
               <q-tab-panel name="Departamento">
-                <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
+                <q-card
+                  class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card"
+                >
                   <q-card-section class="text-h6 text-primary">
                     Departamento
                   </q-card-section>
@@ -81,7 +83,9 @@
 
               <!-- Subpanel para Municipio -->
               <q-tab-panel name="Municipio">
-                <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
+                <q-card
+                  class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card"
+                >
                   <q-card-section class="text-h6 text-primary">
                     Municipio
                   </q-card-section>
@@ -134,7 +138,7 @@
 
       <!-- Panel para Grupo Sanguíneo -->
       <q-tab-panel name="Grupo Sanguíneo">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
+        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
           <q-card-section class="text-h6 text-primary">
             Grupo Sanguíneo
           </q-card-section>
@@ -164,11 +168,14 @@
             </div>
           </q-form>
         </q-card>
+        <div>
+          <ListadoGrupoSanguineo />
+        </div>
       </q-tab-panel>
 
       <!-- Panel para Escolaridad -->
       <q-tab-panel name="Escolaridad">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
+        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
           <q-card-section class="text-h6 text-primary">
             Escolaridad
           </q-card-section>
@@ -198,11 +205,14 @@
             </div>
           </q-form>
         </q-card>
+        <div>
+          <ListadoTipoEscolaridad />
+        </div>
       </q-tab-panel>
 
       <!-- Panel para Estado Civil -->
       <q-tab-panel name="Estado Civil">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
+        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
           <q-card-section class="text-h6 text-primary">
             Estado Civil
           </q-card-section>
@@ -232,6 +242,9 @@
             </div>
           </q-form>
         </q-card>
+        <div>
+          <ListadoTipoEstadoCivil />
+        </div>
       </q-tab-panel>
     </q-tab-panels>
   </q-page>
@@ -246,7 +259,9 @@ import {
   useEstadoCivilStore,
 } from "../stores/DatosGeneralesStores";
 import ListadoMunicipios from "./ListadoMunicipios.vue";
-
+import ListadoGrupoSanguineo from "./ListadoGrupoSanguineo.vue";
+import ListadoTipoEscolaridad from "./ListadoTipoEscolaridad.vue";
+import ListadoTipoEstadoCivil from "./ListadoTipoEstadoCivil.vue";
 import { storeToRefs } from "pinia";
 import { Notify } from "quasar";
 
@@ -517,3 +532,32 @@ const eliminarEstadoCivil = async () => {
 const tab = ref("Departamentos y Municipios");
 const subTab = ref("Departamento");
 </script>
+
+<style scoped>
+.q-card {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.wide-card {
+  max-width: 700px;
+  width: 100%;
+  margin-bottom: 50px;
+}
+
+.q-tab-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.listado-componente {
+  max-width: 1800px;
+  width: 100%;
+  margin: 50px auto;
+}
+
+.text-primary {
+  color: #1976d2;
+}
+</style>

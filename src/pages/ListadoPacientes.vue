@@ -43,7 +43,7 @@
         data-field="medico"
         caption="Médico"
         :min-width="120"
-        :width="130"
+        :width="160"
         :visible="true"
       />
       <dx-column
@@ -51,7 +51,7 @@
         caption="Código"
         :allow-editing="false"
         :min-width="100"
-        :width="140"
+        :width="110"
         :visible="true"
       />
       <dx-column
@@ -59,7 +59,7 @@
         caption="Nombre"
         sort-order="asc"
         :min-width="120"
-        :width="140"
+        :width="160"
         :visible="true"
       />
       <dx-column
@@ -67,7 +67,7 @@
         caption="Apellidos"
         sort-order="asc"
         :min-width="120"
-        :width="140"
+        :width="160"
         :visible="true"
       />
       <dx-column
@@ -78,9 +78,14 @@
         :width="125"
         :visible="false"
       />
-
       <dx-column
-        data-field="tipo"
+        data-field="municipioDescripcion"
+        caption="Municipio"
+        :width="120"
+        :visible="false"
+      />
+      <dx-column
+        data-field="tipoDescripcion"
         caption="Tipo"
         :width="100"
         :visible="true"
@@ -89,10 +94,11 @@
       <dx-column
         data-field="email"
         caption="E-mail"
-        :width="180"
-        :visible="true"
+        :width="150"
+        :visible="false"
       />
-      <!-- <dx-column
+
+      <dx-column
         data-field="activo"
         caption="Activo"
         data-type="boolean"
@@ -106,7 +112,7 @@
             @value-changed="onCheckboxChange(data)"
           />
         </template>
-      </dx-column> -->
+      </dx-column>
 
       <dx-column
         data-field="medicoCabecera"
@@ -128,7 +134,7 @@
         :visible="false"
       />
       <dx-column
-        data-field="estadoCivil"
+        data-field="estadoCivilDescripcion"
         caption="Estado Civil"
         :width="100"
         :visible="false"
@@ -145,6 +151,7 @@
         :width="150"
         :visible="false"
       />
+
       <dx-column
         data-field="telCasa"
         caption="Teléfono Casa"
@@ -159,13 +166,7 @@
       />
 
       <dx-column
-        data-field="municipio"
-        caption="Municipio"
-        :width="120"
-        :visible="false"
-      />
-      <dx-column
-        data-field="departamento"
+        data-field="departamentoDescripcion"
         caption="Departamento"
         :width="120"
         :visible="false"
@@ -207,7 +208,7 @@
         :visible="false"
       />
       <dx-column
-        data-field="grupoSanguineo"
+        data-field="grupoSanguineoDescripcion"
         caption="Grupo Sanguíneo"
         :width="100"
         :visible="false"

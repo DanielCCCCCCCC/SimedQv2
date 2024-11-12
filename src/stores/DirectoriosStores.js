@@ -1,6 +1,6 @@
 // src/stores/ConfiMedicasStores.js
 import { defineStore } from "pinia";
-import { ref, watch, onMounted } from "vue";
+import { ref, reactive, watch, onMounted } from "vue";
 import { supabase } from "../supabaseClient";
 
 // Helper para cargar y guardar en localStorage
@@ -20,8 +20,9 @@ function saveToLocalStorage(key, value) {
 //
 //
 //// Tienda para Hospitales
+
 export const useHospitalStore = defineStore("hospitalStore", () => {
-  const hospitales = ref([]);
+  const hospitales = ref([]); // Cambiado a ref
 
   const cargarHospitales = async () => {
     try {
@@ -33,8 +34,9 @@ export const useHospitalStore = defineStore("hospitalStore", () => {
       if (error) {
         console.error("Error al cargar hospitales:", error);
       } else {
-        hospitales.value = data || [];
+        hospitales.value = data || []; // Asigna el array completo a `hospitales.value`
       }
+      console.log("Hopitales:", hospitales.value); // Para depurar
     } catch (err) {
       console.error("Error en cargarHospitales:", err.message);
     }
@@ -75,6 +77,7 @@ export const useHospitalStore = defineStore("hospitalStore", () => {
 
   return { hospitales, cargarHospitales, agregarHospital, eliminarHospital };
 });
+
 //
 //
 //
@@ -85,26 +88,28 @@ export const useHospitalStore = defineStore("hospitalStore", () => {
 ///
 ///Tienda para Medicamentos
 export const useMedicamentoStore = defineStore("medicamentoStore", () => {
-  const medicamentos = ref(loadFromLocalStorage("medicamentos", []));
+  const medicamentos = ref([]);
   const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
 
   const cargarMedicamentos = async () => {
-    const { data, error } = await supabase
-      .from("medicamentos")
-      .select("*")
-      .order("created_at", { ascending: true });
+    try {
+      const { data, error } = await supabase
 
-    if (error) {
-      console.error("Error al cargar medicamentos:", error);
-    } else {
-      medicamentos.value = data;
-      saveToLocalStorage("medicamentos", medicamentos.value);
+        .from("medicamentos")
+        .select("*")
+        .order("created_at", { ascending: true });
+      if (error) {
+        console.error("Error al cargar hospitales:", error);
+      } else {
+        medicamentos.value = data || []; // Asigna el array completo a `hospitales.value`
+      }
+      console.log("Medicamentos:", medicamentos.value); // Para depurar
+    } catch (err) {
+      console.error("Error en cargarmMdicamentos:", err.message);
     }
   };
 
   const agregarMedicamento = async (medicamento) => {
-    const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
-
     // Verifica si el medicamento ya existe
     if (!medicamentos.value.some((m) => m.codigo === medicamento.codigo)) {
       const { data, error } = await supabase
@@ -114,13 +119,11 @@ export const useMedicamentoStore = defineStore("medicamentoStore", () => {
 
       if (error) {
         console.error("Error al agregar medicamento:", error);
-        return; // Sal de la función si hay un error
+        return;
       }
 
-      // Verifica si `data` tiene contenido antes de acceder al primer elemento
       if (data && data.length > 0) {
         medicamentos.value.push(data[0]);
-        saveToLocalStorage("medicamentos", medicamentos.value);
       } else {
         console.warn("No se devolvieron datos después de la inserción.");
       }
@@ -136,17 +139,8 @@ export const useMedicamentoStore = defineStore("medicamentoStore", () => {
       console.error("Error al eliminar medicamento:", error);
     } else {
       medicamentos.value = medicamentos.value.filter((m) => m.id !== id);
-      saveToLocalStorage("medicamentos", medicamentos.value);
     }
   };
-
-  watch(
-    medicamentos,
-    (newMedicamentos) => {
-      saveToLocalStorage("medicamentos", newMedicamentos);
-    },
-    { deep: true }
-  );
 
   return {
     medicamentos,
@@ -164,21 +158,26 @@ export const useMedicamentoStore = defineStore("medicamentoStore", () => {
 ///
 // Tienda para Estudios
 export const useEstudioStore = defineStore("examenesEstudios", () => {
-  const estudios = ref(loadFromLocalStorage("examenesEstudios", []));
+  const estudios = ref([]);
   const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
 
   const cargarEstudios = async () => {
-    const { data, error } = await supabase
-      .from("examenesEstudios")
-      .select("*")
-      .eq("tenant_id", tenantId)
-      .order("created_at", { ascending: true });
+    try {
+      const { data, error } = await supabase
 
-    if (error) {
-      console.error("Error al cargar estudios:", error);
-    } else if (data) {
-      estudios.value = data;
-      saveToLocalStorage("examenesEstudios", estudios.value);
+        .from("examenesEstudios")
+        .select("*")
+        .eq("tenant_id", tenantId)
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        console.error("Error al cargar hospitales:", error);
+      } else {
+        estudios.value = data || []; // Asigna el array completo a `hospitales.value`
+      }
+      console.log("Medicamentos:", estudios.value); // Para depurar
+    } catch (err) {
+      console.error("Error en cargarmMdicamentos:", err.message);
     }
   };
 
@@ -187,7 +186,7 @@ export const useEstudioStore = defineStore("examenesEstudios", () => {
       {
         ...estudioInfo,
         tenant_id: tenantId,
-        updated_at: new Date().toISOString(), // Agrega la fecha/hora actual
+        updated_at: new Date().toISOString(),
       },
     ]);
 
@@ -195,7 +194,6 @@ export const useEstudioStore = defineStore("examenesEstudios", () => {
       console.error("Error al agregar estudio:", error);
     } else if (data && data.length > 0) {
       estudios.value.push(data[0]);
-      saveToLocalStorage("examenesEstudios", estudios.value);
     }
   };
 
@@ -212,7 +210,6 @@ export const useEstudioStore = defineStore("examenesEstudios", () => {
       console.error("Error al eliminar el estudio:", error);
     } else {
       estudios.value.pop();
-      saveToLocalStorage("examenesEstudios", estudios.value);
     }
   };
 

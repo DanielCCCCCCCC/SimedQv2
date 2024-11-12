@@ -1,6 +1,5 @@
 <template>
   <q-page class="q-pa-md">
-    <!-- Barra de navegación de pestañas -->
     <q-tabs
       v-model="tab"
       class="bg-white text-black q-mb-sm shadow-2 rounded-borders small-tabs"
@@ -21,115 +20,143 @@
     <q-tab-panels v-model="tab" animated swipeable>
       <!-- Pestaña: Clasificación de Diagnósticos -->
       <q-tab-panel name="ClasificacionDiagnosticos">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary">
-            Clasificación de Diagnósticos
-          </q-card-section>
-          <q-form @submit.prevent="guardarClasificacion" class="q-gutter-md">
-            <q-input
-              v-model="clasificacionData.nombre"
-              label="Nombre"
-              outlined
-              dense
-              :error="!!formErrors.clasificacionNombre"
-              :error-message="formErrors.clasificacionNombre"
-            />
-            <div class="row justify-end q-mt-md">
-              <q-btn
-                label="Crear"
-                color="primary"
-                icon="add"
-                @click="guardarClasificacion"
+        <q-col cols="3">
+          <!-- Formulario -->
+          <q-card
+            class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card"
+          >
+            <q-card-section class="text-h6 text-primary">
+              Clasificación de Diagnósticos
+            </q-card-section>
+            <q-form @submit.prevent="guardarClasificacion" class="q-gutter-md">
+              <q-input
+                v-model="clasificacionData.nombre"
+                label="Nombre"
+                outlined
+                dense
+                :error="!!formErrors.clasificacionNombre"
+                :error-message="formErrors.clasificacionNombre"
               />
-              <q-btn
-                label="Eliminar último agregado"
-                color="negative"
-                icon="delete"
-                @click="eliminarUltimaClasificacion"
-                class="q-ml-sm"
-              />
-            </div>
-          </q-form>
-        </q-card>
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  label="Crear"
+                  color="primary"
+                  icon="add"
+                  @click="guardarClasificacion"
+                />
+                <q-btn
+                  label="Eliminar último agregado"
+                  color="negative"
+                  icon="delete"
+                  @click="eliminarUltimaClasificacion"
+                  class="q-ml-sm"
+                />
+              </div>
+            </q-form>
+          </q-card>
+          <div>
+            <ListadoClasificacionDiagnostico />
+          </div>
+        </q-col>
+
+        <!-- <q-col cols="9">
+          <q-card class="q-pa-md q-mt-md bg-grey-1 rounded shadow-2xl">
+            <ListadoClasificacionDiagnostico />
+          </q-card>
+        </q-col> -->
       </q-tab-panel>
 
       <!-- Pestaña: Diagnósticos -->
       <q-tab-panel name="Diagnosticos">
-        <q-card class="q-pa-lg q-mb-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary"
-            >Diagnósticos</q-card-section
-          >
-          <q-form @submit.prevent="guardarDiagnostico" class="q-gutter-md">
-            <q-input
-              v-model="diagnosticoData.descripcion"
-              label="Descripción"
-              outlined
-              dense
-              :error="!!formErrors.diagnosticoDescripcion"
-              :error-message="formErrors.diagnosticoDescripcion"
-            />
-            <q-select
-              v-model="diagnosticoData.clasificacion"
-              :options="opcionesClasificaciones"
-              option-value="id"
-              option-label="label"
-              label="Clasificación"
-              outlined
-              dense
-              :error="!!formErrors.diagnosticoClasificacion"
-              :error-message="formErrors.diagnosticoClasificacion"
-            />
-            <div class="row justify-end q-mt-md">
-              <q-btn
-                label="Crear"
-                color="primary"
-                icon="add"
-                @click="guardarDiagnostico"
+        <q-col cols="3">
+          <q-card class="q-pa-sm bg-grey-1 rounded shadow-2xl">
+            <q-card-section class="text-h6 text-primary"
+              >Diagnósticos</q-card-section
+            >
+            <q-form @submit.prevent="guardarDiagnostico" class="q-gutter-md">
+              <q-input
+                v-model="diagnosticoData.descripcion"
+                label="Descripción"
+                outlined
+                dense
+                :error="!!formErrors.diagnosticoDescripcion"
+                :error-message="formErrors.diagnosticoDescripcion"
               />
-              <q-btn
-                label="Eliminar último agregado"
-                color="negative"
-                icon="delete"
-                @click="eliminarUltimoDiagnostico"
-                class="q-ml-sm"
+              <q-select
+                v-model="diagnosticoData.clasificacion"
+                :options="opcionesClasificaciones"
+                option-value="id"
+                option-label="label"
+                label="Clasificación"
+                outlined
+                dense
+                :error="!!formErrors.diagnosticoClasificacion"
+                :error-message="formErrors.diagnosticoClasificacion"
               />
-            </div>
-          </q-form>
-        </q-card>
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  label="Crear"
+                  color="primary"
+                  icon="add"
+                  @click="guardarDiagnostico"
+                />
+                <q-btn
+                  label="Eliminar último agregado"
+                  color="negative"
+                  icon="delete"
+                  @click="eliminarUltimoDiagnostico"
+                  class="q-ml-sm"
+                />
+              </div>
+            </q-form>
+          </q-card>
+        </q-col>
+        <q-col cols="9">
+          <q-card class="q-pa-md q-mt-md bg-grey-1 rounded shadow-2xl">
+            <ListadoDiagnosticos />
+          </q-card>
+        </q-col>
       </q-tab-panel>
 
       <!-- Pestaña: Controles de Medición -->
       <q-tab-panel name="ControlesMedicion">
-        <q-card class="q-pa-lg q-mb-md bg-grey-1 rounded shadow-2xl">
-          <q-card-section class="text-h6 text-primary"
-            >Controles de Medición</q-card-section
-          >
-          <q-form @submit.prevent="guardarControl" class="q-gutter-md">
-            <q-input
-              v-model="controlData.descripcion"
-              label="Descripción"
-              outlined
-              dense
-              :error="!!formErrors.controlDescripcion"
-              :error-message="formErrors.controlDescripcion"
-            />
-            <div class="row justify-end q-mt-md">
-              <q-btn
-                label="Crear"
-                color="primary"
-                icon="add"
-                @click="guardarControl"
+        <q-col cols="3">
+          <q-card class="q-pa-sm bg-grey-1 rounded shadow-2xl">
+            <q-card-section class="text-h6 text-primary"
+              >Controles de Medición</q-card-section
+            >
+            <q-form @submit.prevent="guardarControl" class="q-gutter-md">
+              <q-input
+                v-model="controlData.descripcion"
+                label="Descripción"
+                outlined
+                dense
+                :error="!!formErrors.controlDescripcion"
+                :error-message="formErrors.controlDescripcion"
               />
-              <q-btn
-                label="Eliminar último agregado"
-                color="negative"
-                icon="delete"
-                @click="eliminarUltimoControl"
-                class="q-ml-sm"
-              />
-            </div>
-          </q-form>
-        </q-card>
+              <div class="row justify-end q-mt-md">
+                <q-btn
+                  label="Crear"
+                  color="primary"
+                  icon="add"
+                  @click="guardarControl"
+                />
+                <q-btn
+                  label="Eliminar último agregado"
+                  color="negative"
+                  icon="delete"
+                  @click="eliminarUltimoControl"
+                  class="q-ml-sm"
+                />
+              </div>
+            </q-form>
+          </q-card>
+        </q-col>
+        <q-col cols="9">
+          <q-card class="q-pa-md q-mt-md bg-grey-1 rounded shadow-2xl">
+            <ListadoControlMedicion />
+          </q-card>
+        </q-col>
       </q-tab-panel>
     </q-tab-panels>
   </q-page>
@@ -144,6 +171,9 @@ import {
   useControlesMedicionStore,
 } from "../stores/DiagnosticosStores";
 import { storeToRefs } from "pinia";
+import ListadoClasificacionDiagnostico from "./ListadoClasificacionDiagnostico.vue";
+import ListadoDiagnosticos from "./ListadoDiagnosticos.vue";
+import ListadoControlMedicion from "./ListadoControlMedicion.vue";
 
 // Inicializar tiendas
 const clasificacionDiagnosticosStore = useClasificacionDiagnosticosStore();
@@ -281,14 +311,29 @@ const tab = ref("ClasificacionDiagnosticos");
 
 <style scoped>
 .q-card {
-  max-width: 700px;
+  max-width: 1100px;
   margin: 0 auto;
 }
+
+.wide-card {
+  max-width: 700px;
+  width: 100%;
+  margin-bottom: 50px;
+}
+
+.q-tab-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.listado-componente {
+  max-width: 1800px;
+  width: 100%;
+  margin: 50px auto;
+}
+
 .text-primary {
   color: #1976d2;
-}
-.small-tabs .q-tab {
-  font-size: 8px;
-  padding: 4px 9px;
 }
 </style>

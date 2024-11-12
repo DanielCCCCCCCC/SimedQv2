@@ -16,7 +16,7 @@
     <q-tab-panels v-model="tab" animated swipeable>
       <!-- Pestaña: Hospitales -->
       <q-tab-panel name="Hospitales">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
+        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
           <q-card-section class="text-h6 text-primary"
             >Hospitales</q-card-section
           >
@@ -116,15 +116,19 @@
             </div>
           </q-form>
         </q-card>
-        <ListadoHospitales />
+        <div class="listado-componente q-tab-panel">
+          <ListadoHospitales />
+        </div>
       </q-tab-panel>
 
       <!-- Pestaña: Medicamentos y Otros -->
       <q-tab-panel name="Medicamentos">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
+        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
           <q-card-section class="text-h6 text-primary"
             >Medicamentos y Otros</q-card-section
           >
+
+          <!-- Formulario de Medicamentos -->
           <q-form @submit.prevent="guardarMedicamento" class="q-gutter-md">
             <div class="row">
               <div class="col">
@@ -146,30 +150,18 @@
                   :error="!!medicamentoErrors.descripcion"
                   :error-message="medicamentoErrors.descripcion"
                 />
-                <!-- ////////////////////////////////////////////////////////////////
-                 -->
-                <!-- ////////////////////////////////////////////////////////////////
-                 -->
-                <!-- ////////////////////////////////////////////////////////////////
-                 -->
                 <q-select
                   class="q-mb-sm q-mr-sm"
                   v-model="medicamentoData.tipoId"
                   :options="medicamentos"
                   option-value="id"
                   option-label="descripcion"
-                  label="Tipo de medicamentios"
+                  label="Tipo de medicamentos"
                   outlined
                   dense
                   :error="!!medicamentoErrors.tipo"
                   :error-message="medicamentoErrors.tipo"
                 />
-                <!-- ////////////////////////////////////////////////////////////////
-                 -->
-                <!-- ////////////////////////////////////////////////////////////////
-                 -->
-                <!-- ////////////////////////////////////////////////////////////////
-                 -->
                 <q-input
                   class="q-mb-sm q-mr-sm"
                   v-model="medicamentoData.indicaciones"
@@ -230,12 +222,14 @@
             </div>
           </q-form>
         </q-card>
-        <ListadoMedicamentos />
+        <div class="listado-componente q-tab-panel">
+          <ListadoMedicamentos />
+        </div>
       </q-tab-panel>
 
       <!-- Pestaña: Exámenes y Estudios -->
       <q-tab-panel name="Estudios">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
+        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
           <q-card-section class="text-h6 text-primary"
             >Exámenes y Estudios</q-card-section
           >
@@ -337,6 +331,9 @@
             </div>
           </q-form>
         </q-card>
+        <div class="listado-componente q-tab-panel">
+          <ListadoExamenesEstudios />
+        </div>
       </q-tab-panel>
     </q-tab-panels>
   </q-page>
@@ -360,6 +357,7 @@ import {
 
 import ListadoHospitales from "./ListadoHospitales.vue";
 import ListadoMedicamentos from "./ListadoMedicamentos.vue";
+import ListadoExamenesEstudios from "./ListadoExamenesEstudios.vue";
 import { Notify } from "quasar";
 import { storeToRefs } from "pinia";
 
@@ -510,16 +508,28 @@ const guardarHospital = async () => {
     typeof hospitalData.departamentoId === "object"
       ? hospitalData.departamentoId.id
       : hospitalData.departamentoId;
+  const departamentoDescripcion =
+    typeof hospitalData.departamentoId === "object"
+      ? hospitalData.departamentoId.descripcion
+      : ""; // Si no es un objeto, asigna una cadena vacía o el valor predeterminado
+
   const municipioId =
     typeof hospitalData.municipioId === "object"
       ? hospitalData.municipioId.id
       : hospitalData.municipioId;
+  const municipioDescripcion =
+    typeof hospitalData.municipioId === "object"
+      ? hospitalData.municipioId.descripcion
+      : ""; // Si no es un objeto, asigna una cadena vacía o el valor predeterminado
 
   const hospitalInfo = {
     nombre: hospitalData.nombre,
     direccion: hospitalData.direccion,
     departamento_id: departamentoId,
+    departamentoDescripcion: departamentoDescripcion,
+
     municipio_id: municipioId,
+    municipioDescripcion: municipioDescripcion,
     telefono: hospitalData.telefono,
     email: hospitalData.email,
     web: hospitalData.web,
@@ -710,17 +720,51 @@ const guardarEstudio = async () => {
 };
 </script>
 
+<!-- <style scoped>
+.q-card {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.q-tab-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.listado-componente {
+  max-width: 1800px;
+  width: 100%;
+  margin: 50px auto;
+}
+.text-primary {
+  color: #1976d2;
+}
+</style> -->
+
 <style scoped>
 .q-card {
-  max-width: 700px;
+  max-width: 1100px;
   margin: 0 auto;
+}
+
+.wide-card {
+  max-width: 700px;
+  width: 100%;
+  margin-bottom: 50px;
+}
+
+.q-tab-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.listado-componente {
+  max-width: 1800px;
+  width: 100%;
+  margin: 50px auto;
 }
 
 .text-primary {
   color: #1976d2;
-}
-
-.q-list {
-  width: 100%;
 }
 </style>

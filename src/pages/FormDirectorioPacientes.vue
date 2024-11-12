@@ -81,16 +81,16 @@
                     Información Técnica
                   </q-card-section>
                   <q-form class="q-gutter-md">
-                    <q-input
+                    <!-- <q-input
                       v-model="pacienteSeleccionado.fechaRegistro"
                       label="Fecha de Registro"
                       outlined
                       dense
                       type="date"
-                    />
+                    /> -->
                     <q-input
                       v-model="pacienteSeleccionado.codigo"
-                      label="Codigo"
+                      label="Código"
                       outlined
                       dense
                     />
@@ -99,7 +99,6 @@
                       label="Activo"
                       dense
                     />
-
                     <q-select
                       v-model="pacienteSeleccionado.tipo"
                       :options="tpacientes"
@@ -108,28 +107,13 @@
                       option-label="descripcion"
                       outlined
                       dense
-                      style="font-size: 14px; height: auto"
                     />
                     <q-input
                       v-model="pacienteSeleccionado.medico"
-                      label="Medico"
+                      label="Médico"
                       outlined
                       dense
                     />
-                    <!-- <q-select
-                      v-model="pacienteSeleccionado.medicoCabecera"
-                      label="Medico Cabecera"
-                      :options="medicoCabeceraOptions"
-                      outlined
-                      dense
-                    /> -->
-                    <!-- <q-select
-                      v-model="pacienteSeleccionado.referidoPor"
-                      label="Referido por"
-                      :options="referidoPorOptions"
-                      outlined
-                      dense
-                    /> -->
                   </q-form>
                 </q-card>
               </q-tab-panel>
@@ -171,14 +155,6 @@
                       outlined
                       dense
                     />
-
-                    <!--  -->
-                    <!--  -->
-                    <!--  -->
-                    <!--  -->
-                    <!--  -->
-                    <!--  -->
-                    <!--  -->
                     <q-select
                       v-model="pacienteSeleccionado.estadoCivil"
                       :options="estadosCiviles"
@@ -188,12 +164,6 @@
                       outlined
                       dense
                     />
-                    <!--  -->
-                    <!--  -->
-                    <!--  -->
-                    <!--  -->
-                    <!--  -->
-                    <!--  -->
                     <q-input
                       v-model="pacienteSeleccionado.observaciones"
                       label="Observaciones"
@@ -205,7 +175,6 @@
                 </q-card>
               </q-tab-panel>
 
-              <!-- Subpestaña: Información de Contacto -->
               <q-tab-panel name="infoContacto">
                 <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
                   <q-card-section class="text-h6 text-primary">
@@ -220,13 +189,13 @@
                     />
                     <q-input
                       v-model="pacienteSeleccionado.telCasa"
-                      label="Telefono Casa"
+                      label="Teléfono Casa"
                       outlined
                       dense
                     />
                     <q-input
                       v-model="pacienteSeleccionado.telPersonal"
-                      label="Telefono Personal"
+                      label="Teléfono Personal"
                       outlined
                       dense
                     />
@@ -248,7 +217,7 @@
                     <q-select
                       v-model="pacienteSeleccionado.municipio"
                       label="Municipio"
-                      :options="municipios"
+                      :options="filteredMunicipios"
                       option-value="id"
                       option-label="descripcion"
                       outlined
@@ -264,7 +233,6 @@
                 </q-card>
               </q-tab-panel>
 
-              <!-- Subpestaña: Información Familiar -->
               <q-tab-panel name="infoFamiliar">
                 <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
                   <q-card-section class="text-h6 text-primary">
@@ -273,7 +241,7 @@
                   <q-form class="q-gutter-md">
                     <q-input
                       v-model="pacienteSeleccionado.conyugue"
-                      label="Cónyugue"
+                      label="Cónyuge"
                       outlined
                       dense
                     />
@@ -316,7 +284,7 @@
                     />
                     <q-select
                       v-model="pacienteSeleccionado.grupoSanguineo"
-                      label="Grupo Sanguineo"
+                      label="Grupo Sanguíneo"
                       :options="gruposSanguineos"
                       option-value="id"
                       option-label="descripcion"
@@ -347,14 +315,10 @@
       </q-tab-panel>
     </q-tab-panels>
   </q-page>
-  <div>
-    <!-- <p>Total de pacientes activos: {{ totalActivos }}</p>
-    <p>Total de pacientes inactivos: {{ totalInactivos }}</p> -->
-  </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, computed, watch } from "vue";
 import { useFichaIdentificacionStore } from "../stores/fichaIdentificacionStores";
 import { useTiposPacientesStore } from "../stores/ConfiMedicasStores";
 import {
@@ -369,7 +333,7 @@ import ListadoPacientes from "./ListadoPacientes.vue";
 import PacienteActivoGraph from "src/components/PacienteActivoGraph.vue";
 import PacientesAggMensualmente from "src/components/PacientesAggMensualmente.vue";
 
-// Inicializo las tiendas
+// Inicialización de las tiendas
 const TiposPacientesStore = useTiposPacientesStore();
 const fichaIdentificacionStore = useFichaIdentificacionStore();
 const EstadoCivilStore = useEstadoCivilStore();
@@ -386,15 +350,13 @@ const { municipios } = storeToRefs(MunicipioStore);
 const { gruposSanguineos } = storeToRefs(GrupoSanguineoStore);
 const { escolaridades } = storeToRefs(EscolaridadStore);
 
-// Objeto reactivo para almacenar los datos del paciente
+// Objeto reactivo para almacenar los datos del paciente seleccionado
 const pacienteSeleccionado = reactive({
-  fechaRegistro: "", // Permitir que el usuario seleccione la fecha
+  fechaRegistro: "",
   codigo: "",
   activo: false,
   tipo: null,
   medico: "",
-  // medicoCabecera: null,
-  // referidoPor: "",
   dni: "",
   nombres: "",
   apellidos: "",
@@ -417,17 +379,100 @@ const pacienteSeleccionado = reactive({
   grupoSanguineo: "",
   alergias: "",
 });
-const formatFecha = (fecha) => {
-  return fecha instanceof Date
-    ? fecha.toLocaleDateString("en-CA") // Formato "yyyy-MM-dd"
-    : fecha;
-};
 
+// Computed para filtrar los municipios según el departamento seleccionado
+const filteredMunicipios = computed(() => {
+  if (!pacienteSeleccionado.departamento) return [];
+  return municipios.value.filter(
+    (municipio) =>
+      municipio.departamentoId === pacienteSeleccionado.departamento.id
+  );
+});
+
+// Watch para limpiar el municipio cuando cambia el departamento
+watch(
+  () => pacienteSeleccionado.departamento,
+  (nuevoDepartamento, antiguoDepartamento) => {
+    if (
+      antiguoDepartamento &&
+      nuevoDepartamento?.id !== antiguoDepartamento?.id
+    ) {
+      // Limpiar municipio solo si el departamento realmente cambió
+      pacienteSeleccionado.municipio = null;
+    }
+  }
+);
+// Control de pestañas
 const tab = ref("Pacientes");
 const subTabFichaIdentificacion = ref("infoTecnica");
+
+// Cambia a la pestaña `FichaIdentificacion` y asigna los datos del paciente seleccionado
 const cambiarTab = ({ tab: nuevaTab, paciente }) => {
   tab.value = nuevaTab;
-  pacienteSeleccionado.value = paciente ? { ...paciente } : {}; // Si no hay paciente, inicializa un objeto vacío
+
+  // Copiar todos los datos del paciente a pacienteSeleccionado
+  Object.assign(pacienteSeleccionado, paciente);
+
+  // Ajustar los campos `tipo`, `estadoCivil`, `departamento`, `municipio`, `escolaridad`, `grupoSanguineo`
+  const tipoPacienteSeleccionado = tpacientes.value.find(
+    (tipo) => tipo.id === paciente.tipoId
+  );
+  pacienteSeleccionado.tipo = tipoPacienteSeleccionado
+    ? {
+        id: tipoPacienteSeleccionado.id,
+        descripcion: tipoPacienteSeleccionado.descripcion,
+      }
+    : null;
+
+  const estadoCivilSeleccionado = estadosCiviles.value.find(
+    (estado) => estado.id === paciente.estadoCivilId
+  );
+  pacienteSeleccionado.estadoCivil = estadoCivilSeleccionado
+    ? {
+        id: estadoCivilSeleccionado.id,
+        descripcion: estadoCivilSeleccionado.descripcion,
+      }
+    : null;
+
+  const departamentoSeleccionado = departamentos.value.find(
+    (depto) => depto.id === paciente.departamentoId
+  );
+  pacienteSeleccionado.departamento = departamentoSeleccionado
+    ? {
+        id: departamentoSeleccionado.id,
+        descripcion: departamentoSeleccionado.descripcion,
+      }
+    : null;
+
+  const municipioSeleccionado = municipios.value.find(
+    (muni) => muni.id === paciente.municipioId
+  );
+  pacienteSeleccionado.municipio = municipioSeleccionado
+    ? {
+        id: municipioSeleccionado.id,
+        descripcion: municipioSeleccionado.descripcion,
+      }
+    : null;
+
+  const escolaridadSeleccionada = escolaridades.value.find(
+    (esc) => esc.id === paciente.escolaridadId
+  );
+  pacienteSeleccionado.escolaridad = escolaridadSeleccionada
+    ? {
+        id: escolaridadSeleccionada.id,
+        descripcion: escolaridadSeleccionada.descripcion,
+      }
+    : null;
+
+  const grupoSanguineoSeleccionado = gruposSanguineos.value.find(
+    (grupo) => grupo.id === paciente.grupoSanguineoId
+  );
+  pacienteSeleccionado.grupoSanguineo = grupoSanguineoSeleccionado
+    ? {
+        id: grupoSanguineoSeleccionado.id,
+        descripcion: grupoSanguineoSeleccionado.descripcion,
+      }
+    : null;
 };
 
 // Cargar datos al montar el componente
@@ -441,125 +486,98 @@ onMounted(async () => {
   await fichaIdentificacionStore.cargarDatos();
 });
 
-// Función para guardar el formulario en la tienda
+// Función para guardar los datos del formulario
 const guardarDatosFormulario = () => {
-  // Asegúrate de que las fechas tengan el formato correcto antes de guardar
-  pacienteSeleccionado.fechaRegistro = formatFecha(
-    pacienteSeleccionado.fechaRegistro
-  );
-  pacienteSeleccionado.fechaNacimiento = formatFecha(
-    pacienteSeleccionado.fechaNacimiento
-  );
-  // // Convierte `fechaRegistro` a Date si no está vacío
-  // if (pacienteSeleccionado.fechaRegistro) {
-  //   pacienteSeleccionado.fechaRegistro = new Date(
-  //     pacienteSeleccionado.fechaRegistro
-  //   );
-  // }
+  // Verificar si estamos editando un paciente existente (si tiene un id)
+  if (pacienteSeleccionado.id) {
+    console.log("Municipio seleccionado:", pacienteSeleccionado.municipio);
+    // Llamada a la función de actualización en lugar de crear un nuevo paciente
+    fichaIdentificacionStore.actualizarPaciente({
+      id: pacienteSeleccionado.id, // Pasar el id del paciente para actualizarlo
+      fechaRegistro: pacienteSeleccionado.fechaRegistro,
+      codigo: pacienteSeleccionado.codigo,
+      activo: pacienteSeleccionado.activo,
+      tipoId: pacienteSeleccionado.tipo?.id || null,
+      tipoDescripcion: pacienteSeleccionado.tipo?.descripcion || "",
 
-  // Extraer `id` y `descripcion` del tipo de paciente seleccionado
-  const tipoPacienteSeleccionado = tpacientes.value.find(
-    (d) =>
-      d.id ===
-      (typeof pacienteSeleccionado.tipo === "object"
-        ? pacienteSeleccionado.tipo.id
-        : pacienteSeleccionado.tipo)
-  );
-  const tipoId = tipoPacienteSeleccionado?.id || null;
-  const tipoDescripcion = tipoPacienteSeleccionado?.descripcion || "";
+      medico: pacienteSeleccionado.medico,
+      dni: pacienteSeleccionado.dni,
+      nombres: pacienteSeleccionado.nombres,
+      apellidos: pacienteSeleccionado.apellidos,
+      fechaNacimiento: pacienteSeleccionado.fechaNacimiento,
+      sexo: pacienteSeleccionado.sexo,
+      estadoCivilId: pacienteSeleccionado.estadoCivil?.id || null,
+      estadoCivilDescripcion:
+        pacienteSeleccionado.estadoCivil?.descripcion || "",
+      observaciones: pacienteSeleccionado.observaciones,
+      direccion: pacienteSeleccionado.direccion,
+      telCasa: pacienteSeleccionado.telCasa,
+      telPersonal: pacienteSeleccionado.telPersonal,
+      email: pacienteSeleccionado.email,
+      departamentoId: pacienteSeleccionado.departamento?.id || null,
+      departamentoDescripcion:
+        pacienteSeleccionado.departamento?.descripcion || "",
+      municipioId: pacienteSeleccionado.municipio?.id || null,
+      municipioDescripcion: pacienteSeleccionado.municipio?.descripcion || "",
+      organizacion: pacienteSeleccionado.organizacion,
+      conyugue: pacienteSeleccionado.conyugue,
+      madre: pacienteSeleccionado.madre,
+      padre: pacienteSeleccionado.padre,
+      escolaridadId: pacienteSeleccionado.escolaridad?.id || null,
+      escolaridadDescripcion:
+        pacienteSeleccionado.escolaridad?.descripcion || "",
+      ocupacion: pacienteSeleccionado.ocupacion,
+      grupoSanguineoId: pacienteSeleccionado.grupoSanguineo?.id || null,
+      grupoSanguineoDescripcion:
+        pacienteSeleccionado.grupoSanguineo?.descripcion || "",
+      alergias: pacienteSeleccionado.alergias,
+      vih: pacienteSeleccionado.vih ?? false,
+      tenant_id: pacienteSeleccionado.tenant_id,
+    });
+  } else {
+    // Crear un nuevo paciente si no hay id
+    fichaIdentificacionStore.guardarDatos({
+      fechaRegistro: pacienteSeleccionado.fechaRegistro,
+      codigo: pacienteSeleccionado.codigo,
+      activo: pacienteSeleccionado.activo,
+      tipoId: pacienteSeleccionado.tipo?.id || null,
+      tipoDescripcion: pacienteSeleccionado.tipo?.descripcion || "",
 
-  // Extraer `id` y `descripcion` del estado civil seleccionado
-  const estadoCivilSeleccionado = estadosCiviles.value.find(
-    (e) =>
-      e.id ===
-      (typeof pacienteSeleccionado.estadoCivil === "object"
-        ? pacienteSeleccionado.estadoCivil.id
-        : pacienteSeleccionado.estadoCivil)
-  );
-  const estadoCivilId = estadoCivilSeleccionado?.id || null;
-  const estadoCivilDescripcion = estadoCivilSeleccionado?.descripcion || "";
-
-  // Extraer `id` y `descripcion` del departamento seleccionado
-  const departamentoSeleccionado = departamentos.value.find(
-    (d) =>
-      d.id ===
-      (typeof pacienteSeleccionado.departamento === "object"
-        ? pacienteSeleccionado.departamento.id
-        : pacienteSeleccionado.departamento)
-  );
-  const departamentoId = departamentoSeleccionado?.id || null;
-  const departamentoDescripcion = departamentoSeleccionado?.descripcion || "";
-
-  // Extraer `id` y `descripcion` del municipio seleccionado
-  const municipioSeleccionado = municipios.value.find(
-    (m) =>
-      m.id ===
-      (typeof pacienteSeleccionado.municipio === "object"
-        ? pacienteSeleccionado.municipio.id
-        : pacienteSeleccionado.municipio)
-  );
-  const municipioId = municipioSeleccionado?.id || null;
-  const municipioDescripcion = municipioSeleccionado?.descripcion || "";
-
-  // Extraer `id` y `descripcion` de la escolaridad seleccionada
-  const escolaridadSeleccionada = escolaridades.value.find(
-    (s) =>
-      s.id ===
-      (typeof pacienteSeleccionado.escolaridad === "object"
-        ? pacienteSeleccionado.escolaridad.id
-        : pacienteSeleccionado.escolaridad)
-  );
-  const escolaridadId = escolaridadSeleccionada?.id || null;
-  const escolaridadDescripcion = escolaridadSeleccionada?.descripcion || "";
-
-  // Extraer `id` y `descripcion` del grupo sanguíneo seleccionado
-  const grupoSanguineoSeleccionado = gruposSanguineos.value.find(
-    (g) =>
-      g.id ===
-      (typeof pacienteSeleccionado.grupoSanguineo === "object"
-        ? pacienteSeleccionado.grupoSanguineo.id
-        : pacienteSeleccionado.grupoSanguineo)
-  );
-  const grupoSanguineoId = grupoSanguineoSeleccionado?.id || null;
-  const grupoSanguineoDescripcion =
-    grupoSanguineoSeleccionado?.descripcion || "";
-
-  // Guarda los datos en la tienda usando fichaIdentificacionStore
-  fichaIdentificacionStore.guardarDatos({
-    fechaRegistro: pacienteSeleccionado.fechaRegistro,
-    codigo: pacienteSeleccionado.codigo,
-    activo: pacienteSeleccionado.activo,
-    tipoId,
-    tipoDescripcion,
-    medico: pacienteSeleccionado.medico,
-    dni: pacienteSeleccionado.dni,
-    nombres: pacienteSeleccionado.nombres,
-    apellidos: pacienteSeleccionado.apellidos,
-    fechaNacimiento: pacienteSeleccionado.fechaNacimiento,
-    sexo: pacienteSeleccionado.sexo,
-    estadoCivilId,
-    estadoCivilDescripcion,
-    observaciones: pacienteSeleccionado.observaciones,
-    direccion: pacienteSeleccionado.direccion,
-    telCasa: pacienteSeleccionado.telCasa,
-    telPersonal: pacienteSeleccionado.telPersonal,
-    email: pacienteSeleccionado.email,
-    departamentoId,
-    departamentoDescripcion,
-    municipioId,
-    municipioDescripcion,
-    organizacion: pacienteSeleccionado.organizacion,
-    conyugue: pacienteSeleccionado.conyugue,
-    madre: pacienteSeleccionado.madre,
-    padre: pacienteSeleccionado.padre,
-    escolaridadId,
-    escolaridadDescripcion,
-    ocupacion: pacienteSeleccionado.ocupacion,
-    grupoSanguineoId,
-    grupoSanguineoDescripcion,
-    alergias: pacienteSeleccionado.alergias,
-    vih: pacienteSeleccionado.vih ?? false, // Asegura que `vih` tenga un valor predeterminado de `false` si está vacío
-  });
+      medico: pacienteSeleccionado.medico,
+      dni: pacienteSeleccionado.dni,
+      nombres: pacienteSeleccionado.nombres,
+      apellidos: pacienteSeleccionado.apellidos,
+      fechaNacimiento: pacienteSeleccionado.fechaNacimiento,
+      sexo: pacienteSeleccionado.sexo,
+      estadoCivilId: pacienteSeleccionado.estadoCivil?.id || null,
+      estadoCivilDescripcion:
+        pacienteSeleccionado.estadoCivil?.descripcion || "",
+      observaciones: pacienteSeleccionado.observaciones,
+      direccion: pacienteSeleccionado.direccion,
+      telCasa: pacienteSeleccionado.telCasa,
+      telPersonal: pacienteSeleccionado.telPersonal,
+      email: pacienteSeleccionado.email,
+      departamentoId: pacienteSeleccionado.departamento?.id || null,
+      departamentoDescripcion:
+        pacienteSeleccionado.departamento?.descripcion || "",
+      municipioId: pacienteSeleccionado.municipio?.id || null,
+      municipioDescripcion: pacienteSeleccionado.municipio?.descripcion || "",
+      organizacion: pacienteSeleccionado.organizacion,
+      conyugue: pacienteSeleccionado.conyugue,
+      madre: pacienteSeleccionado.madre,
+      padre: pacienteSeleccionado.padre,
+      escolaridadId: pacienteSeleccionado.escolaridad?.id || null,
+      escolaridadDescripcion:
+        pacienteSeleccionado.escolaridad?.descripcion || "",
+      ocupacion: pacienteSeleccionado.ocupacion,
+      grupoSanguineoId: pacienteSeleccionado.grupoSanguineo?.id || null,
+      grupoSanguineoDescripcion:
+        pacienteSeleccionado.grupoSanguineo?.descripcion || "",
+      alergias: pacienteSeleccionado.alergias,
+      vih: pacienteSeleccionado.vih ?? false,
+      tenant_id: pacienteSeleccionado.tenant_id,
+    });
+  }
 
   // Limpiar el formulario después de guardar
   Object.keys(pacienteSeleccionado).forEach((key) => {
