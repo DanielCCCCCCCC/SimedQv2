@@ -1,72 +1,75 @@
 <template>
-  <div>
-    <DxScheduler
-      :data-source="appointments"
-      time-zone="America/Los_Angeles"
-      :current-date="currentDate"
-      :height="600"
-      :show-all-day-panel="true"
-      :first-day-of-week="1"
-      :start-day-hour="8"
-      :end-day-hour="18"
-      current-view="month"
-      :ref="schedulerRefKey"
-    />
-    <DxButton class="bg-warning" text="Agregar tarea" @click="addAppointment" />
-  </div>
+  <DxScheduler
+    :data-source="appointments"
+    :current-view="'week'"
+    :current-date="currentDate"
+    :time-zone="'America/Tegucigalpa'"
+    :onAppointmentAdded="onAppointmentAdded"
+    :onAppointmentUpdated="onAppointmentUpdated"
+    :onAppointmentDeleted="onAppointmentDeleted"
+  >
+    <DxView type="day" />
+    <DxView type="week" />
+    <DxView type="month" />
+  </DxScheduler>
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from "vue";
-import { DxScheduler } from "devextreme-vue/scheduler";
-import { DxButton } from "devextreme-vue/button";
-import { useAppointmentsStore } from "src/stores/AppointmentsStore.js";
+<script>
+import { DxScheduler, DxView } from "devextreme-vue/scheduler";
+import { useAppointmentsStore } from "../stores/AppointmentsStore";
+import { onMounted, ref, computed } from "vue";
 
-// Referencia del componente DxScheduler
-const schedulerRefKey = "my-scheduler";
+export default {
+  components: { DxScheduler, DxView },
+  setup() {
+    const store = useAppointmentsStore();
+    const appointments = computed(() => store.appointments); // Usamos computed para que sea reactivo
+    const currentDate = ref(new Date());
 
-// Instancia de la tienda de Pinia
-const appointmentsStore = useAppointmentsStore();
+    onMounted(() => {
+      store.fetchAppointments();
+    });
 
-// Computed para obtener las citas desde la tienda reactivamente
-const appointments = computed(() => appointmentsStore.appointments);
+    const onAppointmentAdded = async (e) => {
+      try {
+        const newAppointment = {
+          title: e.appointmentData.text,
+          startDate: e.appointmentData.startDate, // Sin conversión a UTC
+          endDate: e.appointmentData.endDate, // Sin conversión a UTC
+          allDay: e.appointmentData.allDay,
+          repeat: e.appointmentData.repeat,
+          descripcion: e.appointmentData.description, // Cambiado a 'descripcion' si es necesario
+        };
+        await store.addAppointment(newAppointment);
+        console.log("Cita agregada exitosamente:", newAppointment);
+      } catch (error) {
+        console.error("Error al agregar la cita:", error);
+      }
+    };
 
-// Fecha actual para el calendario
-const currentDate = new Date();
+    const onAppointmentUpdated = async (e) => {
+      const updatedAppointment = {
+        title: e.newData.text,
+        startDate: new Date(e.newData.startDate).toISOString(),
+        endDate: new Date(e.newData.endDate).toISOString(),
+        allDay: e.newData.allDay,
+        repeat: e.newData.repeat,
+        descripcion: e.newData.description,
+      };
+      await store.updateAppointment(e.oldData.id, updatedAppointment);
+    };
 
-// Cargar citas almacenadas en la tienda cuando se monta el componente
-onMounted(() => {
-  if (!appointments.value.length) {
-    // Cargar citas desde localStorage si es necesario
-    const storedAppointments = JSON.parse(localStorage.getItem("appointments"));
-    if (storedAppointments) {
-      storedAppointments.forEach((app) =>
-        appointmentsStore.addAppointment(app)
-      );
-    }
-  }
-});
+    const onAppointmentDeleted = async (e) => {
+      await store.deleteAppointment(e.appointmentData.id);
+    };
 
-// Método para agregar una cita a la tienda
-function addAppointment() {
-  const newAppointment = {
-    id: Date.now(),
-    text: "Website Re-Design Plan",
-    startDate: new Date("2024-11-01T09:30:00.000Z"),
-    endDate: new Date("2024-11-01T11:30:00.000Z"),
-    description: "Revisión del diseño del sitio web",
-  };
-
-  appointmentsStore.addAppointment(newAppointment);
-
-  // Verificar si el DxScheduler necesita una actualización manual
-  if (scheduler.value) {
-    scheduler.value.instance.getDataSource().reload();
-  }
-}
-
-// Computed para acceder a la instancia de DxScheduler a través de la referencia
-const scheduler = computed(() => {
-  return schedulerRefKey && this.$refs[schedulerRefKey]?.instance;
-});
+    return {
+      appointments,
+      currentDate,
+      onAppointmentAdded,
+      onAppointmentUpdated,
+      onAppointmentDeleted,
+    };
+  },
+};
 </script>
