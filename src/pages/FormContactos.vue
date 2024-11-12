@@ -1,9 +1,9 @@
 <template>
   <q-page class="q-pa-md flex flex-center">
     <q-form
-      class="bg-grey-2 shadow-2 q-pa-md rounded-xl"
+      class="bg-grey-2 shadow-2 q-pa-md rounded-xl formS"
       style="max-width: 600px; width: 100%"
-      @submit.prevent="guardarContacto"
+      @submit.prevent="agregarContacto"
     >
       <h1 class="text-h4 text-sky-500 text-center q-mb-md uppercase">
         Agregar Contacto
@@ -158,7 +158,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from "vue";
+import { ref, reactive, computed, watch, onMounted } from "vue";
 import {
   useDepartamentoStore,
   useMunicipioStore,
@@ -166,7 +166,7 @@ import {
 import { useGruposContactosStore } from "src/stores/ConfiMedicasStores";
 import { useContactStore } from "../stores/ContacStores"; // Asegúrate de que la ruta es correcta
 import { storeToRefs } from "pinia";
-import { useQuasar, Notify } from "quasar";
+import { Notify } from "quasar";
 import ListadoContactos from "./ListadoContactos.vue";
 
 // Importar las tiendas
@@ -180,6 +180,13 @@ const { departamentos } = storeToRefs(departamentoStore);
 const { municipios } = storeToRefs(municipioStore);
 const { grupos } = storeToRefs(gruposContactosStore);
 
+// Cargar datos al montar el componente
+onMounted(async () => {
+  await gruposContactosStore.cargarGrupos();
+  await departamentoStore.cargarDepartamentos();
+  await municipioStore.cargarMunicipios();
+});
+
 // Datos del formulario
 const formData = reactive({
   Nombre: "",
@@ -188,7 +195,7 @@ const formData = reactive({
   Email: "",
   Grupo: "",
   TelefonoCasa: "",
-  Celular: "",
+  TelefonoPersonal: "",
   Observaciones: "",
   selectedDepartamento: null,
   selectedMunicipio: null,
@@ -270,42 +277,101 @@ const validarFormulario = () => {
 
   return isValid;
 };
-
 // Función para guardar el contacto en la tienda
-function guardarContacto() {
+async function agregarContacto() {
+  console.log("Iniciando validación del formulario...");
+
   if (!validarFormulario()) {
+    console.log("Validación fallida");
     return;
   }
 
-  // Validación básica
-  if (!formData.Nombre || !formData.Email) {
+  console.log("Formulario validado correctamente");
+
+  const GrupoId =
+    typeof formData.Grupo === "object" ? formData.Grupo.id : formData.Grupo;
+
+  const GrupoDescripcion =
+    typeof formData.Grupo === "object" ? formData.Grupo.descripcion : "";
+
+  const departamentoId =
+    typeof formData.selectedDepartamento === "object"
+      ? formData.selectedDepartamento.id
+      : formData.selectedDepartamento;
+
+  const departamentoDescripcion =
+    typeof formData.selectedDepartamento === "object"
+      ? formData.selectedDepartamento.descripcion
+      : "";
+
+  const municipioId =
+    typeof formData.selectedMunicipio === "object"
+      ? formData.selectedMunicipio.id
+      : formData.selectedMunicipio;
+
+  const municipioDescripcion =
+    typeof formData.selectedMunicipio === "object"
+      ? formData.selectedMunicipio.descripcion
+      : "";
+
+  const contactoInfo = {
+    nombre: formData.Nombre,
+    direccion: formData.Direccion,
+    organizacion: formData.Organizacion,
+    grupoId: GrupoId,
+    grupoDescripcion: GrupoDescripcion,
+    departamentoId: departamentoId,
+    departamentoDescripcion: departamentoDescripcion,
+    municipioId: municipioId,
+    municipioDescripcion: municipioDescripcion,
+    email: formData.Email,
+    telefonoCasa: formData.TelefonoCasa,
+    telefonoPersonal: formData.TelefonoPersonal,
+    observaciones: formData.Observaciones,
+  };
+
+  console.log("Datos preparados para agregar a la tienda:", contactoInfo);
+
+  // Llamada a la tienda para agregar el contacto
+  try {
+    await contactStore.agregarContacto({ ...contactoInfo });
+    console.log(
+      "Contacto guardado en la tienda exitosamente" + contactoInfo.value
+    );
+
+    // Limpiar el formulario después de guardar
+    Object.keys(formData).forEach((key) => {
+      formData[key] =
+        key === "selectedDepartamento" || key === "selectedMunicipio"
+          ? null
+          : "";
+    });
+
     Notify.create({
-      message: "Por favor, completa los campos requeridos",
+      message: "Contacto guardado exitosamente",
+      color: "green",
+      position: "top-right",
+    });
+  } catch (error) {
+    console.error("Error al guardar el contacto:", error);
+    Notify.create({
+      message: "Error al guardar el contacto",
       color: "red",
       position: "top-right",
     });
-    return;
   }
-
-  // Agregar el contacto a la tienda
-  contactStore.agregarContacto({ ...formData });
-
-  // Limpiar el formulario
-  Object.keys(formData).forEach((key) => {
-    formData[key] =
-      key === "selectedDepartamento" || key === "selectedMunicipio" ? null : "";
-  });
-
-  Notify.create({
-    message: "Contacto guardado exitosamente",
-    color: "green",
-    position: "top-right",
-  });
 }
 </script>
 
 <style scoped>
 .q-mb-sm {
   margin-bottom: 1em;
+}
+
+.formS {
+  border-top-left-radius: 40px; /* Esquina superior izquierda */
+  border-top-right-radius: 15px; /* Esquina superior derecha */
+  border-bottom-right-radius: 40px; /* Esquina inferior derecha */
+  border-bottom-left-radius: 25px; /* Esquina inferior izquierda */
 }
 </style>

@@ -3,7 +3,7 @@
     <h4 class="header-title">Hospitales</h4>
   </div>
   <div id="app-container" class="q-mb-xl">
-    <dx-data-grid
+    <DxDataGrid
       :data-source="hospitales"
       :allow-column-reordering="true"
       :show-borders="true"
@@ -11,71 +11,71 @@
       :row-alternation-enabled="true"
       key-expr="id"
     >
-      dx-scrolling mode="virtual" />
-      <dx-column-chooser :enabled="true" />
-      <dx-sorting mode="multiple" />
-      <dx-header-filter :visible="true" />
-      <dx-load-panel :show-pane="true" />
+      <DxScrolling mode="virtual" />
+      <DxColumnChooser :enabled="true" />
+      <DxSorting mode="multiple" />
+      <DxHeaderFilter :visible="true" />
+      <DxLoadPanel :show-pane="true" />
 
       <!-- Columnas con ordenamiento habilitado -->
-      <dx-column
+      <DxColumn
         data-field="nombre"
         caption="Nombre"
         :allow-sorting="true"
         min-width="150"
         width="180"
-      ></dx-column>
-      <dx-column
+      ></DxColumn>
+      <DxColumn
         data-field="direccion"
         caption="Dirección"
         :allow-sorting="true"
         min-width="150"
         width="140"
-      ></dx-column>
-      <dx-column
+      ></DxColumn>
+      <DxColumn
         data-field="departamentoDescripcion"
         caption="Departamento"
         :allow-sorting="true"
         min-width="100"
         width="130"
-      ></dx-column>
-      <dx-column
+      ></DxColumn>
+      <DxColumn
         data-field="municipioDescripcion"
         caption="Municipio"
         :allow-sorting="true"
         min-width="100"
         width="120"
-      ></dx-column>
-
-      <dx-column
+      ></DxColumn>
+      <DxColumn
         data-field="telefono"
         caption="Teléfono"
         :allow-sorting="true"
         min-width="100"
         width="100"
-      ></dx-column>
-      <dx-column
+      ></DxColumn>
+      <DxColumn
         data-field="email"
         caption="Email"
         :allow-sorting="true"
         min-width="100"
         width="160"
-      ></dx-column>
-      <dx-column
+      ></DxColumn>
+      <DxColumn
         data-field="web"
         caption="Sitio Web"
         :allow-sorting="true"
         min-width="100"
         width="150"
-      ></dx-column>
+      ></DxColumn>
 
-      <dx-column type="buttons">
-        <dx-button name="edit" icon="edit" />
-        <dx-button name="delete" icon="trash" />
-      </dx-column>
+      <!-- Botones de acción para editar y eliminar -->
+      <DxColumn type="buttons">
+        <DxButton name="edit" icon="edit" />
+        <DxButton name="delete" icon="trash" />
+      </DxColumn>
 
-      <!-- Configuración de edición de datos con título en la ventana modal -->
-      <dx-editing
+      <!-- Configuración de edición de datos con ventana modal -->
+      <DxEditing
         mode="popup"
         :allow-updating="true"
         :allow-adding="true"
@@ -89,10 +89,10 @@
       />
 
       <!-- Paginación y filtros -->
-      <dx-paging :enabled="true" :page-size="10" />
-      <dx-filter-row :visible="true" />
-      <dx-header-filter :visible="true" />
-    </dx-data-grid>
+      <DxPaging :enabled="true" :page-size="10" />
+      <DxFilterRow :visible="true" />
+      <DxHeaderFilter :visible="true" />
+    </DxDataGrid>
   </div>
 </template>
 
@@ -106,6 +106,9 @@ import {
   DxEditing,
   DxButton,
   DxColumnChooser,
+  DxScrolling,
+  DxSorting,
+  DxLoadPanel,
 } from "devextreme-vue/data-grid";
 import { useHospitalStore } from "../stores/DirectoriosStores";
 import { storeToRefs } from "pinia";
@@ -121,6 +124,9 @@ export default {
     DxEditing,
     DxButton,
     DxColumnChooser,
+    DxScrolling,
+    DxSorting,
+    DxLoadPanel,
   },
   setup() {
     const hospitalStore = useHospitalStore();
@@ -139,14 +145,14 @@ export default {
 #app-container {
   padding: 0 4px;
   background-color: #f9f9f9;
-  width: 100%; /* Ajuste para que ocupe el 100% del ancho disponible */
+  width: 100%;
 }
 
 .custom-data-grid {
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%; /* Hacer que el DataGrid ocupe el 100% del ancho del contenedor */
+  width: 100%;
 }
 
 .header-title {

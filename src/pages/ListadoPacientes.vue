@@ -1,10 +1,10 @@
 <template>
   <div class="view-wrapper list-page view-wrapper-paciente-list">
-    <dx-data-grid
+    <DxDataGrid
       ref="dataGrid"
       :data-source="formIdentificacion"
       :allow-column-reordering="true"
-      :rowAlternationEnabled="true"
+      :row-alternation-enabled="true"
       :focused-row-enabled="true"
       :focused-row-key="focusedRowKey"
       :key-expr="'id'"
@@ -21,32 +21,32 @@
       />
 
       <!-- Opciones -->
-      <dx-scrolling mode="virtual" />
-      <dx-column-chooser :enabled="true" />
-      <dx-sorting mode="multiple" />
-      <dx-header-filter :visible="true" />
-      <dx-load-panel :show-pane="true" />
+      <DxScrolling mode="virtual" />
+      <DxColumnChooser :enabled="true" />
+      <DxSorting mode="multiple" />
+      <DxHeaderFilter :visible="true" />
+      <DxLoadPanel :show-pane="true" />
 
-      <dx-selection
+      <DxSelection
         select-all-mode="allPages"
         show-check-boxes-mode="always"
         mode="multiple"
       />
-      <dx-search-panel
+      <DxSearchPanel
         :width="300"
         :visible="true"
         placeholder="Buscar Paciente"
       />
 
       <!-- Columnas -->
-      <dx-column
+      <DxColumn
         data-field="medico"
         caption="Médico"
         :min-width="120"
         :width="160"
         :visible="true"
       />
-      <dx-column
+      <DxColumn
         data-field="codigo"
         caption="Código"
         :allow-editing="false"
@@ -54,7 +54,7 @@
         :width="110"
         :visible="true"
       />
-      <dx-column
+      <DxColumn
         data-field="nombres"
         caption="Nombre"
         sort-order="asc"
@@ -62,7 +62,7 @@
         :width="160"
         :visible="true"
       />
-      <dx-column
+      <DxColumn
         data-field="apellidos"
         caption="Apellidos"
         sort-order="asc"
@@ -70,7 +70,7 @@
         :width="160"
         :visible="true"
       />
-      <dx-column
+      <DxColumn
         data-field="fechaNacimiento"
         caption="F. Nacimiento"
         data-type="date"
@@ -78,27 +78,28 @@
         :width="125"
         :visible="false"
       />
-      <dx-column
+      <DxColumn
         data-field="municipioDescripcion"
         caption="Municipio"
         :width="120"
         :visible="false"
       />
-      <dx-column
+      <DxColumn
         data-field="tipoDescripcion"
         caption="Tipo"
         :width="100"
         :visible="true"
       />
-      <dx-column data-field="dni" caption="DNI" :width="140" :visible="true" />
-      <dx-column
+      <DxColumn data-field="dni" caption="DNI" :width="140" :visible="true" />
+      <DxColumn
         data-field="email"
         caption="E-mail"
         :width="150"
         :visible="false"
       />
+      <!-- <DxCheckBox v-model="checked" text="Active" /> -->
 
-      <dx-column
+      <DxColumn
         data-field="activo"
         caption="Activo"
         data-type="boolean"
@@ -112,108 +113,103 @@
             @value-changed="onCheckboxChange(data)"
           />
         </template>
-      </dx-column>
+      </DxColumn>
 
-      <dx-column
+      <DxColumn
         data-field="medicoCabecera"
         caption="Médico Cabecera"
         :width="150"
         :visible="false"
       />
-      <dx-column
+      <DxColumn
         data-field="referidoPor"
         caption="Referido por"
         :width="130"
         :visible="false"
       />
 
-      <dx-column
-        data-field="sexo"
-        caption="Sexo"
-        :width="80"
-        :visible="false"
-      />
-      <dx-column
+      <DxColumn data-field="sexo" caption="Sexo" :width="80" :visible="false" />
+      <DxColumn
         data-field="estadoCivilDescripcion"
         caption="Estado Civil"
         :width="100"
         :visible="false"
       />
-      <dx-column
+      <DxColumn
         data-field="observaciones"
         caption="Observaciones"
         :width="150"
         :visible="false"
       />
-      <dx-column
+      <DxColumn
         data-field="direccion"
         caption="Dirección"
         :width="150"
         :visible="false"
       />
 
-      <dx-column
+      <DxColumn
         data-field="telCasa"
         caption="Teléfono Casa"
         :width="100"
         :visible="false"
       />
-      <dx-column
+      <DxColumn
         data-field="telPersonal"
         caption="Teléfono Personal"
         :width="120"
         :visible="false"
       />
 
-      <dx-column
+      <DxColumn
         data-field="departamentoDescripcion"
         caption="Departamento"
         :width="120"
         :visible="false"
       />
-      <dx-column
+      <DxColumn
         data-field="organizacion"
         caption="Organización"
         :width="120"
         :visible="false"
       />
-      <dx-column
+      <DxColumn
         data-field="conyugue"
         caption="Cónyugue"
         :width="120"
         :visible="false"
       />
-      <dx-column
+      <DxColumn
         data-field="madre"
         caption="Madre"
         :width="120"
         :visible="false"
       />
-      <dx-column
+      <DxColumn
         data-field="padre"
         caption="Padre"
         :width="120"
         :visible="false"
       />
-      <dx-column
+      <DxColumn
         data-field="escolaridad"
         caption="Escolaridad"
         :width="120"
         :visible="false"
       />
-      <dx-column
+      <DxColumn
         data-field="ocupacion"
         caption="Ocupación"
         :width="120"
         :visible="false"
       />
-      <dx-column
+      <DxColumn
         data-field="grupoSanguineoDescripcion"
         caption="Grupo Sanguíneo"
         :width="100"
         :visible="false"
       />
-      <dx-column
+      <DxColumn
         data-field="alergias"
         caption="Alergias"
         :width="150"
@@ -221,15 +217,15 @@
       />
       <DxColumn type="buttons">
         <DxButton name="edit" icon="edit" @click="onEditButtonClick" />
-        <DxButton name="delete" icon="trash" />
+        <DxButton name="delete" icon="trash" @click="onDeleteButtonClick" />
       </DxColumn>
-    </dx-data-grid>
+    </DxDataGrid>
 
     <!-- Panel de Paciente al lado derecho -->
     <transition name="slide-fade">
       <div v-if="isPanelOpened" class="paciente-info-panel">
         <button class="close-button" @click="onClose">&times;</button>
-        <paciente-panel :paciente="panelData" @close="onClose" />
+        <PacientePanel :paciente="panelData" @close="onClose" />
       </div>
     </transition>
   </div>
@@ -270,8 +266,6 @@ export default {
     PacientePanel,
     DxEditing,
     DxButton,
-
-    // DxCheckBox,
   },
   props: {
     activeTab: {
@@ -293,7 +287,6 @@ export default {
     };
 
     const onCheckboxChange = (data) => {
-      // Actualiza el estado del checkbox en la tienda o base de datos según sea necesario
       fichaIdentificacionStore.updateActivo(data.id, data.activo);
     };
 
@@ -307,6 +300,7 @@ export default {
     return {
       formIdentificacion,
       responsiveWidth,
+      fichaIdentificacionStore, // Devolvemos la tienda para acceder desde `methods`
       onEditButtonClick,
       onCheckboxChange,
     };
@@ -319,6 +313,26 @@ export default {
     };
   },
   methods: {
+    onDeleteButtonClick(e) {
+      const id = e.row.data.id;
+      this.fichaIdentificacionStore // Ahora `fichaIdentificacionStore` está disponible en `this`
+        .eliminarPaciente(id)
+        .then(() => {
+          this.$q.notify({
+            message: "Paciente eliminado exitosamente",
+            color: "positive",
+            position: "top-right",
+          });
+        })
+        .catch((error) => {
+          console.error("Error al eliminar el paciente:", error);
+          this.$q.notify({
+            message: "Error al eliminar el paciente",
+            color: "negative",
+            position: "top-right",
+          });
+        });
+    },
     renderTipo(data) {
       return data.value ? data.value.descripcion : "";
     },

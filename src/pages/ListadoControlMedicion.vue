@@ -3,7 +3,7 @@
     <h4 class="header-title">Controles de Medición</h4>
   </div>
   <div id="app-container" class="q-mb-xl">
-    <dx-data-grid
+    <DxDataGrid
       :data-source="controles"
       :allow-column-reordering="true"
       :show-borders="true"
@@ -11,29 +11,29 @@
       :row-alternation-enabled="true"
       key-expr="id"
     >
-      <dx-scrolling mode="virtual" />
-      <dx-column-chooser :enabled="true" />
-      <dx-sorting mode="multiple" />
-      <dx-header-filter :visible="true" />
-      <dx-load-panel :show-pane="true" />
+      <DxScrolling mode="virtual" />
+      <DxColumnChooser :enabled="true" />
+      <DxSorting mode="multiple" />
+      <DxHeaderFilter :visible="true" />
+      <DxLoadPanel :show-pane="true" />
 
       <!-- Columna para descripción del control -->
-      <dx-column
+      <DxColumn
         data-field="descripcion"
         caption="Descripción del Control"
         :allow-sorting="true"
         min-width="150"
         width="200"
-      ></dx-column>
+      ></DxColumn>
 
       <!-- Botones de acción -->
-      <dx-column type="buttons">
-        <dx-button name="edit" icon="edit" />
-        <dx-button name="delete" icon="trash" />
-      </dx-column>
+      <DxColumn type="buttons">
+        <DxButton name="edit" icon="edit" />
+        <DxButton name="delete" icon="trash" @click="onDeleteButtonClick" />
+      </DxColumn>
 
       <!-- Configuración de edición -->
-      <dx-editing
+      <DxEditing
         mode="popup"
         :allow-updating="true"
         :allow-adding="true"
@@ -47,10 +47,10 @@
       />
 
       <!-- Paginación y filtros -->
-      <dx-paging :enabled="true" :page-size="10" />
-      <dx-filter-row :visible="true" />
-      <dx-header-filter :visible="true" />
-    </dx-data-grid>
+      <DxPaging :enabled="true" :page-size="10" />
+      <DxFilterRow :visible="true" />
+      <DxHeaderFilter :visible="true" />
+    </DxDataGrid>
   </div>
 </template>
 
@@ -64,10 +64,14 @@ import {
   DxEditing,
   DxButton,
   DxColumnChooser,
+  DxScrolling,
+  DxSorting,
+  DxLoadPanel,
 } from "devextreme-vue/data-grid";
 import { useControlesMedicionStore } from "../stores/DiagnosticosStores";
 import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
+import { Notify } from "quasar";
 
 export default {
   components: {
@@ -79,19 +83,45 @@ export default {
     DxEditing,
     DxButton,
     DxColumnChooser,
+    DxScrolling,
+    DxSorting,
+    DxLoadPanel,
   },
   setup() {
     const controlesStore = useControlesMedicionStore();
     const { controles } = storeToRefs(controlesStore);
+
+    const onDeleteButtonClick = async (e) => {
+      const id = e.row.data.id;
+      try {
+        await controlesStore.eliminarControl(id);
+        Notify.create({
+          message: "Control eliminado exitosamente",
+          color: "positive",
+          position: "top-right",
+        });
+      } catch (error) {
+        console.error("Error al eliminar el control:", error);
+        Notify.create({
+          message: "Error al eliminar el control",
+          color: "negative",
+          position: "top-right",
+        });
+      }
+    };
+
     onMounted(async () => {
       await controlesStore.cargarControles();
     });
+
     return {
       controles,
+      onDeleteButtonClick,
     };
   },
 };
 </script>
+
 <style scoped>
 #app-container {
   padding: 0 4px;

@@ -1,7 +1,7 @@
 <template>
-  <q-page class="q-pa-md flex flex-center" style="margin-top: -35px">
+  <q-page class="q-pa-md flex flex-center">
     <q-form
-      class="bg-grey-1 shadow-2 q-pa-md rounded-xl"
+      class="bg-grey-1 shadow-2 q-pa-md rounded-xl formS"
       style="max-width: 550px; width: 100%"
       @submit.prevent="guardarMedico"
     >
@@ -18,22 +18,22 @@
 
         <div class="col-12 col-md-9">
           <q-input
-            v-model="formData.Nombre"
+            v-model="formData.nombre"
             label="Nombre"
             outlined
             dense
             style="font-size: 14px; height: auto"
-            :error="!!formErrors.Nombre"
-            :error-message="formErrors.Nombre"
+            :error="!!formErrors.nombre"
+            :error-message="formErrors.nombre"
           />
           <q-input
-            v-model="formData.Direccion"
+            v-model="formData.direccion"
             label="Dirección"
             outlined
             dense
             style="font-size: 14px; height: auto"
-            :error="!!formErrors.Direccion"
-            :error-message="formErrors.Direccion"
+            :error="!!formErrors.direccion"
+            :error-message="formErrors.direccion"
           />
           <q-select
             v-model="formData.especialidadesSeleccionadas"
@@ -45,8 +45,8 @@
             outlined
             dense
             style="font-size: 14px; height: auto"
-            :error="!!formErrors.Especialidad"
-            :error-message="formErrors.Especialidad"
+            :error="!!formErrors.especialidadesSeleccionadas"
+            :error-message="formErrors.especialidadesSeleccionadas"
           />
         </div>
       </div>
@@ -54,26 +54,26 @@
       <div class="row q-col-gutter-sm">
         <div class="col-12 col-md-6">
           <q-input
-            v-model="formData.Telefono"
+            v-model="formData.telefonoPersonal"
             label="Teléfono"
             outlined
             mask="####-####"
             dense
             style="font-size: 14px; height: auto"
-            :error="!!formErrors.Telefono"
-            :error-message="formErrors.Telefono"
+            :error="!!formErrors.telefonoPersonal"
+            :error-message="formErrors.telefonoPersonal"
           />
         </div>
         <div class="col-12 col-md-6">
           <q-input
-            v-model="formData.Celular"
-            label="Celular"
+            v-model="formData.telefonoCasa"
+            label="telefonoCasa"
             outlined
             mask="####-####"
             dense
             style="font-size: 14px; height: auto"
-            :error="!!formErrors.Celular"
-            :error-message="formErrors.Celular"
+            :error="!!formErrors.telefonoCasa"
+            :error-message="formErrors.telefonoCasa"
           />
         </div>
       </div>
@@ -81,14 +81,14 @@
       <div class="row q-col-gutter-sm">
         <div class="col-12 col-md-6">
           <q-input
-            v-model="formData.Email"
+            v-model="formData.email"
             label="Email"
             type="email"
             outlined
             dense
             style="font-size: 14px; height: auto"
-            :error="!!formErrors.Email"
-            :error-message="formErrors.Email"
+            :error="!!formErrors.email"
+            :error-message="formErrors.email"
           />
         </div>
       </div>
@@ -107,10 +107,9 @@
     </div>
   </q-page>
 </template>
-
 <script setup>
-import { reactive } from "vue";
-import { useQuasar, Notify } from "quasar";
+import { reactive, onMounted } from "vue";
+import { Notify } from "quasar";
 import { storeToRefs } from "pinia";
 
 import { useMedicoStore } from "../stores/MedicoStores";
@@ -118,51 +117,63 @@ import ListadoMedicos from "./ListadoMedicos.vue";
 import { useEspecialidadMedicaStore } from "../stores/ConfiMedicasStores";
 
 const medicoStore = useMedicoStore();
-const EspecialidadMedicaStore = useEspecialidadMedicaStore();
-const { especialidades } = storeToRefs(EspecialidadMedicaStore);
+const especialidadMedicaStore = useEspecialidadMedicaStore();
+const { especialidades } = storeToRefs(especialidadMedicaStore);
+
+// Cargar datos al montar el componente
+onMounted(async () => {
+  await especialidadMedicaStore.cargarEspecialidades(); // Corrección aquí
+});
 
 const formData = reactive({
-  Nombre: "",
-  Direccion: "",
+  nombre: "",
+  direccion: "",
   especialidadesSeleccionadas: "",
-  Telefono: "",
-  Celular: "",
-  Email: "",
+  telefonoPersonal: "",
+  telefonoCasa: "",
+  email: "",
 });
 
 const formErrors = reactive({
-  Nombre: "",
-  Direccion: "",
-  Especialidad: "",
-  Telefono: "",
-  Celular: "",
-  Email: "",
+  nombre: "",
+  direccion: "",
+  especialidadesSeleccionadas: "",
+  telefonoPersonal: "",
+  telefonoCasa: "",
+  email: "",
 });
 
 const validarFormulario = () => {
   let isValid = true;
 
-  formErrors.Nombre = !formData.Nombre ? "El nombre es obligatorio" : "";
-  formErrors.Direccion = !formData.Direccion
+  // Validaciones de campos requeridos
+  formErrors.nombre = !formData.nombre ? "El nombre es obligatorio" : "";
+  formErrors.direccion = !formData.direccion
     ? "La dirección es obligatoria"
     : "";
-  formErrors.Especialidad = !formData.especialidadesSeleccionadas
+  formErrors.especialidadesSeleccionadas = !formData.especialidadesSeleccionadas
     ? "Seleccione una especialidad"
     : "";
-  formErrors.Telefono =
-    formData.Telefono && formData.Telefono.length === 9
+
+  // Validaciones de formato de teléfono
+  formErrors.telefonoPersonal =
+    formData.telefonoPersonal && formData.telefonoPersonal.length === 9
       ? ""
       : "El teléfono debe tener el formato ####-####";
-  formErrors.Celular =
-    formData.Celular && formData.Celular.length === 9
+  formErrors.telefonoCasa =
+    formData.telefonoCasa && formData.telefonoCasa.length === 9
       ? ""
-      : "El celular debe tener el formato ####-####";
-  formErrors.Email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.Email)
+      : "El teléfono de casa debe tener el formato ####-####";
+
+  // Validación de formato de correo electrónico
+  formErrors.email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
     ? ""
     : "Ingrese un email válido";
 
+  // Comprobación de errores
   isValid = Object.values(formErrors).every((error) => error === "");
 
+  // Mostrar notificación si hay errores
   if (!isValid) {
     Notify.create({
       message: "Por favor, corrija los errores en el formulario",
@@ -174,9 +185,29 @@ const validarFormulario = () => {
   return isValid;
 };
 
-function guardarMedico() {
+async function guardarMedico() {
   if (validarFormulario()) {
-    medicoStore.agregarMedico({ ...formData });
+    const especialidadId =
+      typeof formData.especialidadesSeleccionadas === "object"
+        ? formData.especialidadesSeleccionadas.id
+        : formData.especialidadesSeleccionadas;
+    const especialidadDescripcion =
+      typeof formData.especialidadesSeleccionadas === "object"
+        ? formData.especialidadesSeleccionadas.descripcion
+        : ""; // Si no es un objeto, asigna una cadena vacía o el valor predeterminado
+
+    const medicoInfo = {
+      nombre: formData.nombre,
+      direccion: formData.direccion,
+      especialidadId: especialidadId,
+      especialidadDescripcion: especialidadDescripcion,
+
+      telefonoPersonal: formData.telefonoPersonal,
+      telefonoCasa: formData.telefonoCasa,
+      email: formData.email,
+    };
+
+    await medicoStore.agregarMedico({ ...medicoInfo });
 
     Object.keys(formData).forEach((key) => {
       formData[key] = "";
@@ -198,17 +229,25 @@ function guardarMedico() {
 
 .form-avatar {
   background-color: #acb5c7;
-  background-image: url("images/petersmith.png");
   background-size: cover;
   background-position: center;
   border-radius: 50%;
 }
 
 .q-form {
-  background-color: #042958;
+  background-color: #0f6eea;
+  margin-top: 10px;
+  margin-bottom: -40px;
 }
 
 .q-btn {
   font-weight: bold;
+}
+
+.formS {
+  border-top-left-radius: 40px; /* Esquina superior izquierda */
+  border-top-right-radius: 15px; /* Esquina superior derecha */
+  border-bottom-right-radius: 40px; /* Esquina inferior derecha */
+  border-bottom-left-radius: 25px; /* Esquina inferior izquierda */
 }
 </style>

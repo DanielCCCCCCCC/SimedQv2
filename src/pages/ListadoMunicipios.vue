@@ -23,6 +23,12 @@
         <DxRequiredRule />
       </DxColumn>
 
+      <!-- Columna de botones de acción -->
+      <DxColumn type="buttons">
+        <DxButton name="edit" />
+        <DxButton name="delete" />
+      </DxColumn>
+
       <DxColumnChooser :enabled="true" />
       <DxColumnFixing :enabled="true" />
       <DxFilterRow :visible="true" />
@@ -31,8 +37,7 @@
       <DxSummary>
         <DxGroupItem summary-type="count" displayFormat="{0} municipios" />
       </DxSummary>
-      <!-- Cambiado a auto-expand-all="false" -->
-      <DxGrouping :auto-expand-all="false" />
+      <DxGrouping :auto-expand-all="expanded" />
       <DxToolbar>
         <DxItem name="groupPanel" />
         <DxItem location="after" template="button-template" />
@@ -41,11 +46,11 @@
         <DxItem name="searchPanel" />
       </DxToolbar>
       <template #button-template>
-        <!-- <DxButton
-          :text="expanded ? 'Collapse All' : 'Expand All'"
+        <DxButton
+          :text="expanded ? 'Contraer Todo' : 'Expandir Todo'"
           :width="136"
           @click="toggleExpand"
-        /> -->
+        />
       </template>
       <DxExport :enabled="true" :formats="['xlsx', 'pdf']" />
     </DxDataGrid>
@@ -89,19 +94,19 @@ export default {
     DxGrouping,
     DxToolbar,
     DxItem,
-    // DxExport,
-    // DxButton,
+    DxButton,
   },
   setup() {
     const municipioStore = useMunicipioStore();
     const { municipios } = storeToRefs(municipioStore);
-    const expanded = ref(false); // Inicialmente en false para mantener los grupos contraídos
+    const expanded = ref(false);
 
     // Cargar municipios cuando el componente se monta
     onMounted(async () => {
       await municipioStore.cargarMunicipios();
     });
 
+    // Alternar el estado expandido
     const toggleExpand = () => {
       expanded.value = !expanded.value;
     };
@@ -112,48 +117,21 @@ export default {
       toggleExpand,
     };
   },
-  methods: {
-    exportGrid(e) {
-      if (e.format === "xlsx") {
-        const workbook = new Workbook();
-        const worksheet = workbook.addWorksheet("Main sheet");
-        exportDataGrid({
-          worksheet: worksheet,
-          component: e.component,
-        }).then(function () {
-          workbook.xlsx.writeBuffer().then(function (buffer) {
-            saveAs(
-              new Blob([buffer], { type: "application/octet-stream" }),
-              "DataGrid.xlsx"
-            );
-          });
-        });
-        e.cancel = true;
-      } else if (e.format === "pdf") {
-        const doc = new jsPDF();
-        exportDataGridToPdf({
-          jsPDFDocument: doc,
-          component: e.component,
-        }).then(() => {
-          doc.save("DataGrid.pdf");
-        });
-      }
-    },
-  },
 };
 </script>
+
 <style scoped>
 #app-container {
   padding: 0 4px;
   background-color: #f9f9f9;
-  width: 100%; /* Ajuste para que ocupe el 100% del ancho disponible */
+  width: 100%;
 }
 
 .custom-data-grid {
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%; /* Hacer que el DataGrid ocupe el 100% del ancho del contenedor */
+  width: 100%;
 }
 
 .header-title {

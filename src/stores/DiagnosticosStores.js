@@ -51,20 +51,18 @@ export const useClasificacionDiagnosticosStore = defineStore(
       }
     };
 
-    const eliminarUltimaClasificacion = async () => {
-      const ultimaClasificacion =
-        clasificaciones.value[clasificaciones.value.length - 1];
-      if (!ultimaClasificacion) return;
-
+    const eliminarClasificacion = async (id) => {
       const { error } = await supabase
         .from("clasificacionDiagnosticos")
         .delete()
-        .eq("id", ultimaClasificacion.id);
+        .eq("id", id);
 
       if (error) {
         console.error("Error al eliminar la clasificación:", error);
       } else {
-        clasificaciones.value.pop();
+        clasificaciones.value = clasificaciones.value.filter(
+          (clasificacion) => clasificacion.id !== id
+        );
         saveToLocalStorage("clasificaciones", clasificaciones.value);
       }
     };
@@ -75,7 +73,7 @@ export const useClasificacionDiagnosticosStore = defineStore(
       clasificaciones,
       cargarClasificaciones,
       agregarClasificacion,
-      eliminarUltimaClasificacion,
+      eliminarClasificacion,
     };
   }
 );
@@ -120,19 +118,15 @@ export const useDiagnosticosStore = defineStore("diagnosticos", () => {
     }
   };
 
-  const eliminarUltimoDiagnostico = async () => {
-    const ultimoDiagnostico = diagnosticos.value[diagnosticos.value.length - 1];
-    if (!ultimoDiagnostico) return;
-
-    const { error } = await supabase
-      .from("diagnosticos")
-      .delete()
-      .eq("id", ultimoDiagnostico.id);
+  const eliminarDiagnostico = async (id) => {
+    const { error } = await supabase.from("diagnosticos").delete().eq("id", id);
 
     if (error) {
       console.error("Error al eliminar el diagnóstico:", error);
     } else {
-      diagnosticos.value.pop();
+      diagnosticos.value = diagnosticos.value.filter(
+        (diagnostico) => diagnostico.id !== id
+      );
       saveToLocalStorage("diagnosticos", diagnosticos.value);
     }
   };
@@ -143,7 +137,7 @@ export const useDiagnosticosStore = defineStore("diagnosticos", () => {
     diagnosticos,
     cargarDiagnosticos,
     agregarDiagnostico,
-    eliminarUltimoDiagnostico,
+    eliminarDiagnostico, // Agregamos la nueva función aquí
   };
 });
 
@@ -182,30 +176,25 @@ export const useControlesMedicionStore = defineStore(
       }
     };
 
-    const eliminarUltimoControl = async () => {
-      const ultimoControl = controles.value[controles.value.length - 1];
-      if (!ultimoControl) return;
-
-      const { error } = await supabase
-        .from("controles")
-        .delete()
-        .eq("id", ultimoControl.id);
+    const eliminarControl = async (id) => {
+      const { error } = await supabase.from("controles").delete().eq("id", id);
 
       if (error) {
         console.error("Error al eliminar el control:", error);
       } else {
-        controles.value.pop();
+        controles.value = controles.value.filter(
+          (control) => control.id !== id
+        );
         saveToLocalStorage("controles", controles.value);
       }
     };
-
     onMounted(cargarControles);
 
     return {
       controles,
       cargarControles,
       agregarControl,
-      eliminarUltimoControl,
+      eliminarControl,
     };
   }
 );

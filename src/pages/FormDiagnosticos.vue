@@ -21,7 +21,6 @@
       <!-- Pestaña: Clasificación de Diagnósticos -->
       <q-tab-panel name="ClasificacionDiagnosticos">
         <q-col cols="3">
-          <!-- Formulario -->
           <q-card
             class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card"
           >
@@ -58,12 +57,6 @@
             <ListadoClasificacionDiagnostico />
           </div>
         </q-col>
-
-        <!-- <q-col cols="9">
-          <q-card class="q-pa-md q-mt-md bg-grey-1 rounded shadow-2xl">
-            <ListadoClasificacionDiagnostico />
-          </q-card>
-        </q-col> -->
       </q-tab-panel>
 
       <!-- Pestaña: Diagnósticos -->
@@ -211,7 +204,7 @@ onMounted(() => {
   controlesMedicionStore.cargarControles();
 });
 
-// Funciones de guardar
+// Funciones de guardar y eliminar
 const guardarClasificacion = () => {
   formErrors.clasificacionNombre = "";
   if (!clasificacionData.nombre) {
@@ -227,6 +220,7 @@ const guardarClasificacion = () => {
     color: "positive",
   });
 };
+
 const guardarDiagnostico = async () => {
   formErrors.diagnosticoDescripcion = "";
   formErrors.diagnosticoClasificacion = "";
@@ -242,28 +236,17 @@ const guardarDiagnostico = async () => {
     return;
   }
 
-  // Extraer el `id` y `descripcion` de la clasificación seleccionada
-  const clasificacionId =
-    typeof diagnosticoData.clasificacion === "object"
-      ? Number(diagnosticoData.clasificacion.id)
-      : Number(diagnosticoData.clasificacion);
-
   const clasificacionSeleccionada = opcionesClasificaciones.value.find(
-    (clasificacion) => clasificacion.id === clasificacionId
+    (clasificacion) =>
+      clasificacion.id === Number(diagnosticoData.clasificacion)
   );
-  const clasificacionDescripcion = clasificacionSeleccionada
-    ? clasificacionSeleccionada.label
-    : "";
 
   try {
-    // Llamar a la store para agregar el diagnóstico con `clasificacionDescripcion`
     await diagnosticosStore.agregarDiagnostico(
       diagnosticoData.descripcion,
-      clasificacionId,
-      clasificacionDescripcion
+      diagnosticoData.clasificacion,
+      clasificacionSeleccionada.label
     );
-
-    // Limpiar los campos después de guardar
     diagnosticoData.descripcion = "";
     diagnosticoData.clasificacion = null;
     Notify.create({

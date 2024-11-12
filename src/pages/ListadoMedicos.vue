@@ -3,53 +3,52 @@
     <h4 class="header-title">Médicos Existentes</h4>
   </div>
   <div id="app-container" class="q-mb-xl q-px-md q-pa-xs q-py-md">
-    <dx-data-grid
+    <DxDataGrid
       :data-source="medicosConEspecialidad"
       :allow-column-reordering="true"
-      :rowAlternationEnabled="true"
-      :show-borders="true"
       :row-alternation-enabled="true"
+      :show-borders="true"
       key-expr="id"
       :column-auto-width="false"
       :column-min-width="50"
       :width="responsiveWidth"
     >
       <!-- Columnas con ordenamiento habilitado -->
-      <dx-column
-        data-field="Nombre"
+      <DxColumn
+        data-field="nombre"
         caption="Nombre Completo"
         :allow-sorting="true"
-      ></dx-column>
-      <dx-column
-        data-field="Direccion"
+      ></DxColumn>
+      <DxColumn
+        data-field="direccion"
         caption="Dirección"
         :allow-sorting="true"
         :visible="false"
-      ></dx-column>
-      <dx-column
-        data-field="Especialidad"
+      ></DxColumn>
+      <DxColumn
+        data-field="especialidadDescripcion"
         caption="Especialidad"
         :allow-sorting="true"
-      ></dx-column>
-      <dx-column
-        data-field="Telefono"
+      ></DxColumn>
+      <DxColumn
+        data-field="telefonoPersonal"
         caption="Teléfono"
         :allow-sorting="true"
         :visible="false"
-      ></dx-column>
-      <dx-column
-        data-field="Celular"
+      ></DxColumn>
+      <DxColumn
+        data-field="telefonoCasa"
         caption="Celular"
         :allow-sorting="true"
-      ></dx-column>
-      <dx-column
-        data-field="Email"
+      ></DxColumn>
+      <DxColumn
+        data-field="email"
         caption="Correo Electrónico"
         :allow-sorting="true"
-      ></dx-column>
+      ></DxColumn>
 
       <!-- Configuración de edición de datos con título en la ventana modal -->
-      <dx-editing
+      <DxEditing
         mode="popup"
         :allow-updating="true"
         :allow-adding="true"
@@ -63,18 +62,18 @@
       />
 
       <!-- Paginación y filtros -->
-      <dx-paging :enabled="true" :page-size="10" />
-      <dx-filter-row :visible="true" />
-      <dx-header-filter :visible="true" />
+      <DxPaging :enabled="true" :page-size="10" />
+      <DxFilterRow :visible="true" />
+      <DxHeaderFilter :visible="true" />
 
+      <!-- Botones de acción -->
       <DxColumn type="buttons">
         <DxButton name="edit" icon="edit" />
         <DxButton name="delete" icon="trash" />
       </DxColumn>
-    </dx-data-grid>
+    </DxDataGrid>
   </div>
 </template>
-
 <script setup>
 import {
   DxDataGrid,
@@ -85,32 +84,27 @@ import {
   DxButton,
   DxEditing,
 } from "devextreme-vue/data-grid";
+import { DxCheckBox } from "devextreme-vue/check-box";
 
-// importamos las tiendas
 import { useMedicoStore } from "../stores/MedicoStores";
-import { ref, onMounted, onBeforeUnmount, computed } from "vue";
+import { ref, onMounted, computed, onUnmounted } from "vue";
 import { storeToRefs } from "pinia";
-import { useEspecialidadMedicaStore } from "src/stores/ConfiMedicasStores";
 
 // Inicializamos la tienda
 const medicoStore = useMedicoStore();
-const EspecialidadMedicaStore = useEspecialidadMedicaStore();
-
-// Inicializamos las propiedades reactivas
 const { medicos } = storeToRefs(medicoStore);
-const { especialidades } = storeToRefs(EspecialidadMedicaStore);
+
+// Cargamos los médicos al montar el componente
+onMounted(async () => {
+  await medicoStore.cargarMedicos();
+});
 
 // Computed para obtener los médicos con la descripción de especialidad
 const medicosConEspecialidad = computed(() => {
-  return medicos.value.map((medico) => {
-    // Verifica si especialidadesSeleccionadas contiene una descripción válida
-    return {
-      ...medico,
-      Especialidad: medico.especialidadesSeleccionadas
-        ? medico.especialidadesSeleccionadas.descripcion
-        : "N/A",
-    };
-  });
+  return medicos.value.map((medico) => ({
+    ...medico,
+    especialidadDescripcion: medico.especialidadesSeleccionadas || "N/A",
+  }));
 });
 
 // Ancho responsivo
@@ -122,10 +116,10 @@ const updateWidth = () => {
 };
 
 // Escucha los cambios de tamaño de la ventana
-onMounted(() => {
-  window.addEventListener("resize", updateWidth);
-});
-onBeforeUnmount(() => {
+window.addEventListener("resize", updateWidth);
+
+// Remover el EventListener cuando el componente se desmonte
+onUnmounted(() => {
   window.removeEventListener("resize", updateWidth);
 });
 </script>
@@ -133,18 +127,19 @@ onBeforeUnmount(() => {
 <style scoped>
 #app-container {
   padding: 0 4px;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
+  width: 100%;
 }
 
 .header-title {
   font-size: 1.5rem;
   font-weight: bold;
   color: #333;
-  margin: 1px 0 1px;
   text-align: center;
+  margin-bottom: -10px;
 }
 
-.dx-data-grid {
+.custom-data-grid {
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -155,8 +150,7 @@ onBeforeUnmount(() => {
   .header-title {
     font-size: 1.2rem;
   }
-
-  .dx-data-grid {
+  .custom-data-grid {
     font-size: 0.9rem;
   }
 }
@@ -165,31 +159,8 @@ onBeforeUnmount(() => {
   .header-title {
     font-size: 1rem;
   }
-
-  .dx-data-grid {
+  .custom-data-grid {
     font-size: 0.8rem;
   }
-}
-</style>
-<style scoped>
-#app-container {
-  padding: 0 4px;
-  background-color: #f9f9f9;
-  width: 100%; /* Ajuste para que ocupe el 100% del ancho disponible */
-}
-
-.custom-data-grid {
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%; /* Hacer que el DataGrid ocupe el 100% del ancho del contenedor */
-}
-
-.header-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-  margin: 1px 0 1px;
-  text-align: center;
 }
 </style>

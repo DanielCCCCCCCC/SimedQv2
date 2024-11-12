@@ -27,7 +27,7 @@
       <q-tab-panel name="FichaIdentificacion">
         <div class="row">
           <!-- Lista de subpestañas vertical -->
-          <div class="col-3">
+          <div class="col-3 q-mt-md">
             <q-list bordered>
               <q-item
                 clickable
@@ -69,6 +69,15 @@
               >
                 <q-item-section>Más Datos</q-item-section>
               </q-item>
+              <q-item class="contenedor-boton">
+                <q-btn
+                  label="Guardar Formulario"
+                  color="primary"
+                  @click="guardarDatosFormulario"
+                  class="boton-centrado"
+                />
+                <q-item-section></q-item-section>
+              </q-item>
             </q-list>
           </div>
 
@@ -76,7 +85,9 @@
           <div class="col-9">
             <q-tab-panels v-model="subTabFichaIdentificacion" animated>
               <q-tab-panel name="infoTecnica">
-                <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
+                <q-card
+                  class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl formS q-pr-md q-pl-md q-pb-md"
+                >
                   <q-card-section class="text-h6 text-primary">
                     Información Técnica
                   </q-card-section>
@@ -119,7 +130,9 @@
               </q-tab-panel>
 
               <q-tab-panel name="infoPersonal">
-                <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
+                <q-card
+                  class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl formS q-pr-md q-pl-md q-pb-md"
+                >
                   <q-card-section class="text-h6 text-primary">
                     Información Personal
                   </q-card-section>
@@ -176,7 +189,9 @@
               </q-tab-panel>
 
               <q-tab-panel name="infoContacto">
-                <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
+                <q-card
+                  class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl formS q-pr-md q-pl-md q-pb-md"
+                >
                   <q-card-section class="text-h6 text-primary">
                     Información de Contacto
                   </q-card-section>
@@ -234,7 +249,9 @@
               </q-tab-panel>
 
               <q-tab-panel name="infoFamiliar">
-                <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
+                <q-card
+                  class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl formS q-pr-md q-pl-md q-pb-md"
+                >
                   <q-card-section class="text-h6 text-primary">
                     Información Familiar
                   </q-card-section>
@@ -262,7 +279,9 @@
               </q-tab-panel>
 
               <q-tab-panel name="masDatos">
-                <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl">
+                <q-card
+                  class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl formS q-pr-md q-pl-md q-pb-md"
+                >
                   <q-card-section class="text-h6 text-primary">
                     Más Datos
                   </q-card-section>
@@ -305,13 +324,13 @@
           </div>
         </div>
 
-        <div class="row justify-center q-mt-md">
+        <!-- <div class="row justify-center q-mt-md">
           <q-btn
             label="Guardar Formulario"
             color="primary"
             @click="guardarDatosFormulario"
           />
-        </div>
+        </div> -->
       </q-tab-panel>
     </q-tab-panels>
   </q-page>
@@ -600,5 +619,22 @@ const guardarDatosFormulario = () => {
 
 .text-primary {
   color: #1976d2;
+}
+.formS {
+  border-top-left-radius: 40px; /* Esquina superior izquierda */
+  border-top-right-radius: 15px; /* Esquina superior derecha */
+  border-bottom-right-radius: 30px; /* Esquina inferior derecha */
+  border-bottom-left-radius: 25px; /* Esquina inferior izquierda */
+}
+.contenedor-boton {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.boton-centrado {
+  position: absolute;
+  /* left: 50%; */
+  transform: translateX(-1%);
 }
 </style>

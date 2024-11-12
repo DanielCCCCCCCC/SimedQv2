@@ -3,86 +3,74 @@
     <h4 class="header-title">Contactos Existentes</h4>
   </div>
   <div id="app-container" class="q-mb-xl q-px-md q-pa-xs q-py-md">
-    <dx-data-grid
+    <DxDataGrid
       :data-source="contactos"
       :allow-column-reordering="true"
       :show-borders="true"
       :row-alternation-enabled="true"
-      :rowAlternationEnabled="true"
       key-expr="id"
       :column-auto-width="false"
       :column-min-width="50"
       :width="responsiveWidth"
     >
       <!-- Columnas de datos de contacto -->
-      <dx-column data-field="Nombre" caption="Nombre" :allow-sorting="true" />
-      <dx-column
-        data-field="Direccion"
+      <DxColumn data-field="nombre" caption="Nombre" :allow-sorting="true" />
+      <DxColumn
+        data-field="direccion"
         caption="Dirección"
         :allow-sorting="true"
       />
-      <dx-column
-        data-field="Organizacion"
+      <DxColumn
+        data-field="organizacion"
         caption="Organización"
         :allow-sorting="true"
       />
-      <dx-column
-        data-field="Grupo"
-        caption="Grupo"
+      <DxColumn
+        data-field="grupo"
+        caption="Grupo de Contacto"
         :allow-sorting="true"
         :visible="false"
       />
-      <dx-column
-        data-field="Municipio"
+      <DxColumn
+        data-field="municipio"
         caption="Municipio"
         :allow-sorting="true"
         :visible="false"
       />
-      <dx-column
+      <DxColumn
         data-field="departamento"
         caption="Departamento"
         :allow-sorting="true"
         :visible="false"
       />
-      <dx-column
-        data-field="Email"
-        caption="Correo Electrónico"
-        :allow-sorting="true"
-      />
-      <dx-column
-        data-field="Web"
-        caption="Página Web"
-        :allow-sorting="true"
-        :visible="false"
-      />
-      <dx-column
-        data-field="TelefonoCasa"
+      <DxColumn data-field="email" caption="E-mail" :allow-sorting="true" />
+      <DxColumn
+        data-field="telefonoCasa"
         caption="Teléfono Casa"
         :allow-sorting="true"
       />
-      <dx-column
-        data-field="TelefonoTrabajo"
+      <DxColumn
+        data-field="telefonoTrabajo"
         caption="Teléfono Trabajo"
         :allow-sorting="true"
         :visible="false"
       />
-      <dx-column
-        data-field="Observaciones"
+      <DxColumn
+        data-field="observaciones"
         caption="Observaciones"
         :allow-sorting="true"
         :visible="false"
       />
 
-      <dx-column
-        data-field="Fax"
-        caption="Fax"
-        :allow-sorting="true"
-        :visible="false"
-      />
-      <dx-column data-field="Celular" caption="Celular" :allow-sorting="true" />
+      <!-- Botones de acción -->
+      <DxColumn type="buttons">
+        <DxButton name="edit" icon="edit" />
 
-      <!-- Configuración de edición de datos con título en la ventana modal -->
-      <dx-editing
+        <DxButton name="delete" icon="trash" @click="handleDelete" />
+      </DxColumn>
+
+      <!-- Configuración de edición -->
+      <DxEditing
         mode="popup"
         :allow-updating="true"
         :allow-adding="true"
@@ -96,14 +84,13 @@
       />
 
       <!-- Paginación y filtros -->
-      <dx-paging :enabled="true" :page-size="10" />
-      <dx-filter-row :visible="true" />
-      <dx-header-filter :visible="true" />
-    </dx-data-grid>
+      <DxPaging :enabled="true" :page-size="10" />
+      <DxFilterRow :visible="true" />
+      <DxHeaderFilter :visible="true" />
+    </DxDataGrid>
   </div>
 </template>
-
-<script>
+<script setup>
 import {
   DxDataGrid,
   DxColumn,
@@ -111,55 +98,71 @@ import {
   DxFilterRow,
   DxHeaderFilter,
   DxEditing,
+  DxButton,
 } from "devextreme-vue/data-grid";
-import { useContactStore } from "../stores/ContacStores";
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import { useContactStore } from "../stores/ContacStores";
+import { Notify } from "quasar";
+import { storeToRefs } from "pinia";
 
-export default {
-  components: {
-    DxDataGrid,
-    DxColumn,
-    DxPaging,
-    DxFilterRow,
-    DxHeaderFilter,
-    DxEditing,
-  },
-  setup() {
-    const contactStore = useContactStore();
-    const contactos = contactStore.contactos;
+// Acceder a la tienda de contactos
+const contactStore = useContactStore();
+const { eliminarContacto, cargarContactos } = contactStore;
+const { contactos } = storeToRefs(contactStore); // contactos es un ref, así que usa contactos.value en la data-source
+const responsiveWidth = ref(window.innerWidth < 600 ? "100%" : "auto");
 
-    // Ancho responsivo
-    const responsiveWidth = ref(window.innerWidth < 600 ? "100%" : "auto");
+// Función para actualizar el ancho cuando cambia el tamaño de la ventana
+const updateWidth = () => {
+  responsiveWidth.value = window.innerWidth < 600 ? "100%" : "auto";
+};
 
-    // Función para actualizar el ancho cuando cambia el tamaño de la ventana
-    const updateWidth = () => {
-      responsiveWidth.value = window.innerWidth < 600 ? "100%" : "auto";
-    };
+// Cargar los contactos al montar el componente
+onMounted(async () => {
+  await cargarContactos();
+  console.log(contactos.value); // Verificar que los contactos se han cargado correctamente
+  window.addEventListener("resize", updateWidth);
+});
 
-    // Escucha los cambios de tamaño de la ventana
-    onMounted(() => window.addEventListener("resize", updateWidth));
-    onBeforeUnmount(() => window.removeEventListener("resize", updateWidth));
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", updateWidth);
+});
 
-    return {
-      contactos,
-      responsiveWidth,
-    };
-  },
+// Manejar la eliminación de un contacto
+const handleDelete = async (e) => {
+  const contactoId = e.row.data.id;
+  try {
+    await eliminarContacto(contactoId);
+    Notify.create({
+      message: "Contacto eliminado exitosamente",
+      color: "green",
+      position: "top-right",
+    });
+  } catch (error) {
+    console.error("Error al eliminar el contacto:", error);
+    Notify.create({
+      message: "Error al eliminar el contacto",
+      color: "red",
+      position: "top-right",
+    });
+  }
 };
 </script>
 
 <style scoped>
 #app-container {
+  margin-bottom: 100px;
+  margin-left: 40px;
+  margin-right: 40px;
   padding: 0 4px;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
 }
 
 .header-title {
   font-size: 1.5rem;
   font-weight: bold;
   color: #333;
-  margin: 1px 0 1px;
   text-align: center;
+  margin-bottom: -40px;
 }
 
 .dx-data-grid {

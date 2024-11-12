@@ -32,20 +32,17 @@ export const useDepartamentoStore = defineStore("departamentos", () => {
     }
   };
 
-  const eliminarUltimoDepartamento = async () => {
-    const ultimoDepartamento =
-      departamentos.value[departamentos.value.length - 1];
-    if (!ultimoDepartamento) return;
-
+  const eliminarDepartamento = async (id) => {
     const { error } = await supabase
       .from("departamentos")
       .delete()
-      .eq("id", ultimoDepartamento.id);
-
+      .eq("id", id);
     if (error) {
-      console.error("Error al eliminar el departamento:", error);
+      console.error("Error al eliminar departamento:", error);
     } else {
-      departamentos.value.pop();
+      departamentos.value = departamentos.value.filter(
+        (depto) => depto.id !== id
+      );
     }
   };
 
@@ -53,7 +50,7 @@ export const useDepartamentoStore = defineStore("departamentos", () => {
     departamentos,
     cargarDepartamentos,
     agregarDepartamento,
-    eliminarUltimoDepartamento,
+    eliminarDepartamento,
   };
 });
 
@@ -96,19 +93,12 @@ export const useMunicipioStore = defineStore("municipios", () => {
     }
   };
 
-  const eliminarUltimoMunicipio = async () => {
-    const ultimoMunicipio = municipios.value[municipios.value.length - 1];
-    if (!ultimoMunicipio) return;
-
-    const { error } = await supabase
-      .from("municipios")
-      .delete()
-      .eq("id", ultimoMunicipio.id);
-
+  const eliminarMunicipio = async (id) => {
+    const { error } = await supabase.from("municipios").delete().eq("id", id);
     if (error) {
-      console.error("Error al eliminar el municipio:", error);
+      console.error("Error al eliminar municipio:", error);
     } else {
-      municipios.value.pop();
+      municipios.value = municipios.value.filter((muni) => muni.id !== id);
     }
   };
 
@@ -116,7 +106,7 @@ export const useMunicipioStore = defineStore("municipios", () => {
     municipios,
     cargarMunicipios,
     agregarMunicipio,
-    eliminarUltimoMunicipio,
+    eliminarMunicipio,
   };
 });
 
@@ -150,20 +140,17 @@ export const useGrupoSanguineoStore = defineStore("grupoSanguineo", () => {
     }
   };
 
-  const eliminarUltimoGrupoSanguineo = async () => {
-    const ultimoGrupo =
-      gruposSanguineos.value[gruposSanguineos.value.length - 1];
-    if (!ultimoGrupo) return;
-
+  const eliminarGrupoSanguineo = async (id) => {
     const { error } = await supabase
       .from("grupoSanguineo")
       .delete()
-      .eq("id", ultimoGrupo.id);
-
+      .eq("id", id);
     if (error) {
-      console.error("Error al eliminar el grupo sanguíneo:", error);
+      console.error("Error al eliminar grupo sanguíneo:", error);
     } else {
-      gruposSanguineos.value.pop();
+      gruposSanguineos.value = gruposSanguineos.value.filter(
+        (grupo) => grupo.id !== id
+      );
     }
   };
 
@@ -171,7 +158,7 @@ export const useGrupoSanguineoStore = defineStore("grupoSanguineo", () => {
     gruposSanguineos,
     cargarGruposSanguineos,
     agregarGrupoSanguineo,
-    eliminarUltimoGrupoSanguineo,
+    eliminarGrupoSanguineo,
   };
 });
 
@@ -205,20 +192,12 @@ export const useEscolaridadStore = defineStore("escolaridad", () => {
     }
   };
 
-  const eliminarUltimaEscolaridad = async () => {
-    const ultimaEscolaridad =
-      escolaridades.value[escolaridades.value.length - 1];
-    if (!ultimaEscolaridad) return;
-
-    const { error } = await supabase
-      .from("escolaridad")
-      .delete()
-      .eq("id", ultimaEscolaridad.id);
-
+  const eliminarEscolaridad = async (id) => {
+    const { error } = await supabase.from("escolaridad").delete().eq("id", id);
     if (error) {
-      console.error("Error al eliminar la escolaridad:", error);
+      console.error("Error al eliminar escolaridad:", error);
     } else {
-      escolaridades.value.pop();
+      escolaridades.value = escolaridades.value.filter((esc) => esc.id !== id);
     }
   };
 
@@ -226,7 +205,7 @@ export const useEscolaridadStore = defineStore("escolaridad", () => {
     escolaridades,
     cargarEscolaridades,
     agregarEscolaridad,
-    eliminarUltimaEscolaridad,
+    eliminarEscolaridad,
   };
 });
 
@@ -260,19 +239,14 @@ export const useEstadoCivilStore = defineStore("estadoCivil", () => {
     }
   };
 
-  const eliminarUltimoEstadoCivil = async () => {
-    const ultimoEstado = estadosCiviles.value[estadosCiviles.value.length - 1];
-    if (!ultimoEstado) return;
-
-    const { error } = await supabase
-      .from("estadoCivil")
-      .delete()
-      .eq("id", ultimoEstado.id);
-
+  const eliminarEstadoCivil = async (id) => {
+    const { error } = await supabase.from("estadoCivil").delete().eq("id", id);
     if (error) {
-      console.error("Error al eliminar el estado civil:", error);
+      console.error("Error al eliminar estado civil:", error);
     } else {
-      estadosCiviles.value.pop();
+      estadosCiviles.value = estadosCiviles.value.filter(
+        (estado) => estado.id !== id
+      );
     }
   };
 
@@ -280,6 +254,6 @@ export const useEstadoCivilStore = defineStore("estadoCivil", () => {
     estadosCiviles,
     cargarEstadosCiviles,
     agregarEstadoCivil,
-    eliminarUltimoEstadoCivil,
+    eliminarEstadoCivil,
   };
 });

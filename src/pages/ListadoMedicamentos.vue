@@ -3,7 +3,7 @@
     <h4 class="header-title">Medicamentos y Otros</h4>
   </div>
   <div id="app-container" class="q-mb-xl">
-    <dx-data-grid
+    <DxDataGrid
       :data-source="medicamentos"
       :allow-column-reordering="true"
       :show-borders="true"
@@ -12,61 +12,61 @@
       key-expr="codigo"
     >
       <!-- Columnas con ordenamiento habilitado -->
-      <dx-column
+      <DxColumn
         data-field="codigo"
         caption="Código"
         :allow-sorting="true"
-      ></dx-column>
-      <dx-column
+      ></DxColumn>
+      <DxColumn
         data-field="descripcion"
         caption="Descripción"
         :allow-sorting="true"
-      ></dx-column>
-      <dx-column
+      ></DxColumn>
+      <DxColumn
         data-field="tipo"
         caption="Tipo"
         :allow-sorting="true"
         :visible="false"
-      ></dx-column>
-      <dx-column
+      ></DxColumn>
+      <DxColumn
         data-field="indicaciones"
         caption="Indicaciones"
         :allow-sorting="true"
         :visible="false"
-      ></dx-column>
-      <dx-column
+      ></DxColumn>
+      <DxColumn
         data-field="precioCosto"
         caption="Precio Costo"
         :allow-sorting="true"
         :visible="false"
-      ></dx-column>
-      <dx-column
+      ></DxColumn>
+      <DxColumn
         data-field="precioVenta"
         caption="Precio Venta"
         :allow-sorting="true"
-      ></dx-column>
-      <dx-column
+      ></DxColumn>
+      <DxColumn
         data-field="facturar"
         caption="Facturar"
         :allow-sorting="true"
         :visible="false"
-      ></dx-column>
-      <dx-column
+      ></DxColumn>
+      <DxColumn
         data-field="status"
         caption="Status"
         :allow-sorting="true"
-      ></dx-column>
+      ></DxColumn>
 
       <!-- Configuración de botones de acción -->
-      <dx-column type="buttons">
+      <DxColumn type="buttons">
         <!-- Botón de edición con ícono -->
-        <dx-button name="edit" icon="edit" />
+        <DxButton name="edit" icon="edit" />
         <!-- Botón de eliminación con ícono -->
-        <dx-button name="delete" icon="trash" />
-      </dx-column>
+        <DxButton name="delete" icon="trash" />
+      </DxColumn>
 
       <!-- Configuración de edición de datos con título en la ventana modal -->
-      <dx-editing
+      <DxEditing
         mode="popup"
         :allow-updating="true"
         :allow-adding="true"
@@ -80,10 +80,10 @@
       />
 
       <!-- Paginación y filtros -->
-      <dx-paging :enabled="true" :page-size="10" />
-      <dx-filter-row :visible="true" />
-      <dx-header-filter :visible="true" />
-    </dx-data-grid>
+      <DxPaging :enabled="true" :page-size="10" />
+      <DxFilterRow :visible="true" />
+      <DxHeaderFilter :visible="true" />
+    </DxDataGrid>
   </div>
 </template>
 
@@ -114,26 +114,16 @@ export default {
   setup() {
     const medicamentoStore = useMedicamentoStore();
     const { medicamentos } = storeToRefs(medicamentoStore);
-    // const medicamentos = medicamentoStore.medicamentos; // Datos de la tienda de medicamentos
+
     onMounted(async () => {
       await medicamentoStore.cargarMedicamentos();
     });
+
     return {
       medicamentos,
     };
   },
 };
-
-// setup() {
-//     const hospitalStore = useHospitalStore();
-//     const { hospitales } = storeToRefs(hospitalStore); // Datos de la tienda de hospitales
-//     onMounted(async () => {
-//       await hospitalStore.cargarHospitales();
-//     });
-//     return {
-//       hospitales,
-//     };
-//   },
 </script>
 
 <style scoped>

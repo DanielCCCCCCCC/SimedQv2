@@ -3,7 +3,7 @@
     <h4 class="header-title">Clasificación de Diagnósticos</h4>
   </div>
   <div id="app-container" class="q-mb-xl">
-    <dx-data-grid
+    <DxDataGrid
       :data-source="clasificaciones"
       :allow-column-reordering="true"
       :show-borders="true"
@@ -11,29 +11,29 @@
       :row-alternation-enabled="true"
       key-expr="id"
     >
-      <dx-scrolling mode="virtual" />
-      <dx-column-chooser :enabled="true" />
-      <dx-sorting mode="multiple" />
-      <dx-header-filter :visible="true" />
-      <dx-load-panel :show-pane="true" />
+      <DxScrolling mode="virtual" />
+      <DxColumnChooser :enabled="true" />
+      <DxSorting mode="multiple" />
+      <DxHeaderFilter :visible="true" />
+      <DxLoadPanel :show-pane="true" />
 
       <!-- Columna para nombre de clasificación -->
-      <dx-column
+      <DxColumn
         data-field="nombre"
         caption="Nombre de Clasificación"
         :allow-sorting="true"
         min-width="150"
         width="200"
-      ></dx-column>
+      ></DxColumn>
 
       <!-- Botones de acción -->
-      <dx-column type="buttons">
-        <dx-button name="edit" icon="edit" />
-        <dx-button name="delete" icon="trash" />
-      </dx-column>
+      <DxColumn type="buttons">
+        <DxButton name="edit" icon="edit" />
+        <DxButton name="delete" icon="trash" @click="onDeleteButtonClick" />
+      </DxColumn>
 
       <!-- Configuración de edición -->
-      <dx-editing
+      <DxEditing
         mode="popup"
         :allow-updating="true"
         :allow-adding="true"
@@ -47,10 +47,10 @@
       />
 
       <!-- Paginación y filtros -->
-      <dx-paging :enabled="true" :page-size="10" />
-      <dx-filter-row :visible="true" />
-      <dx-header-filter :visible="true" />
-    </dx-data-grid>
+      <DxPaging :enabled="true" :page-size="10" />
+      <DxFilterRow :visible="true" />
+      <DxHeaderFilter :visible="true" />
+    </DxDataGrid>
   </div>
 </template>
 
@@ -64,8 +64,12 @@ import {
   DxEditing,
   DxButton,
   DxColumnChooser,
+  DxScrolling,
+  DxSorting,
+  DxLoadPanel,
 } from "devextreme-vue/data-grid";
 import { useClasificacionDiagnosticosStore } from "../stores/DiagnosticosStores";
+import { Notify } from "quasar";
 import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
 
@@ -79,31 +83,59 @@ export default {
     DxEditing,
     DxButton,
     DxColumnChooser,
+    DxScrolling,
+    DxSorting,
+    DxLoadPanel,
   },
   setup() {
     const clasificacionStore = useClasificacionDiagnosticosStore();
     const { clasificaciones } = storeToRefs(clasificacionStore);
+
+    // Método para eliminar una clasificación
+    const onDeleteButtonClick = async (e) => {
+      const id = e.row.data.id;
+      try {
+        await clasificacionStore.eliminarClasificacion(id);
+        Notify.create({
+          message: "Clasificación eliminada exitosamente",
+          color: "positive",
+          position: "top-right",
+        });
+        console.log("Clasificación eliminada:", id);
+      } catch (error) {
+        Notify.create({
+          message: "Error al eliminar la clasificación",
+          color: "negative",
+          position: "top-right",
+        });
+        console.error("Error al eliminar clasificación:", error);
+      }
+    };
+
     onMounted(async () => {
       await clasificacionStore.cargarClasificaciones();
     });
+
     return {
       clasificaciones,
+      onDeleteButtonClick,
     };
   },
 };
 </script>
+
 <style scoped>
 #app-container {
   padding: 0 4px;
   background-color: #f9f9f9;
-  width: 100%; /* Ajuste para que ocupe el 100% del ancho disponible */
+  width: 100%;
 }
 
 .custom-data-grid {
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%; /* Hacer que el DataGrid ocupe el 100% del ancho del contenedor */
+  width: 100%;
 }
 
 .header-title {
