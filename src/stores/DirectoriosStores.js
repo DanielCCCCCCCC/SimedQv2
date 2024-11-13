@@ -20,31 +20,31 @@ function saveToLocalStorage(key, value) {
 //
 //
 //// Tienda para Hospitales
-
 export const useHospitalStore = defineStore("hospitalStore", () => {
-  const hospitales = ref([]); // Cambiado a ref
+  const hospitales = ref([]);
+  const tenant_Id = "2368f784-c840-42f8-8418-219404fac685"; // Define el tenant_Id específico aquí
 
   const cargarHospitales = async () => {
     try {
       const { data, error } = await supabase
         .from("hospitales")
         .select("*")
+        .eq("tenant_Id", tenant_Id) // Filtra por el tenant_Id
         .order("created_at", { ascending: true });
 
       if (error) {
         console.error("Error al cargar hospitales:", error);
       } else {
-        hospitales.value = data || []; // Asigna el array completo a `hospitales.value`
+        hospitales.value = data || [];
       }
-      console.log("Hopitales:", hospitales.value); // Para depurar
+      console.log("Hospitales:", hospitales.value);
     } catch (err) {
       console.error("Error en cargarHospitales:", err.message);
     }
   };
 
   const agregarHospital = async (hospitalInfo) => {
-    const tenant_Id = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
-    const hospitalConTenant = { ...hospitalInfo, tenant_Id };
+    const hospitalConTenant = { ...hospitalInfo, tenant_Id }; // Agrega tenant_Id al crear un hospital
 
     try {
       const { data, error } = await supabase

@@ -106,6 +106,7 @@
       <ListadoMedicos />
     </div>
   </q-page>
+  <CitasAgendadas />
 </template>
 <script setup>
 import { reactive, onMounted } from "vue";
@@ -115,6 +116,7 @@ import { storeToRefs } from "pinia";
 import { useMedicoStore } from "../stores/MedicoStores";
 import ListadoMedicos from "./ListadoMedicos.vue";
 import { useEspecialidadMedicaStore } from "../stores/ConfiMedicasStores";
+import CitasAgendadas from "src/components/CitasAgendadas.vue";
 
 const medicoStore = useMedicoStore();
 const especialidadMedicaStore = useEspecialidadMedicaStore();

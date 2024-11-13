@@ -145,6 +145,9 @@
           </q-item>
         </q-expansion-item>
       </q-list>
+      <div class="q-mt-sm">
+        <!-- <CitasAgendadas /> -->
+      </div>
     </q-drawer>
 
     <q-page-container>
@@ -156,7 +159,7 @@
 <script setup>
 import { ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
-
+// import CitasAgendadas from "src/components/CitasAgendadas.vue";
 const leftDrawerOpen = ref(false);
 const router = useRouter();
 const route = useRoute();
