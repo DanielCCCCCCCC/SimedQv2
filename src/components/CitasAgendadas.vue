@@ -7,7 +7,7 @@
     <DxChart
       v-if="appointmentsTrend.length > 0"
       :data-source="appointmentsTrend"
-      :size="{ width: 508, height: 200 }"
+      :size="{ width: 508, height: 180 }"
     >
       <DxSeries
         type="bar"
@@ -48,7 +48,7 @@ const appointmentsTrend = computed(() =>
 
 <style scoped>
 .card-container {
-  width: 520px;
+  width: 530px;
   height: auto;
   padding: 16px;
   border-radius: 8px;
@@ -58,7 +58,7 @@ const appointmentsTrend = computed(() =>
   flex-direction: column;
   align-items: center;
   margin-left: 0px;
-  margin-bottom: 5px;
+  margin-bottom: 0px;
 }
 
 .icon {

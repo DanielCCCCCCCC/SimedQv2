@@ -10,8 +10,8 @@
       :time-zone="'America/Tegucigalpa'"
       :height="650"
       :cell-duration="30"
-      :start-day-hour="8"
-      :end-day-hour="21"
+      :start-day-hour="0"
+      :end-day-hour="24"
       :views="views"
       :first-day-of-week="1"
       :onAppointmentAdded="onAppointmentAdded"
@@ -51,6 +51,13 @@ const currentDate = ref(new Date());
 const currentView = ref("month");
 const views = ["day", "week", "workWeek", "month", "agenda"];
 
+// Ejecutamos la función de fetch al montar el componente
+onMounted(() => {
+  store.fetchAppointments();
+  MedicoStore.cargarMedicos(); // Carga de los médicos
+  TiposCitasStore.cargarCitas();
+});
+
 // Computed property para concatenar título y nombre del paciente y usar `id` como clave única
 const computedAppointments = computed(() =>
   store.appointments.map((appointment) => ({
@@ -58,13 +65,6 @@ const computedAppointments = computed(() =>
     text: `${appointment.title} - ${appointment.nombrePaciente}`, // Concatenación del título y nombre del paciente
   }))
 );
-
-// Ejecutamos la función de fetch al montar el componente
-onMounted(() => {
-  store.fetchAppointments();
-  MedicoStore.cargarMedicos(); // Carga de los médicos
-  TiposCitasStore.cargarCitas();
-});
 
 // Personalizar el formulario de citas
 const onAppointmentFormOpening = (e) => {
@@ -78,10 +78,13 @@ const onAppointmentFormOpening = (e) => {
 
   const form = e.form;
 
-  // Actualiza los valores iniciales de `medico` y `tipoCita` en el formulario
+  // Estado inicial de `allDay`
+  const isAllDay = e.appointmentData.allDay || false;
+
+  // Actualiza los valores iniciales en el formulario
   form.updateData("medico", e.appointmentData.medico);
   form.updateData("tipoCita", e.appointmentData.tipoCita);
-  form.updateData("allDay", e.appointmentData.allDay || false); // Valor inicial para allDay
+  form.updateData("allDay", isAllDay);
 
   // Configuración de los campos del formulario con dos secciones
   form.option("items", [
@@ -100,7 +103,24 @@ const onAppointmentFormOpening = (e) => {
           editorType: "dxCheckBox",
           label: { text: "Todo el día" },
           editorOptions: {
-            value: e.appointmentData.allDay || false, // Valor inicial (false si no está definido)
+            value: isAllDay,
+            onValueChanged: (args) => {
+              const isChecked = args.value;
+              form.getEditor("startDate").option("disabled", isChecked);
+              form.getEditor("endDate").option("disabled", isChecked);
+
+              // Si está activado, establece horas de inicio y fin para cubrir todo el día
+              if (isChecked) {
+                const startDate = new Date(e.appointmentData.startDate);
+                startDate.setHours(0, 0, 0, 0);
+
+                const endDate = new Date(e.appointmentData.startDate);
+                endDate.setHours(23, 59, 59, 999);
+
+                form.updateData("startDate", startDate);
+                form.updateData("endDate", endDate);
+              }
+            },
           },
         },
         {
@@ -111,6 +131,18 @@ const onAppointmentFormOpening = (e) => {
             type: "datetime",
             displayFormat: "dd/MM/yyyy hh:mm a",
             value: e.appointmentData.startDate,
+            disabled: isAllDay,
+            onValueChanged: (args) => {
+              // Captura el nuevo valor de `startDate`
+              const startDate = args.value;
+
+              // Suma 30 minutos para el `endDate`
+              const endDate = new Date(startDate);
+              endDate.setMinutes(endDate.getMinutes() + 30);
+
+              // Actualiza `endDate` en el formulario
+              form.updateData("endDate", endDate);
+            },
           },
         },
         {
@@ -121,6 +153,7 @@ const onAppointmentFormOpening = (e) => {
             type: "datetime",
             displayFormat: "dd/MM/yyyy hh:mm a",
             value: e.appointmentData.endDate,
+            disabled: isAllDay,
           },
         },
         {
@@ -131,7 +164,7 @@ const onAppointmentFormOpening = (e) => {
             dataSource: citas.value,
             displayExpr: "descripcion",
             valueExpr: "id",
-            value: parseInt(e.appointmentData.tipoCita), // Convierte el valor de `tipoCita` a entero
+            value: parseInt(e.appointmentData.tipoCita),
             placeholder: "Selecciona un tipo de cita",
           },
         },
@@ -155,7 +188,7 @@ const onAppointmentFormOpening = (e) => {
             dataSource: medicos.value,
             displayExpr: "nombre",
             valueExpr: "id",
-            value: parseInt(e.appointmentData.medico), // Convierte el valor de `medico` a entero
+            value: parseInt(e.appointmentData.medico),
             placeholder: "Selecciona un médico",
           },
         },
@@ -174,8 +207,14 @@ const onAppointmentAdded = async (e) => {
   try {
     const newAppointment = {
       title: e.appointmentData.title || e.appointmentData.text,
-      startDate: e.appointmentData.startDate,
-      endDate: e.appointmentData.endDate,
+      startDate: e.appointmentData.allDay
+        ? new Date(new Date(e.appointmentData.startDate).setHours(0, 0, 0, 0))
+        : e.appointmentData.startDate,
+      endDate: e.appointmentData.allDay
+        ? new Date(
+            new Date(e.appointmentData.startDate).setHours(23, 59, 59, 999)
+          )
+        : e.appointmentData.endDate,
       allDay: e.appointmentData.allDay,
       repeat: e.appointmentData.repeat,
       description: e.appointmentData.description,
@@ -202,8 +241,18 @@ const onAppointmentUpdated = async (e) => {
   try {
     const updatedAppointment = {
       title: e.appointmentData.title || e.appointmentData.text,
-      startDate: e.appointmentData.startDate,
-      endDate: e.appointmentData.endDate,
+      startDate: e.appointmentData.allDay
+        ? convertToUTC(
+            new Date(new Date(e.appointmentData.startDate).setHours(0, 0, 0, 0))
+          )
+        : e.appointmentData.startDate,
+      endDate: e.appointmentData.allDay
+        ? convertToUTC(
+            new Date(
+              new Date(e.appointmentData.startDate).setHours(23, 59, 59, 999)
+            )
+          )
+        : e.appointmentData.endDate,
       allDay: e.appointmentData.allDay,
       repeat: e.appointmentData.repeat,
       description: e.appointmentData.description,
@@ -212,7 +261,6 @@ const onAppointmentUpdated = async (e) => {
       tipoCita: e.appointmentData.tipoCita,
     };
 
-    // Asegúrate de que `appointmentData.id` esté presente
     if (e.appointmentData.id) {
       await store.updateAppointment(e.appointmentData.id, updatedAppointment);
       console.log("Cita actualizada exitosamente:", updatedAppointment);
