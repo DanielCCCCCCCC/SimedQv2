@@ -22,14 +22,14 @@ function saveToLocalStorage(key, value) {
 //// Tienda para Hospitales
 export const useHospitalStore = defineStore("hospitalStore", () => {
   const hospitales = ref([]);
-  const tenant_Id = "2368f784-c840-42f8-8418-219404fac685"; // Define el tenant_Id específico aquí
+  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3";
 
   const cargarHospitales = async () => {
     try {
       const { data, error } = await supabase
         .from("hospitales")
         .select("*")
-        .eq("tenant_Id", tenant_Id) // Filtra por el tenant_Id
+        .eq("tenant_Id", tenantId) // Filtra por el tenant_Id
         .order("created_at", { ascending: true });
 
       if (error) {

@@ -7,7 +7,7 @@
     <DxChart
       v-if="appointmentsTrend.length > 0"
       :data-source="appointmentsTrend"
-      :size="{ width: 508, height: 180 }"
+      :size="{ width: 500, height: 180 }"
     >
       <DxSeries
         type="bar"

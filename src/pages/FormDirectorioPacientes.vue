@@ -27,7 +27,9 @@
     <!-- Contenido de pestañas principales -->
     <q-tab-panels v-model="tab" animated swipeable>
       <q-tab-panel name="Pacientes">
-        <ListadoPacientes :activeTab="tab" @cambiar-tab="cambiarTab" />
+        <ListadoPacientes @cambiar-tab="cambiarTab" />
+
+        <!-- <ListadoPacientes :activeTab="tab" @cambiar-tab="cambiarTab" /> -->
       </q-tab-panel>
 
       <q-tab-panel name="FichaIdentificacion">
@@ -118,9 +120,12 @@
                       outlined
                       dense
                     />
-                    <q-input
+                    <q-select
                       v-model="pacienteSeleccionado.medico"
-                      label="Médico"
+                      :options="medicos"
+                      label="Seleccione el medico"
+                      option-value="id"
+                      option-label="nombre"
                       outlined
                       dense
                     />
@@ -342,6 +347,7 @@ import { storeToRefs } from "pinia";
 import ListadoPacientes from "./ListadoPacientes.vue";
 import PacienteActivoGraph from "src/components/PacienteActivoGraph.vue";
 import PacientesAggMensualmente from "src/components/PacientesAggMensualmente.vue";
+import { useMedicoStore } from "../stores/MedicoStores";
 
 // Inicialización de las tiendas
 const TiposPacientesStore = useTiposPacientesStore();
@@ -351,6 +357,7 @@ const DepartamentoStore = useDepartamentoStore();
 const MunicipioStore = useMunicipioStore();
 const GrupoSanguineoStore = useGrupoSanguineoStore();
 const EscolaridadStore = useEscolaridadStore();
+const MedicoStore = useMedicoStore();
 
 // Acceso a las propiedades de la tienda
 const { tpacientes } = storeToRefs(TiposPacientesStore);
@@ -359,6 +366,7 @@ const { departamentos } = storeToRefs(DepartamentoStore);
 const { municipios } = storeToRefs(MunicipioStore);
 const { gruposSanguineos } = storeToRefs(GrupoSanguineoStore);
 const { escolaridades } = storeToRefs(EscolaridadStore);
+const { medicos } = storeToRefs(MedicoStore);
 
 // Objeto reactivo para almacenar los datos del paciente seleccionado
 const pacienteSeleccionado = reactive({
@@ -417,6 +425,7 @@ const tab = ref("Pacientes");
 const subTabFichaIdentificacion = ref("infoTecnica");
 
 // Cambia a la pestaña FichaIdentificacion y asigna los datos del paciente seleccionado
+// const cambiarTab = ({ tab: nuevaTab, paciente }) => {
 const cambiarTab = ({ tab: nuevaTab, paciente }) => {
   tab.value = nuevaTab;
 
@@ -441,6 +450,16 @@ const cambiarTab = ({ tab: nuevaTab, paciente }) => {
     ? {
         id: estadoCivilSeleccionado.id,
         descripcion: estadoCivilSeleccionado.descripcion,
+      }
+    : null;
+
+  const medicoSeleccionado = medicos.value.find(
+    (medico) => medico.id === paciente.medicoId
+  );
+  pacienteSeleccionado.medico = medicoSeleccionado
+    ? {
+        id: medicoSeleccionado.id,
+        nombre: medicoSeleccionado.nombre,
       }
     : null;
 
@@ -494,23 +513,25 @@ onMounted(async () => {
   await GrupoSanguineoStore.cargarGruposSanguineos();
   await EscolaridadStore.cargarEscolaridades();
   await fichaIdentificacionStore.cargarDatos();
+  await MedicoStore.cargarMedicos();
 });
 
 // Función para guardar los datos del formulario
 const guardarDatosFormulario = () => {
-  // Verificar si estamos editando un paciente existente (si tiene un id)
   if (pacienteSeleccionado.id) {
-    console.log("Municipio seleccionado:", pacienteSeleccionado.municipio);
-    // Llamada a la función de actualización en lugar de crear un nuevo paciente
+    // Si el paciente ya existe, actualiza sus datos
     fichaIdentificacionStore.actualizarPaciente({
-      id: pacienteSeleccionado.id, // Pasar el id del paciente para actualizarlo
+      id: pacienteSeleccionado.id,
       fechaRegistro: pacienteSeleccionado.fechaRegistro,
       codigo: pacienteSeleccionado.codigo,
       activo: pacienteSeleccionado.activo,
       tipoId: pacienteSeleccionado.tipo?.id || null,
       tipoDescripcion: pacienteSeleccionado.tipo?.descripcion || "",
 
-      medico: pacienteSeleccionado.medico,
+      // Guardar tanto el ID como el nombre del médico
+      medicoId: pacienteSeleccionado.medico?.id || null,
+      medicoNombre: pacienteSeleccionado.medico?.nombre || null,
+
       dni: pacienteSeleccionado.dni,
       nombres: pacienteSeleccionado.nombres,
       apellidos: pacienteSeleccionado.apellidos,
@@ -553,7 +574,10 @@ const guardarDatosFormulario = () => {
       tipoId: pacienteSeleccionado.tipo?.id || null,
       tipoDescripcion: pacienteSeleccionado.tipo?.descripcion || "",
 
-      medico: pacienteSeleccionado.medico,
+      // Guardar tanto el ID como el nombre del médico
+      medicoId: pacienteSeleccionado.medico?.id || null,
+      medicoNombre: pacienteSeleccionado.medico?.nombre || null,
+
       dni: pacienteSeleccionado.dni,
       nombres: pacienteSeleccionado.nombres,
       apellidos: pacienteSeleccionado.apellidos,

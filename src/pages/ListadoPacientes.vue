@@ -10,7 +10,7 @@
       >
         <h5>{{ paciente.nombres }} {{ paciente.apellidos }}</h5>
         <p><strong>Código:</strong> {{ paciente.codigo }}</p>
-        <p><strong>Médico:</strong> {{ paciente.medico }}</p>
+        <p><strong>Médico:</strong> {{ paciente.medicoNombre }}</p>
         <p><strong>Tipo:</strong> {{ paciente.tipoDescripcion }}</p>
         <p><strong>DNI:</strong> {{ paciente.dni }}</p>
       </div>
@@ -55,7 +55,7 @@
 
         <!-- Columnas de la tabla -->
         <DxColumn
-          data-field="medico"
+          data-field="medicoNombre"
           caption="Médico"
           :min-width="120"
           :width="160"
@@ -142,6 +142,7 @@ import { ref, onMounted, computed, onUnmounted } from "vue";
 import { storeToRefs } from "pinia";
 import PacientePanel from "./PacientePanel.vue";
 import { Notify } from "quasar";
+const emit = defineEmits(["cambiar-tab"]);
 
 const fichaIdentificacionStore = useFichaIdentificacionStore();
 const { formIdentificacion } = storeToRefs(fichaIdentificacionStore);
@@ -169,11 +170,10 @@ const openPanel = (paciente) => {
   isPanelOpened.value = true;
 };
 
+// Método para manejar el clic en el botón de editar
 const onEditButtonClick = (e) => {
-  fichaIdentificacionStore.cambiarTab({
-    tab: "FichaIdentificacion",
-    paciente: e.row.data,
-  });
+  // Emitimos el evento con la pestaña a cambiar y los datos del paciente seleccionado
+  emit("cambiar-tab", { tab: "FichaIdentificacion", paciente: e.row.data });
 };
 
 const onCheckboxChange = (data) => {

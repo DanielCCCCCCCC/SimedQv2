@@ -106,7 +106,6 @@
       <ListadoMedicos />
     </div>
   </q-page>
-  <CitasAgendadas />
 </template>
 <script setup>
 import { reactive, onMounted } from "vue";

@@ -28,65 +28,67 @@
     </DxScheduler>
   </div>
 </template>
-
 <script setup>
 import { DxScheduler, DxView } from "devextreme-vue/scheduler";
 import { useAppointmentsStore } from "../stores/AppointmentsStore";
 import { useMedicoStore } from "../stores/MedicoStores";
 import { useTiposCitasStore } from "src/stores/ConfiMedicasStores";
+import { useFichaIdentificacionStore } from "src/stores/fichaIdentificacionStores";
 import { onMounted, ref, computed } from "vue";
 import { storeToRefs } from "pinia";
 import CitasAgendadas from "src/components/CitasAgendadas.vue";
 
-// Usamos la tienda de citas y de médicos
 const store = useAppointmentsStore();
 const MedicoStore = useMedicoStore();
 const TiposCitasStore = useTiposCitasStore();
+const FichaIdentificacionStore = useFichaIdentificacionStore();
 
-const { medicos } = storeToRefs(MedicoStore); // Obtenemos la lista de médicos de la tienda
+const { medicos } = storeToRefs(MedicoStore);
 const { citas } = storeToRefs(TiposCitasStore);
+const { formIdentificacion } = storeToRefs(FichaIdentificacionStore);
 
 const appointments = computed(() => store.appointments);
 const currentDate = ref(new Date());
 const currentView = ref("month");
 const views = ["day", "week", "workWeek", "month", "agenda"];
 
-// Ejecutamos la función de fetch al montar el componente
 onMounted(() => {
   store.fetchAppointments();
-  MedicoStore.cargarMedicos(); // Carga de los médicos
+  MedicoStore.cargarMedicos();
   TiposCitasStore.cargarCitas();
+  FichaIdentificacionStore.cargarDatos();
 });
 
-// Computed property para concatenar título y nombre del paciente y usar `id` como clave única
+// Convierte una fecha a UTC
+const convertToUTC = (date) => {
+  const utcDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+  return utcDate;
+};
+
+// Computed property para concatenar título y nombre del paciente
 const computedAppointments = computed(() =>
-  store.appointments.map((appointment) => ({
-    ...appointment,
-    text: `${appointment.title} - ${appointment.nombrePaciente}`, // Concatenación del título y nombre del paciente
-  }))
+  store.appointments.map((appointment) => {
+    const paciente = formIdentificacion.value.find(
+      (p) => p.id === parseInt(appointment?.nombre)
+    );
+    const nombrePaciente = paciente ? paciente.nombres : appointment.nombre;
+
+    return {
+      ...appointment,
+      text: `${appointment.title} - ${nombrePaciente}`,
+    };
+  })
 );
 
-// Personalizar el formulario de citas
 const onAppointmentFormOpening = (e) => {
-  console.log("Configurando el formulario de citas...");
-
-  e.popup.option("showTitle", true);
-  e.popup.option(
-    "title",
-    e.appointmentData.text ? e.appointmentData.text : "Crear una nueva cita"
-  );
-
   const form = e.form;
-
-  // Estado inicial de `allDay`
   const isAllDay = e.appointmentData.allDay || false;
 
-  // Actualiza los valores iniciales en el formulario
   form.updateData("medico", e.appointmentData.medico);
   form.updateData("tipoCita", e.appointmentData.tipoCita);
+  form.updateData("pacienteId", e.appointmentData.nombre);
   form.updateData("allDay", isAllDay);
 
-  // Configuración de los campos del formulario con dos secciones
   form.option("items", [
     {
       itemType: "group",
@@ -109,11 +111,9 @@ const onAppointmentFormOpening = (e) => {
               form.getEditor("startDate").option("disabled", isChecked);
               form.getEditor("endDate").option("disabled", isChecked);
 
-              // Si está activado, establece horas de inicio y fin para cubrir todo el día
               if (isChecked) {
                 const startDate = new Date(e.appointmentData.startDate);
                 startDate.setHours(0, 0, 0, 0);
-
                 const endDate = new Date(e.appointmentData.startDate);
                 endDate.setHours(23, 59, 59, 999);
 
@@ -133,14 +133,9 @@ const onAppointmentFormOpening = (e) => {
             value: e.appointmentData.startDate,
             disabled: isAllDay,
             onValueChanged: (args) => {
-              // Captura el nuevo valor de `startDate`
               const startDate = args.value;
-
-              // Suma 30 minutos para el `endDate`
               const endDate = new Date(startDate);
               endDate.setMinutes(endDate.getMinutes() + 30);
-
-              // Actualiza `endDate` en el formulario
               form.updateData("endDate", endDate);
             },
           },
@@ -176,9 +171,16 @@ const onAppointmentFormOpening = (e) => {
       colCount: 1,
       items: [
         {
-          dataField: "nombrePaciente",
-          editorType: "dxTextBox",
-          label: { text: "Nombre del Paciente" },
+          dataField: "nombre",
+          editorType: "dxSelectBox",
+          label: { text: "Seleccione un Paciente" },
+          editorOptions: {
+            dataSource: formIdentificacion.value,
+            displayExpr: "nombres",
+            valueExpr: "id",
+            value: parseInt(e.appointmentData.nombre),
+            placeholder: "Selecciona un paciente",
+          },
         },
         {
           dataField: "medico",
@@ -202,7 +204,6 @@ const onAppointmentFormOpening = (e) => {
   ]);
 };
 
-// Manejo de eventos del Scheduler
 const onAppointmentAdded = async (e) => {
   try {
     const newAppointment = {
@@ -218,7 +219,7 @@ const onAppointmentAdded = async (e) => {
       allDay: e.appointmentData.allDay,
       repeat: e.appointmentData.repeat,
       description: e.appointmentData.description,
-      nombrePaciente: e.appointmentData.nombrePaciente,
+      nombre: e.appointmentData.nombre,
       medico: e.appointmentData.medico,
       tipoCita: e.appointmentData.tipoCita,
     };
@@ -256,7 +257,7 @@ const onAppointmentUpdated = async (e) => {
       allDay: e.appointmentData.allDay,
       repeat: e.appointmentData.repeat,
       description: e.appointmentData.description,
-      nombrePaciente: e.appointmentData.nombrePaciente,
+      nombre: e.appointmentData.nombre,
       medico: e.appointmentData.medico,
       tipoCita: e.appointmentData.tipoCita,
     };

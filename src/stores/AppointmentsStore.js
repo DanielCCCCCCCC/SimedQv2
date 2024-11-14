@@ -11,7 +11,7 @@ export const useAppointmentsStore = defineStore("appointments", {
       const { data, error } = await supabase
         .from("appointments")
         .select(
-          "id, title, startDate, endDate, allDay, repeat, description, nombrePaciente, medico, tipoCita"
+          "id, title, startDate, endDate, allDay, repeat, description, nombre, medico, tipoCita"
         );
 
       if (error) {
@@ -65,7 +65,6 @@ export const useAppointmentsStore = defineStore("appointments", {
         this.calculateAppointmentsTrend();
       }
     },
-
     calculateAppointmentsTrend() {
       const now = new Date();
       const currentMonth = now.getMonth();
@@ -77,14 +76,14 @@ export const useAppointmentsStore = defineStore("appointments", {
       const startOfMonth = new Date(currentYear, currentMonth, 1);
 
       for (let i = 0; i < 5; i++) {
-        // 5 semanas posibles
         const startOfWeek = new Date(startOfMonth);
         startOfWeek.setDate(startOfMonth.getDate() + i * 7);
+
         const endOfWeek = new Date(startOfWeek);
         endOfWeek.setDate(startOfWeek.getDate() + 6);
 
         groupedData.push({
-          period: `${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()}`, // Fechas de cada semana
+          period: `${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()}`,
           count: 0,
         });
       }
@@ -92,7 +91,6 @@ export const useAppointmentsStore = defineStore("appointments", {
       this.appointments.forEach((appointment) => {
         const date = new Date(appointment.startDate);
 
-        // Verifica si la cita está en el mes actual
         if (
           date.getMonth() === currentMonth &&
           date.getFullYear() === currentYear
@@ -104,7 +102,7 @@ export const useAppointmentsStore = defineStore("appointments", {
               1 + index * 7
             );
             const endOfWeek = new Date(startOfWeek);
-            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            endOfWeek.setDate(startOfWeek.getDate() + 7); // Ajuste para incluir el último día
 
             if (date >= startOfWeek && date <= endOfWeek) {
               week.count++;
