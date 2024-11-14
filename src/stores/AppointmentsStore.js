@@ -10,7 +10,9 @@ export const useAppointmentsStore = defineStore("appointments", {
     async fetchAppointments() {
       const { data, error } = await supabase
         .from("appointments")
-        .select("id, title, startDate, endDate, allDay, repeat, description");
+        .select(
+          "id, title, startDate, endDate, allDay, repeat, description, nombrePaciente, medico, tipoCita"
+        );
 
       if (error) {
         console.error("Error al obtener las citas:", error);

@@ -1,5 +1,5 @@
 <template>
-  <div class="row">
+  <div class="scheduler-container">
     <CitasAgendadas />
   </div>
   <div class="scheduler-container">
@@ -17,6 +17,7 @@
       :onAppointmentAdded="onAppointmentAdded"
       :onAppointmentUpdated="onAppointmentUpdated"
       :onAppointmentDeleted="onAppointmentDeleted"
+      @appointmentFormOpening="onAppointmentFormOpening"
       text-expr="title"
     >
       <DxView type="day" name="Día" />
@@ -30,8 +31,8 @@
 <script setup>
 import { DxScheduler, DxView } from "devextreme-vue/scheduler";
 import { useAppointmentsStore } from "../stores/AppointmentsStore";
-import CitasAgendadas from "src/components/CitasAgendadas.vue";
 import { onMounted, ref, computed } from "vue";
+import CitasAgendadas from "src/components/CitasAgendadas.vue";
 
 // Usamos la tienda de citas
 const store = useAppointmentsStore();
@@ -45,6 +46,57 @@ onMounted(() => {
   store.fetchAppointments();
 });
 
+// Personalizar el formulario de citas
+const onAppointmentFormOpening = (e) => {
+  console.log("Configurando el formulario de citas..."); // Verificación
+
+  // Configuración de la ventana emergente
+  e.popup.option("showTitle", true);
+  e.popup.option(
+    "title",
+    e.appointmentData.text ? e.appointmentData.text : "Crear una nueva cita"
+  );
+
+  const form = e.form;
+
+  // Agregar elementos personalizados a mainGroup
+  const mainGroupItems = form.itemOption("mainGroup").items || [];
+
+  // Verificar si los elementos ya existen antes de agregar
+  if (!mainGroupItems.find((i) => i.dataField === "nombrePaciente")) {
+    mainGroupItems.push({
+      dataField: "nombrePaciente",
+      editorType: "dxTextBox",
+      colSpan: 2,
+      label: { text: "Nombre del Paciente" },
+    });
+  }
+
+  if (!mainGroupItems.find((i) => i.dataField === "medico")) {
+    mainGroupItems.push({
+      dataField: "medico",
+      editorType: "dxTextBox",
+      colSpan: 2,
+      label: { text: "Médico" },
+    });
+  }
+
+  if (!mainGroupItems.find((i) => i.dataField === "tipoCita")) {
+    mainGroupItems.push({
+      dataField: "tipoCita",
+      editorType: "dxSelectBox",
+      colSpan: 2,
+      label: { text: "Tipo de Cita" },
+      editorOptions: {
+        items: ["Consulta", "Control", "Emergencia"],
+        value: "",
+      },
+    });
+  }
+
+  form.itemOption("mainGroup", "items", mainGroupItems);
+};
+
 // Manejo de eventos del Scheduler
 const onAppointmentAdded = async (e) => {
   try {
@@ -55,6 +107,9 @@ const onAppointmentAdded = async (e) => {
       allDay: e.appointmentData.allDay,
       repeat: e.appointmentData.repeat,
       description: e.appointmentData.description,
+      nombrePaciente: e.appointmentData.nombrePaciente,
+      medico: e.appointmentData.medico,
+      tipoCita: e.appointmentData.tipoCita,
     };
     await store.addAppointment(newAppointment);
     console.log("Cita agregada exitosamente:", newAppointment);
@@ -71,6 +126,9 @@ const onAppointmentUpdated = async (e) => {
     allDay: e.newData.allDay,
     repeat: e.newData.repeat,
     description: e.newData.description,
+    nombrePaciente: e.newData.nombrePaciente,
+    medico: e.newData.medico,
+    tipoCita: e.newData.tipoCita,
   };
   await store.updateAppointment(e.oldData.id, updatedAppointment);
 };

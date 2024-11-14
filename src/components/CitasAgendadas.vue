@@ -13,12 +13,12 @@
         type="area"
         argument-field="period"
         value-field="count"
-        color="#4CAF50"
+        color="#2f615e"
         :point="{ visible: true, size: 8 }"
         :showInLegend="false"
       >
         <!-- Habilitar las etiquetas para mostrar el número de citas en cada punto -->
-        <DxLabel visible="true">
+        <DxLabel :visible="true">
           <template #customizeText="{ valueText }">
             {{ valueText }} citas
           </template>
@@ -48,7 +48,7 @@ const appointmentsTrend = computed(() =>
 
 <style scoped>
 .card-container {
-  width: 320px;
+  width: 550px;
   height: auto;
   padding: 16px;
   border-radius: 8px;
@@ -57,7 +57,7 @@ const appointmentsTrend = computed(() =>
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-left: 200px;
+  margin-left: 0px;
   margin-bottom: 5px;
 }
 
@@ -93,8 +93,8 @@ const appointmentsTrend = computed(() =>
 .dx-chart .dxc-area-series {
   fill: linear-gradient(
     to bottom,
-    rgba(76, 175, 80, 0.5),
-    rgba(76, 175, 80, 0)
+    rgba(235, 84, 13, 0.5),
+    rgba(223, 101, 15, 0)
   );
 }
 </style>
