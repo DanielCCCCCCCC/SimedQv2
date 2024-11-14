@@ -6,6 +6,7 @@ import FormConfiMedicas from "src/pages/FormConfiMedicas.vue";
 import FormDirectorios from "src/pages/FormDirectorios.vue";
 import FormDirectorioPacientes from "src/pages/FormDirectorioPacientes.vue";
 import SchedulerControlCita from "src/pages/SchedulerControlCita.vue";
+import SchedulerControlCitaCopy from "src/pages/SchedulerControlCita copy.vue";
 import FormDatosGenerales from "src/pages/FormDatosGenerales.vue";
 
 const routes = [
@@ -18,6 +19,11 @@ const routes = [
         path: "controlCitas",
         component: SchedulerControlCita,
         name: "controlCitas",
+      },
+      {
+        path: "controlCitasv2",
+        component: SchedulerControlCitaCopy,
+        name: "controlCitasv2",
       },
       {
         path: "contactos",

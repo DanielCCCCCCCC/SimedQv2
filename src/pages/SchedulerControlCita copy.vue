@@ -71,57 +71,102 @@ const onAppointmentFormOpening = (e) => {
   console.log("Configurando el formulario de citas...");
 
   e.popup.option("showTitle", true);
-  e.popup.option("title", e.appointmentData.text || "Crear una nueva cita");
+  e.popup.option(
+    "title",
+    e.appointmentData.text ? e.appointmentData.text : "Crear una nueva cita"
+  );
 
   const form = e.form;
 
-  form.updateData("medico", e.appointmentData.medico || "");
-  form.updateData("tipoCita", e.appointmentData.tipoCita || "");
+  // Actualiza los valores iniciales de `medico` y `tipoCita` en el formulario
+  form.updateData("medico", e.appointmentData.medico);
+  form.updateData("tipoCita", e.appointmentData.tipoCita);
+  form.updateData("allDay", e.appointmentData.allDay || false); // Valor inicial para allDay
 
-  const mainGroupItems = form.itemOption("mainGroup").items || [];
-
-  if (!mainGroupItems.find((i) => i.dataField === "nombrePaciente")) {
-    mainGroupItems.push({
-      dataField: "nombrePaciente",
-      editorType: "dxTextBox",
-      colSpan: 2,
-      label: { text: "Nombre del Paciente" },
-    });
-  }
-
-  if (!mainGroupItems.find((i) => i.dataField === "medico")) {
-    mainGroupItems.push({
-      dataField: "medico",
-      editorType: "dxSelectBox",
-      colSpan: 2,
-      label: { text: "Médico" },
-      editorOptions: {
-        dataSource: medicos.value,
-        displayExpr: "nombre",
-        valueExpr: "id",
-        value: e.appointmentData.medico,
-        placeholder: "Selecciona un médico",
-      },
-    });
-  }
-
-  if (!mainGroupItems.find((i) => i.dataField === "tipoCita")) {
-    mainGroupItems.push({
-      dataField: "tipoCita",
-      editorType: "dxSelectBox",
-      colSpan: 2,
-      label: { text: "Tipo de Cita" },
-      editorOptions: {
-        dataSource: citas.value,
-        displayExpr: "descripcion",
-        valueExpr: "id",
-        value: e.appointmentData.tipoCita,
-        placeholder: "Selecciona un tipo de cita",
-      },
-    });
-  }
-
-  form.itemOption("mainGroup", "items", mainGroupItems);
+  // Configuración de los campos del formulario con dos secciones
+  form.option("items", [
+    {
+      itemType: "group",
+      caption: "Detalles de la Cita",
+      colCount: 1,
+      items: [
+        {
+          dataField: "title",
+          editorType: "dxTextBox",
+          label: { text: "Asunto de la cita" },
+        },
+        {
+          dataField: "allDay",
+          editorType: "dxCheckBox",
+          label: { text: "Todo el día" },
+          editorOptions: {
+            value: e.appointmentData.allDay || false, // Valor inicial (false si no está definido)
+          },
+        },
+        {
+          dataField: "startDate",
+          editorType: "dxDateBox",
+          label: { text: "Fecha y Hora Inicial" },
+          editorOptions: {
+            type: "datetime",
+            displayFormat: "dd/MM/yyyy hh:mm a",
+            value: e.appointmentData.startDate,
+          },
+        },
+        {
+          dataField: "endDate",
+          editorType: "dxDateBox",
+          label: { text: "Fecha y Hora Final" },
+          editorOptions: {
+            type: "datetime",
+            displayFormat: "dd/MM/yyyy hh:mm a",
+            value: e.appointmentData.endDate,
+          },
+        },
+        {
+          dataField: "tipoCita",
+          editorType: "dxSelectBox",
+          label: { text: "Tipo de Cita" },
+          editorOptions: {
+            dataSource: citas.value,
+            displayExpr: "descripcion",
+            valueExpr: "id",
+            value: parseInt(e.appointmentData.tipoCita), // Convierte el valor de `tipoCita` a entero
+            placeholder: "Selecciona un tipo de cita",
+          },
+        },
+      ],
+    },
+    {
+      itemType: "group",
+      caption: "Información del Paciente",
+      colCount: 1,
+      items: [
+        {
+          dataField: "nombrePaciente",
+          editorType: "dxTextBox",
+          label: { text: "Nombre del Paciente" },
+        },
+        {
+          dataField: "medico",
+          editorType: "dxSelectBox",
+          label: { text: "Médico" },
+          editorOptions: {
+            dataSource: medicos.value,
+            displayExpr: "nombre",
+            valueExpr: "id",
+            value: parseInt(e.appointmentData.medico), // Convierte el valor de `medico` a entero
+            placeholder: "Selecciona un médico",
+          },
+        },
+        {
+          dataField: "description",
+          editorType: "dxTextArea",
+          label: { text: "Descripción" },
+        },
+      ],
+    },
+  ]);
 };
 
 // Manejo de eventos del Scheduler
@@ -152,7 +197,7 @@ const onAppointmentAdded = async (e) => {
     console.error("Error al agregar la cita:", error);
   }
 };
-// Evento para actualizar la cita
+
 const onAppointmentUpdated = async (e) => {
   try {
     const updatedAppointment = {
@@ -167,6 +212,7 @@ const onAppointmentUpdated = async (e) => {
       tipoCita: e.appointmentData.tipoCita,
     };
 
+    // Asegúrate de que `appointmentData.id` esté presente
     if (e.appointmentData.id) {
       await store.updateAppointment(e.appointmentData.id, updatedAppointment);
       console.log("Cita actualizada exitosamente:", updatedAppointment);
@@ -176,6 +222,10 @@ const onAppointmentUpdated = async (e) => {
   } catch (error) {
     console.error("Error al actualizar la cita:", error);
   }
+};
+
+const onAppointmentDeleted = async (e) => {
+  await store.deleteAppointment(e.appointmentData.id);
 };
 </script>
 

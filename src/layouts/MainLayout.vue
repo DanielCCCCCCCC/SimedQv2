@@ -30,7 +30,14 @@
           >
             <q-item-section>Control de Citas</q-item-section>
           </q-item>
-
+          <q-item
+            class="bg-grey-1 text-dark"
+            :class="{ 'selected-item': selectedRoute === '/controlCitasv2' }"
+            clickable
+            @click="navigateTo('/controlCitasv2')"
+          >
+            <q-item-section>Control de Citas V2</q-item-section>
+          </q-item>
           <q-item
             class="bg-grey-1 text-dark"
             :class="{ 'selected-item': selectedRoute === '/contactos' }"

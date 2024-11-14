@@ -19,6 +19,7 @@ export const useAppointmentsStore = defineStore("appointments", {
       } else {
         this.appointments = data || [];
         this.calculateAppointmentsTrend();
+        console.log(this.appointments);
       }
     },
     async addAppointment(appointment) {
@@ -33,6 +34,7 @@ export const useAppointmentsStore = defineStore("appointments", {
       }
     },
     async updateAppointment(id, updates) {
+      console.log("Actualizando cita con ID:", id, "y datos:", updates);
       const { error } = await supabase
         .from("appointments")
         .update(updates)
@@ -40,6 +42,7 @@ export const useAppointmentsStore = defineStore("appointments", {
       if (error) {
         console.error("Error al actualizar la cita en Supabase:", error);
       } else {
+        // Actualiza los datos localmente en el estado
         const index = this.appointments.findIndex((app) => app.id === id);
         if (index !== -1) {
           this.appointments[index] = {
@@ -62,26 +65,29 @@ export const useAppointmentsStore = defineStore("appointments", {
         this.calculateAppointmentsTrend();
       }
     },
+
     calculateAppointmentsTrend() {
       const now = new Date();
       const currentMonth = now.getMonth();
       const currentYear = now.getFullYear();
-      const groupedData = {
-        "Semana 1": 0,
-        "Semana 2": 0,
-        "Semana 3": 0,
-        "Semana 4": 0,
-      };
 
-      console.log("Calculating 4-week trend for the current month...");
+      const groupedData = [];
 
-      // Obtiene el primer y último día del mes
+      // Define los límites de cada semana (7 días)
       const startOfMonth = new Date(currentYear, currentMonth, 1);
-      const endOfMonth = new Date(currentYear, currentMonth + 1, 0); // Último día del mes actual
 
-      // Divide el mes en 4 intervalos (semanas)
-      const daysInMonth = endOfMonth.getDate();
-      const weekLength = Math.ceil(daysInMonth / 4); // Número de días aproximado por semana
+      for (let i = 0; i < 5; i++) {
+        // 5 semanas posibles
+        const startOfWeek = new Date(startOfMonth);
+        startOfWeek.setDate(startOfMonth.getDate() + i * 7);
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+        groupedData.push({
+          period: `${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()}`, // Fechas de cada semana
+          count: 0,
+        });
+      }
 
       this.appointments.forEach((appointment) => {
         const date = new Date(appointment.startDate);
@@ -91,28 +97,23 @@ export const useAppointmentsStore = defineStore("appointments", {
           date.getMonth() === currentMonth &&
           date.getFullYear() === currentYear
         ) {
-          const dayOfMonth = date.getDate();
+          groupedData.forEach((week, index) => {
+            const startOfWeek = new Date(
+              currentYear,
+              currentMonth,
+              1 + index * 7
+            );
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
 
-          // Determina en qué "semana" cae el día del mes
-          if (dayOfMonth <= weekLength) {
-            groupedData["Semana 1"]++;
-          } else if (dayOfMonth <= weekLength * 2) {
-            groupedData["Semana 2"]++;
-          } else if (dayOfMonth <= weekLength * 3) {
-            groupedData["Semana 3"]++;
-          } else {
-            groupedData["Semana 4"]++;
-          }
+            if (date >= startOfWeek && date <= endOfWeek) {
+              week.count++;
+            }
+          });
         }
       });
 
-      // Transforma `groupedData` en un array de objetos [{ period, count }]
-      this.appointmentsTrend = Object.keys(groupedData).map((period) => ({
-        period,
-        count: groupedData[period],
-      }));
-
-      console.log("Appointments Trend Data:", this.appointmentsTrend);
+      this.appointmentsTrend = groupedData;
     },
   },
 });

@@ -12,7 +12,6 @@ export const useMedicoStore = defineStore("medicoStore", () => {
       console.error("Error al cargar médicos:", error.message);
     } else {
       medicos.value = data;
-      console.log(medicos.value);
     }
   }
 
