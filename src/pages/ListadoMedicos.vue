@@ -1,11 +1,12 @@
+<!-- ListadoMedicos.vue -->
 <template>
-  <div class="row justify-center q-py-md">
-    <h4 class="header-title">Médicos Existentes</h4>
-  </div>
-
-  <!-- Vista de tarjetas para dispositivos móviles -->
+  <!-- Botones de edición y eliminación para vista de tarjetas -->
   <div v-if="isMobileView" class="card-container">
-    <div v-for="medico in medicos" :key="medico.id" class="medico-card">
+    <div
+      v-for="medico in medicosConEspecialidad"
+      :key="medico.id"
+      class="medico-card"
+    >
       <h5>{{ medico.nombre }}</h5>
       <p><strong>Especialidad:</strong> {{ medico.especialidadDescripcion }}</p>
       <p><strong>Celular:</strong> {{ medico.telefonoCasa }}</p>
@@ -15,14 +16,9 @@
           icon="edit"
           label="Editar"
           color="primary"
-          @click="onEditButtonClick(medico)"
+          @click="$emit('editarMedico', medico)"
         />
-        <q-btn
-          icon="delete"
-          label="Eliminar"
-          color="negative"
-          @click="onDeleteButtonClick(medico.id)"
-        />
+        <q-btn icon="delete" label="Eliminar" color="negative" />
       </div>
     </div>
   </div>
@@ -30,7 +26,7 @@
   <!-- DataGrid para pantallas grandes -->
   <div v-else id="app-container" class="q-mb-xl q-px-md q-pa-xs q-py-md">
     <DxDataGrid
-      :data-source="medicos"
+      :data-source="medicosConEspecialidad"
       :allow-column-reordering="true"
       :row-alternation-enabled="true"
       :show-borders="true"
@@ -39,38 +35,44 @@
       :column-min-width="50"
       :width="responsiveWidth"
     >
+      <DxColumn data-field="id" caption="ID Medico" :allow-sorting="true" />
       <DxColumn
         data-field="nombre"
         caption="Nombre Completo"
         :allow-sorting="true"
-      ></DxColumn>
+      />
+      <DxColumn
+        data-field="direccion"
+        caption="Direccion"
+        :allow-sorting="true"
+      />
       <DxColumn
         data-field="direccion"
         caption="Dirección"
         :allow-sorting="true"
         :visible="false"
-      ></DxColumn>
+      />
       <DxColumn
         data-field="especialidadDescripcion"
         caption="Especialidad"
         :allow-sorting="true"
-      ></DxColumn>
+      />
       <DxColumn
         data-field="telefonoPersonal"
         caption="Teléfono"
         :allow-sorting="true"
         :visible="false"
-      ></DxColumn>
+      />
       <DxColumn
         data-field="telefonoCasa"
         caption="Celular"
         :allow-sorting="true"
-      ></DxColumn>
+      />
       <DxColumn
         data-field="email"
         caption="Correo Electrónico"
         :allow-sorting="true"
-      ></DxColumn>
+      />
 
       <DxEditing
         mode="popup"
@@ -90,14 +92,27 @@
       <DxHeaderFilter :visible="true" />
 
       <DxColumn type="buttons">
-        <DxButton name="edit" icon="edit" @click="onEditButtonClick" />
-        <DxButton name="delete" icon="trash" @click="onDeleteButtonClick" />
+        <DxButton
+          name="edit"
+          icon="edit"
+          @click="
+            (e) => {
+              console.log('Emitir evento editarMedico con datos:', e.row.data);
+              $emit('editarMedico', e.row.data);
+            }
+          "
+        />
+        <DxButton name="delete" icon="trash" />
       </DxColumn>
     </DxDataGrid>
   </div>
 </template>
 
 <script setup>
+import { ref, computed, onMounted, onUnmounted, watchEffect } from "vue";
+import { Notify } from "quasar";
+import { useMedicoStore } from "../stores/MedicoStores";
+import { useEspecialidadMedicaStore } from "src/stores/ConfiMedicasStores";
 import {
   DxDataGrid,
   DxColumn,
@@ -107,69 +122,98 @@ import {
   DxButton,
   DxEditing,
 } from "devextreme-vue/data-grid";
-import { Notify } from "quasar";
-import { useMedicoStore } from "../stores/MedicoStores";
-import { ref, onMounted, computed, onUnmounted } from "vue";
 import { storeToRefs } from "pinia";
 
-// Inicializamos la tienda
-const medicoStore = useMedicoStore();
-const { medicos } = storeToRefs(medicoStore);
+// Inicializa las tiendas
+const MedicoStore = useMedicoStore();
+const EspecialidadMedicaStore = useEspecialidadMedicaStore();
 
-// Detectar vista móvil
+const { medicos } = storeToRefs(MedicoStore);
+const { especialidades } = storeToRefs(EspecialidadMedicaStore);
+// const { medicos } = medicoStore;
+// const { especialidades } = especialidadStore;
+
+// Detecta si es vista móvil
 const isMobileView = computed(() => window.innerWidth < 600);
 
-// Cargamos los médicos al montar el componente
+// Cargar los datos al montar el componente
 onMounted(async () => {
-  await medicoStore.cargarMedicos();
+  try {
+    await EspecialidadMedicaStore.cargarEspecialidades();
+    await MedicoStore.cargarMedicos();
+    console.log("Medicos cargados:", medicos.value);
+    console.log("Especialidades cargadas:", especialidades.value);
+  } catch (error) {
+    console.error("Error al cargar datos:", error);
+  }
 });
 
-// Ancho responsivo para el DataGrid
+// Propiedad computada con comprobaciones de seguridad
+const medicosConEspecialidad = computed(() => {
+  return (medicos.value || []).map((medico) => {
+    const especialidad = (especialidades.value || []).find(
+      (esp) => esp.id === Number(medico.especialidadId)
+    );
+    return {
+      ...medico,
+      especialidadDescripcion: especialidad
+        ? especialidad.descripcion
+        : "Especialidad no encontrada",
+    };
+  });
+});
+
+// Verifica el estado de los datos
+watchEffect(() => {
+  console.log("Medicos:", medicos.value);
+  console.log("Especialidades:", especialidades.value);
+  console.log("Medicos con Especialidad:", medicosConEspecialidad.value);
+});
+
+// Función para abrir el modal de edición con el médico seleccionado
+// const onEditButtonClick = (medico) => {
+//   selectedMedico.value = { ...medico };
+//   isModalOpen.value = true;
+// };
+
+// Función para actualizar el médico
+const updateMedico = async () => {
+  try {
+    const success = await medicoStore.actualizarMedico(selectedMedico.value);
+    if (success) {
+      Notify.create({
+        message: "Médico actualizado exitosamente",
+        color: "positive",
+        position: "top-right",
+      });
+      isModalOpen.value = false;
+    } else {
+      Notify.create({
+        message: "Hubo un error al actualizar el médico",
+        color: "negative",
+        position: "top-right",
+      });
+    }
+  } catch (error) {
+    console.error("Error al actualizar el médico:", error);
+    Notify.create({
+      message: "Error al actualizar el médico",
+      color: "negative",
+      position: "top-right",
+    });
+  }
+};
+
+// Configuración del ancho del DataGrid
 const responsiveWidth = ref(window.innerWidth < 600 ? "100%" : "auto");
-const updateWidth = () =>
-  (responsiveWidth.value = window.innerWidth < 600 ? "100%" : "auto");
+const updateWidth = () => {
+  responsiveWidth.value = window.innerWidth < 600 ? "100%" : "auto";
+};
 
 window.addEventListener("resize", updateWidth);
 onUnmounted(() => {
   window.removeEventListener("resize", updateWidth);
 });
-
-// Funciones para editar y eliminar un médico
-const onEditButtonClick = async (medico) => {
-  try {
-    await medicoStore.actualizarMedico(medico);
-    Notify.create({
-      message: "Médico actualizado exitosamente",
-      color: "positive",
-      position: "top-right",
-    });
-  } catch (error) {
-    console.error("Error al actualizar médico:", error);
-    Notify.create({
-      message: "Error al actualizar médico",
-      color: "negative",
-      position: "top-right",
-    });
-  }
-};
-
-const onDeleteButtonClick = async (id) => {
-  try {
-    await medicoStore.eliminarMedico(id);
-    Notify.create({
-      message: "Médico eliminado exitosamente",
-      color: "positive",
-      position: "top-right",
-    });
-  } catch (error) {
-    console.error("Error al eliminar médico:", error);
-    Notify.create({
-      message: "Error al eliminar médico",
-      color: "negative",
-      position: "top-right",
-    });
-  }
-};
 </script>
 
 <style scoped>

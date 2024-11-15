@@ -10,18 +10,17 @@ export const useEspecialidadMedicaStore = defineStore(
   () => {
     const especialidades = ref([]);
 
-    const cargarEspecialidades = async () => {
+    async function cargarEspecialidades() {
       const { data, error } = await supabase
         .from("especialidadesMedicas")
-        .select("*")
-        .order("created_at", { ascending: true });
-
+        .select("*");
       if (error) {
-        console.error("Error al cargar especialidades:", error);
+        console.error("Error al cargar especialidades:", error.message);
       } else {
         especialidades.value = data;
+        console.log("Especialidades cargadas:", especialidades.value); // Verificar datos
       }
-    };
+    }
 
     const agregarEspecialidad = async (descripcion) => {
       const { data, error } = await supabase

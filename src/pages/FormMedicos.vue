@@ -1,3 +1,4 @@
+<!-- Componente Padre -->
 <template>
   <q-page class="q-pa-md flex flex-center">
     <q-form
@@ -6,7 +7,9 @@
       @submit.prevent="guardarMedico"
     >
       <div class="text-center q-mb-md">
-        <h1 class="text-h5 text-sky-900 uppercase">Agregar Médico Referente</h1>
+        <h1 class="text-h5 text-sky-900 uppercase">
+          {{ isEditing ? "Editar Médico" : "Agregar Médico Referente" }}
+        </h1>
       </div>
 
       <div class="row q-col-gutter-sm">
@@ -36,7 +39,7 @@
             :error-message="formErrors.direccion"
           />
           <q-select
-            v-model="formData.especialidadesSeleccionadas"
+            v-model="formData.especialidadesIdSeleccionadas"
             :options="especialidades"
             label="Especialidad"
             option-value="id"
@@ -45,8 +48,6 @@
             outlined
             dense
             style="font-size: 14px; height: auto"
-            :error="!!formErrors.especialidadesSeleccionadas"
-            :error-message="formErrors.especialidadesSeleccionadas"
           />
         </div>
       </div>
@@ -67,7 +68,7 @@
         <div class="col-12 col-md-6">
           <q-input
             v-model="formData.telefonoCasa"
-            label="telefonoCasa"
+            label="Telefono Casa"
             outlined
             mask="####-####"
             dense
@@ -95,7 +96,7 @@
 
       <div class="flex justify-center q-mt-sm">
         <q-btn
-          label="Guardar Médico"
+          :label="isEditing ? 'Actualizar Médico' : 'Guardar Médico'"
           color="primary"
           type="submit"
           style="font-size: 14px; padding: 8px 16px"
@@ -103,123 +104,112 @@
       </div>
     </q-form>
     <div class="q-mt-xl flex flex-center">
-      <ListadoMedicos />
+      <ListadoMedicos @editarMedico="cargarMedicoParaEditar" />
     </div>
   </q-page>
 </template>
+
 <script setup>
-import { reactive, onMounted } from "vue";
-import { Notify } from "quasar";
+import { onMounted, ref } from "vue";
+import { useMedicoStore } from "../stores/MedicoStores";
+import { useEspecialidadMedicaStore } from "../stores/ConfiMedicasStores";
+import ListadoMedicos from "./ListadoMedicos.vue";
+import { useQuasar } from "quasar";
 import { storeToRefs } from "pinia";
 
-import { useMedicoStore } from "../stores/MedicoStores";
-import ListadoMedicos from "./ListadoMedicos.vue";
-import { useEspecialidadMedicaStore } from "../stores/ConfiMedicasStores";
-import CitasAgendadas from "src/components/CitasAgendadas.vue";
-
+const $q = useQuasar();
 const medicoStore = useMedicoStore();
-const especialidadMedicaStore = useEspecialidadMedicaStore();
-const { especialidades } = storeToRefs(especialidadMedicaStore);
+const EspecialidadMedicaStore = useEspecialidadMedicaStore();
 
-// Cargar datos al montar el componente
+const { especialidades } = storeToRefs(EspecialidadMedicaStore);
+
+// Datos del formulario
+const formData = ref({
+  nombre: "",
+  direccion: "",
+  especialidadesIdSeleccionadas: null,
+  telefonoPersonal: "",
+  telefonoCasa: "",
+  email: "",
+});
+const formErrors = ref({});
+const isEditing = ref(false);
+let selectedMedicoId = null;
+
 onMounted(async () => {
-  await especialidadMedicaStore.cargarEspecialidades(); // Corrección aquí
+  await EspecialidadMedicaStore.cargarEspecialidades();
 });
 
-const formData = reactive({
-  nombre: "",
-  direccion: "",
-  especialidadesSeleccionadas: "",
-  telefonoPersonal: "",
-  telefonoCasa: "",
-  email: "",
-});
+// Función para cargar los datos del médico seleccionado en el formulario
+function cargarMedicoParaEditar(medico) {
+  console.log("Datos del médico recibidos para edición:", medico);
 
-const formErrors = reactive({
-  nombre: "",
-  direccion: "",
-  especialidadesSeleccionadas: "",
-  telefonoPersonal: "",
-  telefonoCasa: "",
-  email: "",
-});
+  // Encontrar la descripción de la especialidad
+  const especialidad = (especialidades.value || []).find(
+    (esp) => esp.id === Number(medico.especialidadId)
+  );
+  formData.value = {
+    ...medico,
+    especialidadesIdSeleccionadas: especialidad
+      ? { id: especialidad.id, descripcion: especialidad.descripcion }
+      : null,
+  };
 
-const validarFormulario = () => {
-  let isValid = true;
+  console.log("Datos del formulario con especialidad cargada:", formData.value);
 
-  // Validaciones de campos requeridos
-  formErrors.nombre = !formData.nombre ? "El nombre es obligatorio" : "";
-  formErrors.direccion = !formData.direccion
-    ? "La dirección es obligatoria"
-    : "";
-  formErrors.especialidadesSeleccionadas = !formData.especialidadesSeleccionadas
-    ? "Seleccione una especialidad"
-    : "";
+  selectedMedicoId = medico.id;
+  isEditing.value = true;
+}
 
-  // Validaciones de formato de teléfono
-  formErrors.telefonoPersonal =
-    formData.telefonoPersonal && formData.telefonoPersonal.length === 9
-      ? ""
-      : "El teléfono debe tener el formato ####-####";
-  formErrors.telefonoCasa =
-    formData.telefonoCasa && formData.telefonoCasa.length === 9
-      ? ""
-      : "El teléfono de casa debe tener el formato ####-####";
-
-  // Validación de formato de correo electrónico
-  formErrors.email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
-    ? ""
-    : "Ingrese un email válido";
-
-  // Comprobación de errores
-  isValid = Object.values(formErrors).every((error) => error === "");
-
-  // Mostrar notificación si hay errores
-  if (!isValid) {
-    Notify.create({
-      message: "Por favor, corrija los errores en el formulario",
-      color: "red",
-      position: "top-right",
-    });
-  }
-
-  return isValid;
-};
-
+// Función para guardar o actualizar el médico
 async function guardarMedico() {
-  if (validarFormulario()) {
-    const especialidadId =
-      typeof formData.especialidadesSeleccionadas === "object"
-        ? formData.especialidadesSeleccionadas.id
-        : formData.especialidadesSeleccionadas;
-    const especialidadDescripcion =
-      typeof formData.especialidadesSeleccionadas === "object"
-        ? formData.especialidadesSeleccionadas.descripcion
-        : ""; // Si no es un objeto, asigna una cadena vacía o el valor predeterminado
+  const medicoData = {
+    nombre: formData.value.nombre,
+    direccion: formData.value.direccion,
+    especialidadId: formData.value.especialidadesIdSeleccionadas?.id,
+    telefonoCasa: formData.value.telefonoCasa,
+    telefonoPersonal: formData.value.telefonoPersonal,
+    email: formData.value.email,
+  };
 
-    const medicoInfo = {
-      nombre: formData.nombre,
-      direccion: formData.direccion,
-      especialidadId: especialidadId,
-      especialidadDescripcion: especialidadDescripcion,
-
-      telefonoPersonal: formData.telefonoPersonal,
-      telefonoCasa: formData.telefonoCasa,
-      email: formData.email,
-    };
-
-    await medicoStore.agregarMedico({ ...medicoInfo });
-
-    Object.keys(formData).forEach((key) => {
-      formData[key] = "";
-    });
-
-    Notify.create({
-      message: "Médico guardado con éxito",
-      color: "green",
-      position: "top-right",
+  try {
+    if (isEditing.value && selectedMedicoId) {
+      await medicoStore.actualizarMedico({
+        id: selectedMedicoId,
+        ...medicoData,
+      });
+      console.log("Actualizado médico con exito:", medicoData);
+      $q.notify({
+        type: "positive",
+        message: "Médico actualizado exitosamente",
+      });
+    } else {
+      console.log("Agregando nuevo médico con datos:", medicoData);
+      await medicoStore.agregarMedico(medicoData);
+      $q.notify({ type: "positive", message: "Médico agregado exitosamente" });
+    }
+    resetFormulario();
+  } catch (error) {
+    console.error("Error al procesar el médico:", error);
+    $q.notify({
+      type: "negative",
+      message: "Hubo un error al procesar el médico",
     });
   }
+}
+
+// Función para reiniciar el formulario
+function resetFormulario() {
+  formData.value = {
+    nombre: "",
+    direccion: "",
+    especialidadesIdSeleccionadas: null,
+    telefonoPersonal: "",
+    telefonoCasa: "",
+    email: "",
+  };
+  isEditing.value = false;
+  selectedMedicoId = null;
 }
 </script>
 

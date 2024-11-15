@@ -31,59 +31,67 @@
   <!-- DataGrid para pantallas grandes -->
   <div v-else id="app-container" class="q-mb-xl q-px-md q-pa-xs q-py-md">
     <DxDataGrid
-      :data-source="contactos"
+      :data-source="contactosConDetalles"
       :allow-column-reordering="true"
       :show-borders="true"
       :row-alternation-enabled="true"
       key-expr="id"
       :width="responsiveWidth"
     >
-      <DxColumn data-field="nombre" caption="Nombre" :allow-sorting="true" />
       <DxColumn
-        data-field="direccion"
+        data-field="nombreContacto"
+        caption="Nombre"
+        :allow-sorting="true"
+      />
+      <DxColumn
+        data-field="direccionContacto"
         caption="Dirección"
         :allow-sorting="true"
       />
       <DxColumn
-        data-field="organizacion"
+        data-field="organizacionContacto"
         caption="Organización"
         :allow-sorting="true"
       />
       <DxColumn
-        data-field="grupo"
+        data-field="grupoDescripcion"
         caption="Grupo de Contacto"
         :allow-sorting="true"
-        :visible="false"
+        :visible="true"
       />
       <DxColumn
-        data-field="municipio"
+        data-field="municipioDescripcion"
         caption="Municipio"
         :allow-sorting="true"
-        :visible="false"
+        :visible="true"
       />
       <DxColumn
-        data-field="departamento"
+        data-field="departamentoDescripcion"
         caption="Departamento"
         :allow-sorting="true"
-        :visible="false"
+        :visible="true"
       />
-      <DxColumn data-field="email" caption="E-mail" :allow-sorting="true" />
       <DxColumn
-        data-field="telefonoCasa"
+        data-field="emailContacto"
+        caption="E-mail"
+        :allow-sorting="true"
+      />
+      <DxColumn
+        data-field="telefonoCasaContacto"
         caption="Teléfono Casa"
         :allow-sorting="true"
       />
       <DxColumn
-        data-field="telefonoTrabajo"
-        caption="Teléfono Trabajo"
+        data-field="telefonoPersonalContacto"
+        caption="Teléfono Personal"
         :allow-sorting="true"
-        :visible="false"
+        :visible="true"
       />
       <DxColumn
-        data-field="observaciones"
+        data-field="observacionContacto"
         caption="Observaciones"
         :allow-sorting="true"
-        :visible="false"
+        :visible="true"
       />
 
       <DxEditing
@@ -102,8 +110,12 @@
       <DxFilterRow :visible="true" />
       <DxHeaderFilter :visible="true" />
       <DxColumn type="buttons">
-        <DxButton name="edit" icon="edit" />
-        <DxButton name="delete" icon="trash" @click="handleDelete" />
+        <DxButton
+          name="edit"
+          icon="edit"
+          @click="(event) => handleEdit(event.row.data)"
+        />
+        <DxButton name="delete" icon="trash" />
       </DxColumn>
     </DxDataGrid>
   </div>
@@ -119,34 +131,90 @@ import {
   DxEditing,
   DxButton,
 } from "devextreme-vue/data-grid";
-import { ref, onMounted, onUnmounted, computed } from "vue";
+import { ref, onMounted, onUnmounted, computed, defineProps } from "vue";
 import { useContactStore } from "../stores/ContacStores";
+import { useGruposContactosStore } from "../stores/ConfiMedicasStores";
+import { useDepartamentoStore } from "src/stores/DatosGeneralesStores";
+import { useMunicipioStore } from "src/stores/DatosGeneralesStores";
 import { Notify } from "quasar";
 import { storeToRefs } from "pinia";
 
-// Acceder a la tienda de contactos
+const gruposContactosStore = useGruposContactosStore();
+const departamentoStore = useDepartamentoStore();
+const municipioStore = useMunicipioStore();
+
+const { grupos } = storeToRefs(gruposContactosStore);
+const { departamentos } = storeToRefs(departamentoStore);
+const { municipios } = storeToRefs(municipioStore);
+
+const emit = defineEmits(["editarContacto"]);
+
+// Access the contact store
 const contactStore = useContactStore();
-const { eliminarContacto, cargarContactos } = contactStore;
 const { contactos } = storeToRefs(contactStore);
 
-// Detectar vista móvil
-const isMobileView = computed(() => window.innerWidth < 600);
-
-// Ancho responsivo para el DataGrid en pantallas grandes
-const responsiveWidth = ref(window.innerWidth < 600 ? "100%" : "auto");
-const updateWidth = () =>
-  (responsiveWidth.value = window.innerWidth < 600 ? "100%" : "auto");
-
+// Fetch contacts on mount and listen for window resizing
 onMounted(async () => {
-  await cargarContactos();
+  await contactStore.cargarContactos();
+  await gruposContactosStore.cargarGrupos();
+  await departamentoStore.cargarDepartamentos();
+  await municipioStore.cargarMunicipios();
+  await contactStore.cargarContactos();
   window.addEventListener("resize", updateWidth);
+  console.log("Grupos ln 164: ", grupos.value);
 });
 
 onUnmounted(() => {
   window.removeEventListener("resize", updateWidth);
 });
 
-// Manejar la eliminación de un contacto
+// Propiedad computada con comprobaciones de seguridad
+const contactosConDetalles = computed(() => {
+  return (contactos.value || []).map((contacto) => {
+    const grupo = (grupos.value || []).find(
+      (grp) => grp.id === Number(contacto.grupoIdContacto)
+    );
+    const departamento = (departamentos.value || []).find(
+      (dept) => dept.id === Number(contacto.departamentoIdContacto)
+    );
+    const municipio = (municipios.value || []).find(
+      (mun) => mun.id === Number(contacto.municipioIdContacto)
+    );
+    return {
+      ...contacto,
+
+      grupoDescripcion: grupo ? grupo?.descripcion : "Grupo no encontrado",
+
+      departamentoDescripcion: departamento
+        ? departamento.descripcion
+        : "Departamento no encontrado",
+      municipioDescripcion: municipio
+        ? municipio.descripcion
+        : "Municipio no encontrado",
+    };
+  });
+});
+
+// Check for mobile view
+const isMobileView = computed(() => window.innerWidth < 600);
+const responsiveWidth = ref(window.innerWidth < 600 ? "100%" : "auto");
+const updateWidth = () =>
+  (responsiveWidth.value = window.innerWidth < 600 ? "100%" : "auto");
+
+const handleEdit = (contacto) => {
+  if (contacto && contacto.id) {
+    console.log(
+      "ListadoContactos.vue: Contacto recibido para editar con ID:",
+      contacto.id
+    );
+    // Emitir el evento 'editarContacto' con el contacto como payload
+    emit("editarContacto", contacto);
+  } else {
+    console.error("El contacto recibido es inválido:", contacto);
+  }
+};
+
+// Handle deleting a contact
 const handleDelete = async (contactoId) => {
   try {
     await eliminarContacto(contactoId);
@@ -164,16 +232,14 @@ const handleDelete = async (contactoId) => {
     });
   }
 };
-
-const handleEdit = (contacto) => {
-  // Lógica de edición aquí
-};
 </script>
 
 <style scoped>
 #app-container {
   padding: 0 4px;
   background-color: #ffffff;
+  margin-top: -20px;
+  margin-bottom: 80px;
 }
 
 .header-title {

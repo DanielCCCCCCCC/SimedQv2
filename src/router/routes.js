@@ -1,5 +1,4 @@
 import FormContactos from "../pages/FormContactos.vue"; // Asegúrate de tener este archivo con el código de tu formulario
-import FormMedicos from "src/pages/FormMedicos.vue";
 import ListadoMedicos from "src/pages/ListadoMedicos.vue";
 import FormDiagnosticos from "src/pages/FormDiagnosticos.vue";
 import FormConfiMedicas from "src/pages/FormConfiMedicas.vue";
@@ -8,7 +7,7 @@ import FormDirectorioPacientes from "src/pages/FormDirectorioPacientes.vue";
 import SchedulerControlCita from "src/pages/SchedulerControlCita.vue";
 import SchedulerControlCitaCopy from "src/pages/SchedulerControlCita copy.vue";
 import FormDatosGenerales from "src/pages/FormDatosGenerales.vue";
-
+import FormMedicos from "src/pages/FormMedicos.vue";
 const routes = [
   {
     path: "/",

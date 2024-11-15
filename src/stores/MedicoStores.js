@@ -1,3 +1,4 @@
+// Archivo: MedicoStores.js
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { supabase } from "../supabaseClient"; // Asegúrate de tener configurado supabaseClient
@@ -11,6 +12,7 @@ export const useMedicoStore = defineStore("medicoStore", () => {
     if (error) {
       console.error("Error al cargar médicos:", error.message);
     } else {
+      console.log("Médicos cargados:", data);
       medicos.value = data;
     }
   }
@@ -21,14 +23,14 @@ export const useMedicoStore = defineStore("medicoStore", () => {
 
     const { data, error } = await supabase
       .from("medicos")
-      .insert([{ ...medico, tenant_Id: tenantId }]); // Eliminé el `id: Date.now()` porque Supabase debería gestionar el ID automáticamente.
+      .insert([{ ...medico, tenant_Id: tenantId }]);
 
     if (error) {
       console.error("Error al agregar médico:", error.message);
-      return null; // Opcional: devuelve null si hay error para manejo adicional
+      return null;
     } else if (data && data.length > 0) {
       medicos.value.push(data[0]);
-      return data[0]; // Retorna el médico agregado
+      return data[0];
     }
   }
 
@@ -37,11 +39,42 @@ export const useMedicoStore = defineStore("medicoStore", () => {
     const { error } = await supabase.from("medicos").delete().eq("id", id);
     if (error) {
       console.error("Error al eliminar médico:", error.message);
-      return false; // Retorna false si hay un error
+      return false;
     } else {
-      // Elimina el médico de la lista localmente después de una eliminación exitosa
       medicos.value = medicos.value.filter((medico) => medico.id !== id);
-      return true; // Retorna true si se eliminó correctamente
+      return true;
+    }
+  }
+  //
+  //
+  //
+  // Función para actualizar un médico en la base de datos de Supabase
+  async function actualizarMedico(medico) {
+    if (!medico.id) {
+      console.error("Error: el ID del médico es indefinido.");
+      return false;
+    }
+    const { data, error } = await supabase
+      .from("medicos")
+      .update({
+        nombre: medico.nombre,
+        direccion: medico.direccion,
+        especialidadId: medico.especialidadId,
+        telefonoCasa: medico.telefonoCasa,
+        email: medico.email,
+      })
+      .eq("id", medico.id);
+
+    if (error) {
+      console.error("Error al actualizar médico:", error.message);
+      return false;
+    } else if (data && data.length > 0) {
+      // Actualiza el médico en la lista localmente
+      const index = medicos.value.findIndex((item) => item.id === medico.id);
+      if (index !== -1) {
+        medicos.value[index] = data[0];
+      }
+      return true;
     }
   }
 
@@ -52,6 +85,7 @@ export const useMedicoStore = defineStore("medicoStore", () => {
     medicos,
     agregarMedico,
     cargarMedicos,
-    eliminarMedico, // Exporta la función eliminarMedico
+    eliminarMedico,
+    actualizarMedico,
   };
 });
