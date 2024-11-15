@@ -21,9 +21,7 @@
       <!-- Pestaña: Clasificación de Diagnósticos -->
       <q-tab-panel name="ClasificacionDiagnosticos">
         <q-col cols="3">
-          <q-card
-            class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card"
-          >
+          <q-card class="q-pa-sm bg-grey-1 formS rounded shadow-2xl wide-card">
             <q-card-section class="text-h6 text-primary">
               Clasificación de Diagnósticos
             </q-card-section>
@@ -62,7 +60,7 @@
       <!-- Pestaña: Diagnósticos -->
       <q-tab-panel name="Diagnosticos">
         <q-col cols="3">
-          <q-card class="q-pa-sm bg-grey-1 rounded shadow-2xl">
+          <q-card class="q-pa-sm bg-grey-1 formS rounded shadow-2xl">
             <q-card-section class="text-h6 text-primary"
               >Diagnósticos</q-card-section
             >
@@ -86,35 +84,35 @@
                 :error="!!formErrors.diagnosticoClasificacion"
                 :error-message="formErrors.diagnosticoClasificacion"
               />
-              <div class="row justify-end q-mt-md">
+              <div class="row justify-end q-mt-md q-ml-xl q-mr-xl">
                 <q-btn
                   label="Crear"
                   color="primary"
                   icon="add"
                   @click="guardarDiagnostico"
+                  class="q-mr-sm"
                 />
                 <q-btn
                   label="Eliminar último agregado"
                   color="negative"
                   icon="delete"
                   @click="eliminarUltimoDiagnostico"
-                  class="q-ml-sm"
                 />
               </div>
             </q-form>
           </q-card>
         </q-col>
         <q-col cols="9">
-          <q-card class="q-pa-md q-mt-md bg-grey-1 rounded shadow-2xl">
+          <div>
             <ListadoDiagnosticos />
-          </q-card>
+          </div>
         </q-col>
       </q-tab-panel>
 
       <!-- Pestaña: Controles de Medición -->
       <q-tab-panel name="ControlesMedicion">
         <q-col cols="3">
-          <q-card class="q-pa-sm bg-grey-1 rounded shadow-2xl">
+          <q-card class="q-pa-sm formS bg-grey-1 rounded shadow-2xl">
             <q-card-section class="text-h6 text-primary"
               >Controles de Medición</q-card-section
             >
@@ -127,7 +125,7 @@
                 :error="!!formErrors.controlDescripcion"
                 :error-message="formErrors.controlDescripcion"
               />
-              <div class="row justify-end q-mt-md">
+              <div class="row justify-end q-mt-md q-ml-xl q-mr-xl">
                 <q-btn
                   label="Crear"
                   color="primary"
@@ -146,9 +144,11 @@
           </q-card>
         </q-col>
         <q-col cols="9">
-          <q-card class="q-pa-md q-mt-md bg-grey-1 rounded shadow-2xl">
+          <div>
+            <!-- <q-card class="q-pa-md t bg-grey-1 rounded shadow-2xl"> -->
             <ListadoControlMedicion />
-          </q-card>
+            <!-- </q-card> -->
+          </div>
         </q-col>
       </q-tab-panel>
     </q-tab-panels>
@@ -318,5 +318,14 @@ const tab = ref("ClasificacionDiagnosticos");
 
 .text-primary {
   color: #1976d2;
+}
+.formS {
+  border-top-left-radius: 40px;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 30px;
+  border-bottom-left-radius: 25px;
+}
+.t {
+  margin-top: 25px;
 }
 </style>

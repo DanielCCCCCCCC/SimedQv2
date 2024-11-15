@@ -63,6 +63,7 @@ export const useMunicipioStore = defineStore("municipios", () => {
     const { data, error } = await supabase
       .from("municipios")
       .select("*")
+
       .order("created_at", { ascending: true });
 
     if (error) {
@@ -119,6 +120,7 @@ export const useGrupoSanguineoStore = defineStore("grupoSanguineo", () => {
     const { data, error } = await supabase
       .from("grupoSanguineo")
       .select("*")
+
       .order("created_at", { ascending: true });
 
     if (error) {
@@ -131,6 +133,7 @@ export const useGrupoSanguineoStore = defineStore("grupoSanguineo", () => {
   const agregarGrupoSanguineo = async (descripcion) => {
     const { data, error } = await supabase
       .from("grupoSanguineo")
+
       .insert([{ descripcion, tenant_id: tenantId }]);
 
     if (error) {
@@ -171,6 +174,7 @@ export const useEscolaridadStore = defineStore("escolaridad", () => {
     const { data, error } = await supabase
       .from("escolaridad")
       .select("*")
+
       .order("created_at", { ascending: true });
 
     if (error) {
@@ -218,6 +222,7 @@ export const useEstadoCivilStore = defineStore("estadoCivil", () => {
     const { data, error } = await supabase
       .from("estadoCivil")
       .select("*")
+
       .order("created_at", { ascending: true });
 
     if (error) {

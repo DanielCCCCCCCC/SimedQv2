@@ -158,8 +158,9 @@ const eliminarMedicamento = (medicamentoCodigo) => {
 <style scoped>
 #app-container {
   padding: 0 4px;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   width: 100%;
+  margin-bottom: -1px;
 }
 
 .custom-data-grid {

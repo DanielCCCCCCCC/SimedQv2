@@ -9,10 +9,7 @@ export const useContactStore = defineStore("contactStore", () => {
   // Cargar contactos desde la base de datos
   const cargarContactos = async () => {
     try {
-      const { data, error } = await supabase
-        .from("contactos")
-        .select("*")
-        .eq("tenant_Id", tenantId);
+      const { data, error } = await supabase.from("contactos").select("*");
 
       if (error) {
         console.error("Error al cargar contactos:", error.message);

@@ -36,7 +36,9 @@
     <q-tab-panels v-model="tab" animated swipeable>
       <!-- Panel para Especialidades Médicas -->
       <q-tab-panel name="Especialidades Médicas">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+        <q-card
+          class="q-pa-sm q-mt-md formS bg-grey-1 rounded shadow-2xl wide-card"
+        >
           <q-card-section class="text-h6 text-primary"
             >Especialidades Médicas</q-card-section
           >
@@ -71,7 +73,9 @@
 
       <!-- Panel para Tipos de Estudios -->
       <q-tab-panel name="Tipos de Estudios">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+        <q-card
+          class="q-pa-sm q-mt-md bg-grey-1 formS rounded shadow-2xl wide-card"
+        >
           <q-card-section class="text-h6 text-primary"
             >Tipos de Estudios</q-card-section
           >
@@ -106,7 +110,9 @@
 
       <!-- Panel para Tipos de Medicamentos -->
       <q-tab-panel name="Tipos de Medicamentos">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+        <q-card
+          class="q-pa-sm q-mt-md bg-grey-1 formS rounded shadow-2xl wide-card"
+        >
           <q-card-section class="text-h6 text-primary"
             >Tipos de Medicamentos</q-card-section
           >
@@ -141,7 +147,9 @@
 
       <!-- Panel para Tipos de Pacientes -->
       <q-tab-panel name="Tipos de Pacientes">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+        <q-card
+          class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl formS wide-card"
+        >
           <q-card-section class="text-h6 text-primary"
             >Tipos de Pacientes</q-card-section
           >
@@ -176,7 +184,9 @@
 
       <!-- Panel para Grupos de Contactos -->
       <q-tab-panel name="Grupos de Contactos">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+        <q-card
+          class="q-pa-sm q-mt-md bg-grey-1 rounded formS shadow-2xl wide-card"
+        >
           <q-card-section class="text-h6 text-primary"
             >Grupos de Contactos</q-card-section
           >
@@ -209,7 +219,9 @@
 
       <!-- Panel para Tipos de Citas -->
       <q-tab-panel name="Tipos de Citas">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+        <q-card
+          class="q-pa-sm q-mt-md bg-grey-1 rounded formS shadow-2xl wide-card"
+        >
           <q-card-section class="text-h6 text-primary"
             >Tipos de Citas</q-card-section
           >
@@ -237,7 +249,9 @@
             </div>
           </q-form>
         </q-card>
-        <ListadoTiposCitas />
+        <div>
+          <ListadoTiposCitas />
+        </div>
       </q-tab-panel>
     </q-tab-panels>
   </q-page>
@@ -467,5 +481,11 @@ const eliminarCita = async () => {
 
 .text-primary {
   color: #1976d2;
+}
+.formS {
+  border-top-left-radius: 40px;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 30px;
+  border-bottom-left-radius: 25px;
 }
 </style>

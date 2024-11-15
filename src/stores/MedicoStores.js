@@ -5,10 +5,14 @@ import { supabase } from "../supabaseClient"; // Asegúrate de tener configurado
 
 export const useMedicoStore = defineStore("medicoStore", () => {
   const medicos = ref([]);
+  const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"; // Reemplaza con tu tenant ID
 
   // Función para cargar médicos desde Supabase
   async function cargarMedicos() {
-    const { data, error } = await supabase.from("medicos").select("*");
+    const { data, error } = await supabase
+      .from("medicos")
+      .select("*")
+      .eq("tenant_Id", tenantId); // Filtra por el tenant_Id
     if (error) {
       console.error("Error al cargar médicos:", error.message);
     } else {
@@ -19,8 +23,6 @@ export const useMedicoStore = defineStore("medicoStore", () => {
 
   // Función para agregar un médico a la base de datos de Supabase
   async function agregarMedico(medico) {
-    const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"; // Reemplaza con tu tenant ID
-
     const { data, error } = await supabase
       .from("medicos")
       .insert([{ ...medico, tenant_Id: tenantId }]);

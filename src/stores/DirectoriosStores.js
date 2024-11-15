@@ -29,7 +29,6 @@ export const useHospitalStore = defineStore("hospitalStore", () => {
       const { data, error } = await supabase
         .from("hospitales")
         .select("*")
-        .eq("tenant_Id", tenantId) // Filtra por el tenant_Id
         .order("created_at", { ascending: true });
 
       if (error) {
@@ -97,6 +96,7 @@ export const useMedicamentoStore = defineStore("medicamentoStore", () => {
 
         .from("medicamentos")
         .select("*")
+
         .order("created_at", { ascending: true });
       if (error) {
         console.error("Error al cargar hospitales:", error);
@@ -167,6 +167,7 @@ export const useEstudioStore = defineStore("examenesEstudios", () => {
 
         .from("examenesEstudios")
         .select("*")
+
         .eq("tenant_id", tenantId)
         .order("created_at", { ascending: true });
 

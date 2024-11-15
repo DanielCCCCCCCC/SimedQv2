@@ -141,7 +141,7 @@ onMounted(async () => {
   await diagnosticoStore.cargarDiagnosticos();
 });
 </script>
-
+<!--
 <style scoped>
 #app-container {
   padding: 0 4px;
@@ -163,7 +163,6 @@ onMounted(async () => {
   text-align: center;
 }
 
-/* Estilos de tarjeta para vista móvil */
 .card-container {
   display: flex;
   flex-direction: column;
@@ -189,4 +188,4 @@ onMounted(async () => {
   gap: 8px;
   margin-top: 12px;
 }
-</style>
+</style> -->

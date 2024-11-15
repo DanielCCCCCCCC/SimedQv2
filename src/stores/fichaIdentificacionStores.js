@@ -14,6 +14,7 @@ export const useFichaIdentificacionStore = defineStore(
       const { data, error } = await supabase
         .from("fichaIdentificacion")
         .select("*")
+
         .order("created_at", { ascending: true });
 
       if (error) {

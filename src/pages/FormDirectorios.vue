@@ -16,7 +16,9 @@
     <q-tab-panels v-model="tab" animated swipeable>
       <!-- Pestaña: Hospitales -->
       <q-tab-panel name="Hospitales">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+        <q-card
+          class="q-pa-sm q-mt-md bg-grey-1 rounded formS shadow-2xl wide-card"
+        >
           <q-card-section class="text-h6 text-primary"
             >Hospitales</q-card-section
           >
@@ -123,7 +125,9 @@
 
       <!-- Pestaña: Medicamentos y Otros -->
       <q-tab-panel name="Medicamentos">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+        <q-card
+          class="q-pa-sm q-mt-md bg-grey-1 rounded formS shadow-2xl wide-card"
+        >
           <q-card-section class="text-h6 text-primary"
             >Medicamentos y Otros</q-card-section
           >
@@ -229,7 +233,9 @@
 
       <!-- Pestaña: Exámenes y Estudios -->
       <q-tab-panel name="Estudios">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+        <q-card
+          class="q-pa-sm q-mt-md bg-grey-1 rounded formS shadow-2xl wide-card"
+        >
           <q-card-section class="text-h6 text-primary"
             >Exámenes y Estudios</q-card-section
           >
@@ -762,9 +768,16 @@ const guardarEstudio = async () => {
   max-width: 1800px;
   width: 100%;
   margin: 50px auto;
+  margin-top: -40px;
 }
 
 .text-primary {
   color: #1976d2;
+}
+.formS {
+  border-top-left-radius: 40px;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 30px;
+  border-bottom-left-radius: 25px;
 }
 </style>

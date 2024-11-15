@@ -10,11 +10,10 @@
       />
       <div class="header-info">
         <div class="name-container">
-          <p id="titulo" v-if="!isEditable">
-            {{ form.nombres }} {{ form.apellidos }}
-          </p>
+          <p id="titulo">{{ form.nombres }} {{ form.apellidos }}</p>
+          <p v-if="!isEditable"></p>
           <div v-else>
-            <q-input
+            <!-- <q-input
               v-model="form.nombres"
               label="Nombre"
               outlined
@@ -27,7 +26,7 @@
               outlined
               dense
               :rules="[(val) => !!val || 'Este campo es obligatorio']"
-            />
+            /> -->
           </div>
         </div>
         <span
@@ -253,6 +252,9 @@
         :disable="!isFormValid"
       />
     </div>
+  </div>
+  <div class="p">
+    <p>@Dios te bendiga</p>
   </div>
 </template>
 <script>
@@ -533,5 +535,12 @@ export default {
   border: none;
   font-size: 24px;
   cursor: pointer;
+}
+.p {
+  margin-top: 15px;
+  margin-right: 5px;
+  font-size: 10px;
+  text-align: right;
+  color: darkred;
 }
 </style>

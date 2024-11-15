@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { supabase } from "../supabaseClient";
+const tenantId = "a780935f-76e7-46c7-98a3-b4c3ab9bb2c3"; // Tenant fijo
 
 export const useAppointmentsStore = defineStore("appointments", {
   state: () => ({

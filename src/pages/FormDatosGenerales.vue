@@ -45,7 +45,7 @@
               <!-- Subpanel para Departamento -->
               <q-tab-panel name="Departamento">
                 <q-card
-                  class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card"
+                  class="q-pa-sm q-mt-md formS bg-grey-1 rounded shadow-2xl wide-card"
                 >
                   <q-card-section class="text-h6 text-primary">
                     Departamento
@@ -84,7 +84,7 @@
               <!-- Subpanel para Municipio -->
               <q-tab-panel name="Municipio">
                 <q-card
-                  class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card"
+                  class="q-pa-sm formS q-mt-md bg-grey-1 rounded shadow-2xl wide-card"
                 >
                   <q-card-section class="text-h6 text-primary">
                     Municipio
@@ -138,7 +138,9 @@
 
       <!-- Panel para Grupo Sanguíneo -->
       <q-tab-panel name="Grupo Sanguíneo">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+        <q-card
+          class="formS q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card"
+        >
           <q-card-section class="text-h6 text-primary">
             Grupo Sanguíneo
           </q-card-section>
@@ -175,7 +177,9 @@
 
       <!-- Panel para Escolaridad -->
       <q-tab-panel name="Escolaridad">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+        <q-card
+          class="formS q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card"
+        >
           <q-card-section class="text-h6 text-primary">
             Escolaridad
           </q-card-section>
@@ -212,7 +216,9 @@
 
       <!-- Panel para Estado Civil -->
       <q-tab-panel name="Estado Civil">
-        <q-card class="q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card">
+        <q-card
+          class="formS q-pa-sm q-mt-md bg-grey-1 rounded shadow-2xl wide-card"
+        >
           <q-card-section class="text-h6 text-primary">
             Estado Civil
           </q-card-section>
@@ -559,5 +565,11 @@ const subTab = ref("Departamento");
 
 .text-primary {
   color: #1976d2;
+}
+.formS {
+  border-top-left-radius: 40px;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 30px;
+  border-bottom-left-radius: 25px;
 }
 </style>

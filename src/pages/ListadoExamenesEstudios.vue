@@ -171,6 +171,7 @@ onMounted(async () => {
   font-weight: bold;
   color: #333;
   text-align: center;
+  margin-bottom: -1px;
 }
 
 /* Estilos de tarjeta para vista móvil */
@@ -192,6 +193,7 @@ onMounted(async () => {
 .estudio-card h5 {
   margin: 0 0 8px;
   font-size: 1.2em;
+  margin-top: 200px;
 }
 
 .card-actions {
